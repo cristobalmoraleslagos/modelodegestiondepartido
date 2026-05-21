@@ -2,7 +2,7 @@ import { useState, type ReactNode, type FormEvent } from 'react'
 import {
   BarChart2, Heart, Users, Receipt, Building2, PieChart,
   Gift, Calculator, TrendingUp, Shield, Package,
-  AlertTriangle, CheckCircle, UserX, DollarSign,
+  AlertTriangle, CheckCircle, UserX, DollarSign, ClipboardList,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
@@ -17,6 +17,7 @@ import ModuloRetenciones from './components/ModuloRetenciones'
 import ModuloFlujoCaja from './components/ModuloFlujoCaja'
 import ModuloConflictos from './components/ModuloConflictos'
 import ModuloActivos from './components/ModuloActivos'
+import ModuloCargaDatos from './components/ModuloCargaDatos'
 import { fmt, APORTE_ESTATAL_ANUAL } from './utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -25,7 +26,7 @@ type Tab =
   | 'presupuesto' | 'genero' | 'personal'
   | 'egresos' | 'conciliacion' | 'ejecucion'
   | 'donaciones' | 'retenciones' | 'flujo'
-  | 'conflictos' | 'activos'
+  | 'conflictos' | 'activos' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -41,9 +42,10 @@ const NAV: NavItem[] = [
   { id: 'ejecucion',    label: 'Ejecución Ppto.',      icon: <PieChart size={18} />,    group: 'Control' },
   { id: 'flujo',        label: 'Flujo de Caja',        icon: <TrendingUp size={18} />,  group: 'Control' },
   { id: 'activos',      label: 'Activos Fijos',        icon: <Package size={18} />,     group: 'Control' },
+  { id: 'datos',        label: 'Carga de Datos',       icon: <ClipboardList size={18} />, group: 'Sistema' },
 ]
 
-const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control']
+const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Sistema']
 
 // ─── Mock data (módulos inline) ───────────────────────────────────────────────
 
@@ -292,6 +294,7 @@ const TITLES: Record<Tab, string> = {
   flujo: 'Flujo de Caja Proyectado',
   conflictos: 'Declaraciones de Conflicto de Interés',
   activos: 'Inventario de Activos Fijos',
+  datos: 'Carga de Datos Reales',
 }
 
 export default function App() {
@@ -317,6 +320,7 @@ export default function App() {
           {tab === 'flujo'        && <ModuloFlujoCaja />}
           {tab === 'conflictos'   && <ModuloConflictos />}
           {tab === 'activos'      && <ModuloActivos />}
+          {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>
     </div>
