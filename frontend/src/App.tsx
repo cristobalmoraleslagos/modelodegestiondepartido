@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode, type FormEvent } from 'react'
 import {
   BarChart2, Heart, Users, Receipt, Building2, PieChart,
   Gift, Calculator, TrendingUp, Shield, Package,
@@ -17,7 +17,7 @@ import ModuloRetenciones from './components/ModuloRetenciones'
 import ModuloFlujoCaja from './components/ModuloFlujoCaja'
 import ModuloConflictos from './components/ModuloConflictos'
 import ModuloActivos from './components/ModuloActivos'
-import { fmt, VALOR_UF, APORTE_ESTATAL_ANUAL } from './utils'
+import { fmt, APORTE_ESTATAL_ANUAL } from './utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ type Tab =
   | 'donaciones' | 'retenciones' | 'flujo'
   | 'conflictos' | 'activos'
 
-interface NavItem { id: Tab; label: string; icon: React.ReactNode; group: string }
+interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
 const NAV: NavItem[] = [
   { id: 'presupuesto',  label: 'Presupuesto',         icon: <BarChart2 size={18} />,   group: 'Ingresos' },
@@ -74,7 +74,7 @@ const FUNCIONARIOS_INIT: Funcionario[] = [
 
 // ─── Inline sub-components ────────────────────────────────────────────────────
 
-function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub?: string }) {
+function StatCard({ icon, label, value, sub }: { icon: ReactNode; label: string; value: string; sub?: string }) {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm flex items-start gap-4">
       <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">{icon}</div>
@@ -173,7 +173,7 @@ function ModuloPersonal() {
   const sueldoTotal = funcionarios.filter(f => f.activo).reduce((s, f) => s + parseInt(f.sueldo || '0'), 0)
   const pctSueldo = Math.round((sueldoTotal / PRESUPUESTO_SUELDOS) * 100)
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const p = parentescos[form.rut]
     if (p) { setBlocked(`CONTRATACIÓN RECHAZADA: Infracción al Art. 39 bis de la Ley 18.603. El RUT ${form.rut} es ${p.grado} de ${p.directivo}, miembro de la Directiva Central.`); return }
@@ -183,7 +183,7 @@ function ModuloPersonal() {
   type K = keyof ReturnType<typeof emptyForm>
   const inp = (k: K, t = 'text', ph = '') => <input type={t} placeholder={ph} value={form[k] as string} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
   const sel = (k: K, opts: string[]) => <select value={form[k] as string} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">{opts.map(o => <option key={o}>{o}</option>)}</select>
-  const field = (label: string, node: React.ReactNode) => <div className="flex flex-col gap-1"><label className="text-xs font-medium text-slate-600">{label}</label>{node}</div>
+  const field = (label: string, node: ReactNode) => <div className="flex flex-col gap-1"><label className="text-xs font-medium text-slate-600">{label}</label>{node}</div>
 
   return (
     <div className="space-y-6">
