@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Trash2, Plus, CheckCircle, Save, Database } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Trash2, Plus, CheckCircle, Save, Download, Upload, RefreshCw, Zap } from 'lucide-react'
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -20,6 +20,12 @@ interface ColDef {
   width?: string
 }
 
+function parseCSV(text: string): string[][] {
+  return text.trim().split('\n').map(line =>
+    line.split(/,|;/).map(c => c.trim().replace(/^"|"$/g, ''))
+  )
+}
+
 function EditableTable({ storageKey, cols, empty }: {
   storageKey: string
   cols: ColDef[]
@@ -28,6 +34,8 @@ function EditableTable({ storageKey, cols, empty }: {
   const [rows, setRows] = useState<Row[]>(() => load(storageKey, []))
   const [form, setForm] = useState<Row>({ ...empty })
   const [flash, setFlash] = useState(false)
+  const [csvMsg, setCsvMsg] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const mutate = (next: Row[]) => { setRows(next); persist(storageKey, next) }
   const add = () => {
@@ -36,6 +44,41 @@ function EditableTable({ storageKey, cols, empty }: {
     setFlash(true); setTimeout(() => setFlash(false), 2000)
   }
   const del = (i: number) => mutate(rows.filter((_, idx) => idx !== i))
+
+  // CSV export
+  const exportCSV = () => {
+    const header = cols.map(c => c.label).join(',')
+    const body = rows.map(r => cols.map(c => `"${r[c.key] ?? ''}"`).join(',')).join('\n')
+    const blob = new Blob([header + '\n' + body], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `${storageKey}.csv`; a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // CSV import — maps by column position (header row optional)
+  const importCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const text = ev.target?.result as string
+      const matrix = parseCSV(text)
+      // detect if first row is headers
+      const firstRow = matrix[0]
+      const hasHeader = cols.some(c => firstRow.some(h => h.toLowerCase().includes(c.key.toLowerCase()) || h.toLowerCase().includes(c.label.toLowerCase().split(' ')[0])))
+      const dataRows = hasHeader ? matrix.slice(1) : matrix
+      const imported: Row[] = dataRows.filter(r => r.some(c => c)).map(r => {
+        const obj: Row = { ...empty }
+        cols.forEach((c, i) => { if (r[i] !== undefined) obj[c.key] = r[i] })
+        return obj
+      })
+      const merged = [...rows, ...imported]
+      mutate(merged)
+      setCsvMsg(`${imported.length} filas importadas.`)
+      setTimeout(() => setCsvMsg(''), 3000)
+    }
+    reader.readAsText(file, 'UTF-8')
+    e.target.value = ''
+  }
 
   const cols4 = Math.min(cols.length, 4)
   const baseInput = 'border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400 w-full'
@@ -98,16 +141,22 @@ function EditableTable({ storageKey, cols, empty }: {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
           <button onClick={add}
             className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
-            <Plus size={13} /> Agregar
+            <Plus size={13} /> Agregar fila
           </button>
-          {flash && (
-            <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-              <CheckCircle size={13} /> Guardado
-            </span>
-          )}
+          <button onClick={exportCSV}
+            className="flex items-center gap-1.5 border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium px-3 py-2 rounded-lg transition-colors bg-white">
+            <Download size={13} /> Exportar CSV
+          </button>
+          <button onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-1.5 border border-indigo-200 hover:border-indigo-400 text-indigo-600 text-xs font-medium px-3 py-2 rounded-lg transition-colors bg-white">
+            <Upload size={13} /> Importar CSV
+          </button>
+          <input ref={fileRef} type="file" accept=".csv,.txt" className="hidden" onChange={importCSV} />
+          {flash && <span className="flex items-center gap-1 text-xs text-green-600 font-medium"><CheckCircle size={13} /> Guardado</span>}
+          {csvMsg && <span className="flex items-center gap-1 text-xs text-indigo-600 font-medium"><CheckCircle size={13} /> {csvMsg}</span>}
         </div>
       </div>
     </div>
@@ -130,19 +179,95 @@ const CFG_FIELDS: { key: keyof Cfg; label: string; hint: string; num: boolean }[
 function SeccionConfig() {
   const [cfg, setCfg] = useState<Cfg>(() => load('cfp_config', CFG_DEF))
   const [flash, setFlash] = useState(false)
+  const [ufLoading, setUfLoading] = useState(false)
+  const [ufMsg, setUfMsg] = useState('')
+
   const save = () => { persist('cfp_config', cfg); setFlash(true); setTimeout(() => setFlash(false), 2000) }
+
+  // Auto-fetch UF from mindicador.cl (free, no key needed)
+  const fetchUF = async () => {
+    setUfLoading(true); setUfMsg('')
+    try {
+      const res = await fetch('https://mindicador.cl/api/uf')
+      const data = await res.json() as { serie: { fecha: string; valor: number }[] }
+      const valor = data.serie[0].valor
+      const fecha = data.serie[0].fecha.slice(0, 10)
+      setCfg(c => ({ ...c, valorUF: String(Math.round(valor)) }))
+      setUfMsg(`UF al ${fecha}: $${valor.toLocaleString('es-CL')}`)
+    } catch {
+      setUfMsg('Error al consultar. Verifique conexión.')
+    } finally {
+      setUfLoading(false)
+    }
+  }
+
+  // Auto-fill mes actual
+  const autoMes = () => setCfg(c => ({ ...c, mesActual: String(new Date().getMonth() + 1) }))
+
   return (
     <div className="max-w-xl space-y-5">
-      {CFG_FIELDS.map(f => (
-        <div key={f.key}>
-          <label className="text-sm font-medium text-slate-700 block mb-1">{f.label}</label>
-          <input type={f.num ? 'number' : 'text'}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            value={cfg[f.key]}
-            onChange={e => setCfg(c => ({ ...c, [f.key]: e.target.value }))} />
-          <p className="text-xs text-slate-400 mt-0.5">{f.hint}</p>
+      {/* UF con botón automático */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1">Nombre del partido</label>
+        <input type="text"
+          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          value={cfg.nombrePartido}
+          onChange={e => setCfg(c => ({ ...c, nombrePartido: e.target.value }))} />
+        <p className="text-xs text-slate-400 mt-0.5">Nombre legal completo tal como figura en SERVEL</p>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1">Valor UF vigente (CLP)</label>
+        <div className="flex gap-2">
+          <input type="number"
+            className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={cfg.valorUF}
+            onChange={e => setCfg(c => ({ ...c, valorUF: e.target.value }))} />
+          <button onClick={fetchUF} disabled={ufLoading}
+            className="flex items-center gap-1.5 border border-green-300 hover:border-green-500 bg-green-50 hover:bg-green-100 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl transition-colors whitespace-nowrap disabled:opacity-50">
+            {ufLoading ? <RefreshCw size={13} className="animate-spin" /> : <Zap size={13} />}
+            Obtener automáticamente
+          </button>
         </div>
-      ))}
+        {ufMsg
+          ? <p className="text-xs text-green-600 mt-0.5 font-medium">{ufMsg}</p>
+          : <p className="text-xs text-slate-400 mt-0.5">Fuente: mindicador.cl — actualizar diariamente</p>
+        }
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1">Mes en curso (1–12)</label>
+        <div className="flex gap-2">
+          <input type="number"
+            className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={cfg.mesActual}
+            onChange={e => setCfg(c => ({ ...c, mesActual: e.target.value }))} />
+          <button onClick={autoMes}
+            className="flex items-center gap-1.5 border border-green-300 hover:border-green-500 bg-green-50 hover:bg-green-100 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl transition-colors whitespace-nowrap">
+            <Zap size={13} /> Auto
+          </button>
+        </div>
+        <p className="text-xs text-slate-400 mt-0.5">Controla alertas de sobre-ejecución y ejecución esperada</p>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1">Aporte estatal anual (CLP)</label>
+        <input type="number"
+          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          value={cfg.aporteEstatal}
+          onChange={e => setCfg(c => ({ ...c, aporteEstatal: e.target.value }))} />
+        <p className="text-xs text-slate-400 mt-0.5">Según resolución SERVEL. Determina cuota del Fondo de Género</p>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1">Saldo disponible hoy (CLP)</label>
+        <input type="number"
+          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          value={cfg.saldoInicial}
+          onChange={e => setCfg(c => ({ ...c, saldoInicial: e.target.value }))} />
+        <p className="text-xs text-slate-400 mt-0.5">Cuenta corriente operacional al cierre del día anterior</p>
+      </div>
+
       <div className="flex items-center gap-3 pt-1">
         <button onClick={save}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors">
@@ -364,7 +489,7 @@ export default function ModuloCargaDatos() {
         </div>
         <button onClick={exportAll}
           className="w-full flex items-center justify-center gap-2 border border-slate-200 hover:border-indigo-300 text-slate-500 hover:text-indigo-600 text-xs font-medium py-2.5 rounded-xl bg-white transition-colors">
-          <Database size={13} /> Exportar JSON
+          <Download size={13} /> Exportar JSON
         </button>
       </div>
 
