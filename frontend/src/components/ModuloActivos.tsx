@@ -97,7 +97,7 @@ export default function ModuloActivos() {
                   <Cell key={i} fill={COLORES[entry.name as Activo['categoria']] || '#94a3b8'} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v: number) => fmt(v)} />
+              <Tooltip formatter={(v) => fmt(Number(v))} />
               <Legend iconSize={10} />
             </PieChart>
           </ResponsiveContainer>

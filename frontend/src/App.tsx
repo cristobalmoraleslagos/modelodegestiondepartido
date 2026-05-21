@@ -103,7 +103,7 @@ function ModuloPresupuesto() {
           <BarChart data={presupuestoData} margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
             <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
             <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(v: number) => fmt(v)} />
+            <Tooltip formatter={(v) => fmt(Number(v))} />
             <Legend />
             <Bar dataKey="estatal" name="Estatal" fill="#6366f1" radius={[4, 4, 0, 0]} />
             <Bar dataKey="cotizaciones" name="Cotizaciones" fill="#22d3ee" radius={[4, 4, 0, 0]} />

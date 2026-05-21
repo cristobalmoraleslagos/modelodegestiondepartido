@@ -109,7 +109,7 @@ export default function ModuloEjecucion() {
           <BarChart data={chartData} margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
             <XAxis dataKey="item" tick={{ fontSize: 11 }} />
             <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 11 }} />
-            <Tooltip formatter={(v: number) => fmt(v)} />
+            <Tooltip formatter={(v) => fmt(Number(v))} />
             <Legend />
             <Bar dataKey="Presupuesto" fill="#e0e7ff" radius={[4, 4, 0, 0]} />
             <Bar dataKey="Ejecutado" fill="#6366f1" radius={[4, 4, 0, 0]} />
