@@ -256,6 +256,39 @@ export default function ModuloConflictos() {
           </div>
         </div>
       )}
+
+      {/* Entidades con vínculos declarados — Módulo 20 SERVEL */}
+      <div className="bg-white rounded-2xl shadow-sm">
+        <div className="p-5 border-b border-slate-100">
+          <h2 className="text-base font-semibold text-slate-800">Entidades con Participación o Representación</h2>
+          <p className="text-xs text-slate-500 mt-1">Fuente: SERVEL PP007 — Módulo 20 Entidades, declaración actualizada · Ley 18.603 Art. 33 letra h)</p>
+        </div>
+        <div className="p-5">
+          {/* Única entidad declarada */}
+          <div className="border border-slate-200 rounded-xl p-4 space-y-2">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="font-semibold text-slate-800">Foro de São Paulo</p>
+                <p className="text-xs text-slate-500">Tipo de vínculo: Participación</p>
+              </div>
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Vínculo indefinido</span>
+            </div>
+            <p className="text-sm text-slate-600">
+              El Partido Comunista de Chile participa en una coordinación de partidos políticos de izquierda, progresistas y democráticos de América Latina y el Caribe, desde julio de 1990.
+            </p>
+            <div className="flex items-center gap-6 text-xs text-slate-500">
+              <span>Inicio: 01/07/1990</span>
+              <span>Término: 31/12/2029</span>
+              <a href="https://forodesaopaulo.org/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+                forodesaopaulo.org →
+              </a>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-3">
+            Nota: Solo 1 entidad declarada. Sin vínculos con organismos con ánimo de lucro ni entidades financieras según declaración SERVEL vigente.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

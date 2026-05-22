@@ -18,6 +18,7 @@ import ModuloFlujoCaja from './components/ModuloFlujoCaja'
 import ModuloConflictos from './components/ModuloConflictos'
 import ModuloActivos from './components/ModuloActivos'
 import ModuloCargaDatos from './components/ModuloCargaDatos'
+import ModuloAfiliados from './components/ModuloAfiliados'
 import { fmt, APORTE_ESTATAL_ANUAL } from './utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -26,7 +27,7 @@ type Tab =
   | 'presupuesto' | 'genero' | 'personal'
   | 'egresos' | 'conciliacion' | 'ejecucion'
   | 'donaciones' | 'retenciones' | 'flujo'
-  | 'conflictos' | 'activos' | 'datos'
+  | 'conflictos' | 'activos' | 'afiliados' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -38,6 +39,7 @@ const NAV: NavItem[] = [
   { id: 'retenciones',  label: 'Retenciones',          icon: <Calculator size={18} />,  group: 'Egresos' },
   { id: 'personal',     label: 'Nómina',               icon: <Users size={18} />,       group: 'Personal' },
   { id: 'conflictos',   label: 'Conflictos de Interés',icon: <Shield size={18} />,      group: 'Personal' },
+  { id: 'afiliados',   label: 'Afiliados',            icon: <Users size={18} />,       group: 'Personal' },
   { id: 'conciliacion', label: 'Conciliación Bancaria',icon: <Building2 size={18} />,   group: 'Control' },
   { id: 'ejecucion',    label: 'Ejecución Ppto.',      icon: <PieChart size={18} />,    group: 'Control' },
   { id: 'flujo',        label: 'Flujo de Caja',        icon: <TrendingUp size={18} />,  group: 'Control' },
@@ -338,6 +340,7 @@ const TITLES: Record<Tab, string> = {
   flujo: 'Flujo de Caja Proyectado',
   conflictos: 'Declaraciones de Conflicto de Interés',
   activos: 'Inventario de Activos Fijos',
+  afiliados: 'Afiliados, Sedes y Sanciones SERVEL',
   datos: 'Carga de Datos Reales',
 }
 
@@ -364,6 +367,7 @@ export default function App() {
           {tab === 'flujo'        && <ModuloFlujoCaja />}
           {tab === 'conflictos'   && <ModuloConflictos />}
           {tab === 'activos'      && <ModuloActivos />}
+          {tab === 'afiliados'    && <ModuloAfiliados />}
           {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>
