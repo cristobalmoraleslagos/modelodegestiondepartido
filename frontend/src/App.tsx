@@ -68,13 +68,20 @@ const presupuestoData = [
   { mes: 'Dic', estatal: 18_656_152 +  6_737_738 +  6_249_689, cotizaciones: 0 },
 ]
 
+// Cuota legal 10% del aporte estatal (Ley 20.900 Art. 33)
+// Con aporte estimado 2025 = $1.200M → cuota = $120M
 const CUOTA_GENERO = APORTE_ESTATAL_ANUAL * 0.10
-// Gasto real 2025 Fomento Participación Femenina (fuente: SERVEL 2025-4)
-const GASTO_GENERO = 6_337_464
+// Gasto real Fomento Participación Femenina:
+//   2022 (balance): $19.176.625 de $124M cuota → 15.5% — INCUMPLIMIENTO
+//   2024 (SERVEL CSV): $37.205.715 → 31% de cuota
+//   2025 (SERVEL CSV): $6.337.464 → 5.3% de cuota — ALERTA CRÍTICA
+const GASTO_GENERO = 6_337_464  // año 2025 — actualizar con datos 2026 cuando disponibles
 const pctGenero = Math.round((GASTO_GENERO / CUOTA_GENERO) * 100)
 const generoOk = pctGenero >= 100
 const generoAlerta = pctGenero >= 75 && pctGenero < 100
-const PRESUPUESTO_SUELDOS = 8_500_000
+// Gasto de personal mensual real Q1 2026 (SERVEL): Ene=25.9M · Feb=53.1M · Mar=56.7M
+// Promedio: $45.3M/mes. Presupuesto anual estimado: $480M → mensual ≈ $40M
+const PRESUPUESTO_SUELDOS = 40_000_000
 
 const parentescos: Record<string, { directivo: string; grado: string }> = {
   '11111111-1': { directivo: 'Ana Pérez', grado: 'Cónyuge' },

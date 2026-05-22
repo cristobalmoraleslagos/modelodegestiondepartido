@@ -5,7 +5,7 @@ import { fmt } from '../utils'
 interface Activo {
   codigo: string
   descripcion: string
-  categoria: 'Tecnología' | 'Mobiliario' | 'Vehículos' | 'Equipos AV'
+  categoria: 'Tecnología' | 'Mobiliario' | 'Vehículos' | 'Equipos AV' | 'Inmuebles'
   valorAdquisicion: number
   fechaAdquisicion: string
   vidaUtilAnios: number
@@ -30,21 +30,34 @@ function valorLibro(a: Activo): number {
   return Math.max(a.valorAdquisicion - depreciacion(a), 0)
 }
 
+// ─── Activos reales — fuente: Balance Clasificado SERVEL 2022 ─────────────────
+// Bienes raíces (neto contable 2022): $1.994.234.325
+// Muebles y útiles (neto contable 2022): $194.348.767
+// Depreciación acumulada sobre ambas líneas: -$320.586.917
+// Otros activos no corrientes: $4.345.776.931 (revalorizaciones UF + sedes regionales)
+// Los ítems individuales (TEC, MOB, VEH, AV) deben completarse con inventario físico.
+
 const ACTIVOS: Activo[] = [
+  // ── Inmuebles (fuente: Balance Clasificado 2022 — Bienes Raíces) ─────────
+  { codigo: 'INM-001', descripcion: 'Sede central Vicuña Mackenna #31, Santiago', categoria: 'Inmuebles', valorAdquisicion: 1_994_234_325, fechaAdquisicion: '2000-01-01', vidaUtilAnios: 50, ubicacion: 'Vicuña Mackenna #31, Santiago', estado: 'Operativo' },
+  // ── Muebles y útiles (monto global del balance — inventario pendiente) ───
+  { codigo: 'MOB-GEN', descripcion: 'Muebles y útiles (monto global balance 2022)', categoria: 'Mobiliario', valorAdquisicion: 194_348_767, fechaAdquisicion: '2010-01-01', vidaUtilAnios: 10, ubicacion: 'Sedes y oficinas', estado: 'Operativo' },
+  // ── Vehículos ─────────────────────────────────────────────────────────────
+  { codigo: 'VEH-001', descripcion: 'Citroën Berlingo 2023', categoria: 'Vehículos', valorAdquisicion: 12_500_000, fechaAdquisicion: '2023-05-10', vidaUtilAnios: 5, ubicacion: 'Uso coordinador regional', estado: 'Operativo' },
+  // ── Tecnología ────────────────────────────────────────────────────────────
   { codigo: 'TEC-001', descripcion: 'MacBook Pro 14" M3', categoria: 'Tecnología', valorAdquisicion: 1_890_000, fechaAdquisicion: '2024-03-01', vidaUtilAnios: 3, ubicacion: 'Oficina Central', estado: 'Operativo' },
   { codigo: 'TEC-002', descripcion: 'Servidor NAS Synology', categoria: 'Tecnología', valorAdquisicion: 650_000, fechaAdquisicion: '2023-08-15', vidaUtilAnios: 3, ubicacion: 'Oficina Central', estado: 'Operativo' },
   { codigo: 'TEC-003', descripcion: 'Laptop HP EliteBook', categoria: 'Tecnología', valorAdquisicion: 890_000, fechaAdquisicion: '2022-01-20', vidaUtilAnios: 3, ubicacion: 'Secretaría', estado: 'En mantención' },
-  { codigo: 'MOB-001', descripcion: 'Escritorios ejecutivos (4 unidades)', categoria: 'Mobiliario', valorAdquisicion: 480_000, fechaAdquisicion: '2021-06-01', vidaUtilAnios: 7, ubicacion: 'Oficina Central', estado: 'Operativo' },
-  { codigo: 'MOB-002', descripcion: 'Sillería sala de reuniones', categoria: 'Mobiliario', valorAdquisicion: 320_000, fechaAdquisicion: '2021-06-01', vidaUtilAnios: 7, ubicacion: 'Sala reuniones', estado: 'Operativo' },
-  { codigo: 'VEH-001', descripcion: 'Citroën Berlingo 2023', categoria: 'Vehículos', valorAdquisicion: 12_500_000, fechaAdquisicion: '2023-05-10', vidaUtilAnios: 5, ubicacion: 'Uso coordinador regional', estado: 'Operativo' },
+  // ── Equipos AV ────────────────────────────────────────────────────────────
   { codigo: 'AV-001', descripcion: 'Proyector Epson EB-X51', categoria: 'Equipos AV', valorAdquisicion: 390_000, fechaAdquisicion: '2022-09-01', vidaUtilAnios: 4, ubicacion: 'Sala reuniones', estado: 'Operativo' },
   { codigo: 'AV-002', descripcion: 'Sistema de audio portátil', categoria: 'Equipos AV', valorAdquisicion: 280_000, fechaAdquisicion: '2023-11-01', vidaUtilAnios: 4, ubicacion: 'Eventos', estado: 'Operativo' },
 ]
 
 const COLORES: Record<Activo['categoria'], string> = {
+  'Inmuebles':  '#8b5cf6',
   'Tecnología': '#6366f1',
   'Mobiliario': '#22d3ee',
-  'Vehículos': '#f59e0b',
+  'Vehículos':  '#f59e0b',
   'Equipos AV': '#10b981',
 }
 
