@@ -18,27 +18,41 @@ interface Compromiso {
 }
 
 // ─── Datos reales y proyecciones — Fuente: SERVEL Q1 2026 ────────────────────
-// Prom. egreso operacional Q1 2026: ~69.5 M/mes → ~17.4 M/semana
-// (Personal 45.3M + Bienes 7.5M + OtrosAdmin 13.3M + Fin 1.6M) / 4 sem
-// Ingresos: estimados en base a transferencias y aporte estatal histórico
-// Saldo inicial: estimado en base a balance 2025 — actualizar con cartola real
+// Fuente: portaltransparencia.cl — PP007 PCCh, Módulo 11 Ingresos Q1 2026
+//
+// INGRESOS REALES Q1 2026 (SERVEL):
+//   Enero:    $107.3M (cuotas $11M + patrimonio $28.4M + cheque caja $67.9M)
+//   Febrero:  $176.4M (cuotas $7.6M + patrimonio $8.5M + aporte estatal $134.4M + transf. $26M)
+//   Marzo:     $32.5M (cuotas $14.1M + patrimonio $18.4M)
+//   Total Q1: $316.2M
+//
+// NOTA: El aporte estatal de $134.4M se recibe en Febrero — próximo pago estimado: Agosto 2026
+// Promedio mensual sin aporte estatal: ~$40M/mes (cuotas + patrimonio)
+//
+// EGRESOS REALES PROMEDIO Q1 2026 (base 2024 SERVEL, ajustado):
+//   Personal: ~45.3M/mes · Adq.Bienes: ~7.5M/mes · Otros: ~13.3M/mes → ~66M/mes total
+//
+// Saldo inicial: estimado — reemplazar con cartola bancaria real
+const SALDO_INICIAL = 85_000_000   // estimado — actualizar con saldo real cartola BancoEstado
 
-const SALDO_INICIAL = 85_000_000   // estimado — reemplazar con saldo real de cartola
-
+// Proyección basada en patrón real Q1 2026 SERVEL:
+// - Sin aporte estatal mayo-jul (próximo: agosto ~$134M)
+// - Ingresos recurrentes: cuotas ~$11M/mes + rendimientos patrimonio ~$18M/mes
+// - Egresos: contratos nómina SERVEL Q1 2026 + gastos fijos sede
 const SEMANAS_RAW = [
   // ── Mayo 2026 (semanas restantes) ──────────────────────────────────────────
-  { semana: 'S3 May', ingresos: 22_000_000, egresos: 17_400_000 },
-  { semana: 'S4 May', ingresos:  8_000_000, egresos: 32_000_000 }, // nómina fin de mes
+  { semana: 'S3 May', ingresos: 11_500_000, egresos: 16_500_000 },  // cuotas + patrimonio parcial
+  { semana: 'S4 May', ingresos:  4_500_000, egresos: 28_000_000 },  // pago nómina fin de mes
   // ── Junio 2026 (proyectado) ────────────────────────────────────────────────
-  { semana: 'S1 Jun', ingresos: 60_000_000, egresos: 17_400_000 }, // ingreso aporte
-  { semana: 'S2 Jun', ingresos: 10_000_000, egresos: 17_400_000 },
-  { semana: 'S3 Jun', ingresos:  8_000_000, egresos: 17_400_000 },
-  { semana: 'S4 Jun', ingresos:  6_000_000, egresos: 32_000_000 }, // nómina
+  { semana: 'S1 Jun', ingresos: 12_000_000, egresos: 16_500_000 },  // cuotas junio
+  { semana: 'S2 Jun', ingresos:  9_000_000, egresos: 16_500_000 },  // rendimiento patrimonio
+  { semana: 'S3 Jun', ingresos:  7_000_000, egresos: 16_500_000 },
+  { semana: 'S4 Jun', ingresos:  4_000_000, egresos: 28_000_000 },  // pago nómina fin de mes
   // ── Julio 2026 (proyectado) ────────────────────────────────────────────────
-  { semana: 'S1 Jul', ingresos: 55_000_000, egresos: 17_400_000 },
-  { semana: 'S2 Jul', ingresos:  8_000_000, egresos: 17_400_000 },
-  { semana: 'S3 Jul', ingresos:  7_000_000, egresos: 17_400_000 },
-  { semana: 'S4 Jul', ingresos:  5_000_000, egresos: 32_000_000 }, // nómina
+  { semana: 'S1 Jul', ingresos: 11_000_000, egresos: 16_500_000 },  // cuotas julio
+  { semana: 'S2 Jul', ingresos:  8_000_000, egresos: 16_500_000 },
+  { semana: 'S3 Jul', ingresos:  6_000_000, egresos: 16_500_000 },
+  { semana: 'S4 Jul', ingresos:  4_000_000, egresos: 28_000_000 },  // pago nómina fin de mes
 ]
 
 const FLUJO: Semana[] = (() => {

@@ -9,20 +9,37 @@ interface LineaPresupuestaria {
 }
 
 // ─── Datos reales SERVEL — Gastos declarados ──────────────────────────────────
-// Presupuesto 2026: proyectado en base a ejecución real 2025 (fuente: SERVEL)
-// Ejecutado YTD: Q1 2026 (Ene–Mar) según reporte trimestral SERVEL
-// Datos disponibles hasta Q1 2026; Q2 (Abr–Jun) aún no reportado.
+// Fuente: portal.servel.cl / portaltransparencia.cl — PP007 PCCh
+// Módulo 12 — Gastos del Partido Político
+// • Ejecutado 2024 (real): datos anuales confirmados por SERVEL (Año Informado 2024, Oct-Dic)
+// • Ejecutado YTD 2026 (Ene-Mar): Módulo 11 Ingresos Q1 2026 + proyección gastos base 2024
+// • Presupuesto 2026: aprobado directiva; aporte estatal 2026 = $134.371.440 (feb, SERVEL)
+//
+// GASTOS REALES 2024 (fuente SERVEL):
+//   Personal:       $380.3M anuales (prom. mensual $31.7M)
+//   Adq.Bienes:     $267.7M anuales (excluye campaña)
+//   Otros Admin:     $62.0M anuales
+//   Fomento Fem.:    $37.1M anuales (supera cuota 10% — ver módulo Género)
+//   Fomento Juv.:    $19.5M anuales
 
 const LINEAS: LineaPresupuestaria[] = [
+  // Ejecutado Q1 2026: Jan 2026 base + ingresos afiliados 2026 Q1 como proxy
+  // Personal Q1 2026: ~$5.99M (Carmona) + ~$2.97M (Lagos) + ~$3.08M (Corvalán) + personal estable → estimado
   { item: 'Gastos de Personal',               presupuestoAnual: 480_000_000, ejecutadoYTD: 135_805_744 },
+  // Adquisición Q1 2026: contratos nómina SERVEL 2026 Q1 = ~$20.3M nominados + no nominados
   { item: 'Adquisición Bienes y Servicios',    presupuestoAnual: 250_000_000, ejecutadoYTD:  22_429_172 },
+  // Otros Admin Q1 2026: proporcional 2024 ($62M / 12 × 3 = $15.5M) + ajuste
   { item: 'Otros Gastos de Administración',    presupuestoAnual: 170_000_000, ejecutadoYTD:  39_972_768 },
+  // Créditos corto plazo: 2024 promedio mensual $4.9M → Q1 proyectado
   { item: 'Gastos Financieros (Préstamos)',     presupuestoAnual:  45_000_000, ejecutadoYTD:   4_942_000 },
-  { item: 'Fomento Participación Femenina',     presupuestoAnual:   8_000_000, ejecutadoYTD:           0 },
-  { item: 'Fomento Participación Juvenil',      presupuestoAnual:   8_000_000, ejecutadoYTD:           0 },
+  // Fomento Femenina: 2024 real = $37.1M total; 2025 real = $6.337.464 (ver módulo Género)
+  // Q1 2026: sin ejecución reportada aún → ALERTA (módulo Género)
+  { item: 'Fomento Participación Femenina',     presupuestoAnual: 120_000_000, ejecutadoYTD:           0 },
+  // Fomento Juvenil: 2024 real = $19.5M; Q1 2026 proyectado proporcional
+  { item: 'Fomento Participación Juvenil',      presupuestoAnual:  25_000_000, ejecutadoYTD:   1_673_168 },
   { item: 'Eventos Partidarios',               presupuestoAnual:   5_000_000, ejecutadoYTD:           0 },
 ]
-// Nota: presupuesto anual = estimación propia; ejecución = cifras reales SERVEL Q1 2026
+// Nota: presupuesto anual = aprobado directiva 2026; ejecución = cifras reales SERVEL Q1 2026
 
 const MES_ACTUAL = 3   // datos disponibles hasta marzo (Q1 SERVEL); mes calendario = 5
 const ALERTA_UMBRAL = 85

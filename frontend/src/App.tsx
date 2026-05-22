@@ -50,9 +50,22 @@ const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Sistema']
 // ─── Mock data (módulos inline) ───────────────────────────────────────────────
 
 // ─── Datos reales SERVEL — Gastos totales mensuales 2025 ─────────────────────
-// Fuente: CSV SERVEL 2025-4 (reporte anual Q4). "estatal" = gasto operacional
-// declarado; "cotizaciones" = actividades género + juvenil. Eje Y = egresos reales.
-// Para ver ingresos reales: incorporar balance aprobado SERVEL cuando esté disponible.
+// Fuente: portaltransparencia.cl PP007 — Módulo 12 Gastos Q4 2025 (reporte anual 2025)
+// "estatal" = gasto operacional declarado; "cotizaciones" = actividades género + juvenil.
+//
+// INGRESOS REALES 2026 Q1 (Módulo 11 SERVEL PP007):
+//   Ene: $107.3M (cuotas $11M + patrimonio $28.4M + cheque caja $67.9M)
+//   Feb: $176.4M (cuotas $7.6M + patrimonio $8.5M + aporte estatal $134.4M + transf. $26M)
+//   Mar:  $32.5M (cuotas $14.1M + patrimonio $18.4M)
+//   Q1 TOTAL: $316.2M
+//
+// CONTRATACIONES REALES 2026 Q1 (Módulo 15 Nómina SERVEL PP007):
+//   L.Carmona: $5.99M | J.Lagos: $2.97M | K.Corvalán: $3.08M
+//   Radio Nuevo Mundo: $5M | D.Trujillo: $4.28M
+//
+// PERSONAS Y CARGOS 2026 Q1 (Módulo 05 SERVEL PP007):
+//   Presidente: Lautaro Carmona Soto | Sec.Gral: Bárbara Figueroa Sandoval
+//   Administradora Fondos: Pamela Águila Cariz
 const presupuestoData = [
   { mes: 'Ene', estatal: 56_633_189 + 58_462_232 + 11_781_754, cotizaciones: 1_201_730 + 1_700_000 },
   { mes: 'Feb', estatal: 48_555_132 + 25_631_239 +  5_871_778, cotizaciones: 2_403_466 + 2_300_008 },
@@ -83,14 +96,26 @@ const generoAlerta = pctGenero >= 75 && pctGenero < 100
 // Promedio: $45.3M/mes. Presupuesto anual estimado: $480M → mensual ≈ $40M
 const PRESUPUESTO_SUELDOS = 40_000_000
 
+// ─── Parentescos para chequeo antinepotismo ──────────────────────────────────
+// Fuente: declaraciones de interés y patrimonio (Módulo 08 SERVEL) + nómina PP007
+// Registrar aquí los RUTs de parientes de directivos que presten servicios al partido.
+// IMPORTANTE: Solo incluir relaciones verificadas — datos sensibles sujetos a Ley 21.719.
+// Para agregar: { 'RUT-sin-puntos': { directivo: 'Nombre', grado: 'Cónyuge|Hijo|etc.' } }
 const parentescos: Record<string, { directivo: string; grado: string }> = {
-  '11111111-1': { directivo: 'Ana Pérez', grado: 'Cónyuge' },
+  // Ejemplo: '12345678-9': { directivo: 'Bárbara Figueroa', grado: 'Cónyuge' },
+  // Completar con datos verificados de declaraciones de interés vigentes
 }
 
 interface Funcionario { nombre: string; rut: string; calidad: string; sueldo: string; banco: string; tipoCuenta: string; numeroCuenta: string; area: string; imputableGenero: boolean; activo: boolean }
+// ─── Nómina de personal — Fuente: Nómina SERVEL PP007 Q1 2026 ────────────────
+// NOTA: Los valores de sueldo son los montos declarados en nómina SERVEL (honorarios >20 UTM).
+// Los datos bancarios deben completarse con cartola real (solo se conoce nombre y RUT de SERVEL).
+// Los contratistas recurrentes del Q1 2026 son los siguientes:
 const FUNCIONARIOS_INIT: Funcionario[] = [
-  { nombre: 'María González', rut: '22222222-2', calidad: 'Código del Trabajo - Indefinido', sueldo: '1800000', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '0001234567', area: 'Formación Ciudadana', imputableGenero: true, activo: true },
-  { nombre: 'Pedro Soto', rut: '33333333-3', calidad: 'Honorarios Permanente', sueldo: '1200000', banco: 'Banco Chile', tipoCuenta: 'Vista', numeroCuenta: '0009876543', area: 'Comunicaciones', imputableGenero: false, activo: true },
+  { nombre: 'Lautaro Carmona Soto',      rut: '5892999-9',   calidad: 'Honorarios Permanente', sueldo: '2245875', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Dirección General', imputableGenero: false, activo: true },
+  { nombre: 'Juan Andrés Lagos Espinoza', rut: '5926570-9',   calidad: 'Honorarios Permanente', sueldo: '1487363', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Dirección General', imputableGenero: false, activo: true },
+  { nombre: 'Krupskaya Corvalán',         rut: '13713819-0',  calidad: 'Honorarios Permanente', sueldo: '1541602', banco: 'Banco Chile',  tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Secretaría',       imputableGenero: true,  activo: true },
+  { nombre: 'Pamela Águila Cariz',        rut: '—',           calidad: 'Código del Trabajo - Indefinido', sueldo: '0', banco: '—', tipoCuenta: '—', numeroCuenta: '—', area: 'Administración y Finanzas', imputableGenero: true, activo: true },
 ]
 
 // ─── Inline sub-components ────────────────────────────────────────────────────

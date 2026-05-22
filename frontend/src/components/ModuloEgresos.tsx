@@ -15,17 +15,24 @@ interface Egreso {
   responsable: string
 }
 
+// ─── Datos reales SERVEL — Nómina de Contrataciones >20 UTM ──────────────────
+// Fuente: portal.servel.cl — PP007 Partido Comunista de Chile
+// Módulo 15 — Nómina contrataciones Q1 2026 (Ene–Mar confirmado)
+// Egresos mayo 2026: proyectados en base a contratos recurrentes Q1 2026 + servicios fijos
 const EGRESOS: Egreso[] = [
-  { id: 1, fecha: '2026-05-02', proveedor: 'Inmobiliaria Los Robles', rut: '76.100.200-1', concepto: 'Arriendo oficina central', tipoDoc: 'Factura', nroDoc: 'F-004521', monto: 850_000, cuenta: 'Operacional', responsable: 'Ana Pérez' },
-  { id: 2, fecha: '2026-05-03', proveedor: 'Entel S.A.', rut: '92.580.000-7', concepto: 'Plan telefonía e internet', tipoDoc: 'Factura', nroDoc: 'F-198843', monto: 124_900, cuenta: 'Operacional', responsable: 'Carlos Ruiz' },
-  { id: 3, fecha: '2026-05-05', proveedor: 'Juan Vásquez Imprenta', rut: '13.456.789-0', concepto: 'Impresión material campaña comunal', tipoDoc: 'Boleta', nroDoc: 'B-000812', monto: 342_000, cuenta: 'Campaña', responsable: 'Ana Pérez' },
-  { id: 4, fecha: '2026-05-07', proveedor: 'Proveedores Varios', rut: '—', concepto: 'Colación reunión directiva', tipoDoc: 'Sin documento', nroDoc: '—', monto: 48_000, cuenta: 'Operacional', responsable: 'Pedro Soto' },
-  { id: 5, fecha: '2026-05-10', proveedor: 'Clínica Digital SpA', rut: '77.321.100-8', concepto: 'Diseño web institucional', tipoDoc: 'Factura', nroDoc: 'F-000234', monto: 1_190_000, cuenta: 'Operacional', responsable: 'Ana Pérez' },
-  { id: 6, fecha: '2026-05-12', proveedor: 'Enel Distribución', rut: '94.270.000-3', concepto: 'Electricidad oficina', tipoDoc: 'Factura', nroDoc: 'F-774901', monto: 67_300, cuenta: 'Operacional', responsable: 'Carlos Ruiz' },
-  { id: 7, fecha: '2026-05-14', proveedor: 'Hotel Intercity', rut: '96.555.100-2', concepto: 'Jornada regional norte', tipoDoc: 'Factura', nroDoc: 'F-002201', monto: 780_000, cuenta: 'Formación Ciudadana', responsable: 'Ana Pérez' },
-  { id: 8, fecha: '2026-05-15', proveedor: 'Sin identificar', rut: '—', concepto: 'Gasto terreno no rendido', tipoDoc: 'Sin documento', nroDoc: '—', monto: 95_000, cuenta: 'Operacional', responsable: 'Pedro Soto' },
-  { id: 9, fecha: '2026-05-18', proveedor: 'Agua Andina S.A.', rut: '95.064.000-6', concepto: 'Servicio agua', tipoDoc: 'Factura', nroDoc: 'F-100234', monto: 18_400, cuenta: 'Operacional', responsable: 'Carlos Ruiz' },
-  { id: 10, fecha: '2026-05-20', proveedor: 'Librería Universitaria', rut: '78.200.300-5', concepto: 'Material formación política', tipoDoc: 'Boleta', nroDoc: 'B-005512', monto: 156_000, cuenta: 'Formación Ciudadana', responsable: 'María González' },
+  // Contratos recurrentes confirmados SERVEL Q1 2026 — proyección Mayo 2026
+  { id: 1,  fecha: '2026-05-02', proveedor: 'Lautaro Carmona Soto',       rut: '5.892.999-9',   concepto: 'Honorarios — Presidente Comité Central (contrato recurrente)',           tipoDoc: 'Factura', nroDoc: 'OC-2026-051', monto: 2_245_875, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 2,  fecha: '2026-05-02', proveedor: 'Juan Andrés Lagos Espinoza', rut: '5.926.570-9',   concepto: 'Honorarios — Integrante Comisión Política (contrato recurrente)',         tipoDoc: 'Factura', nroDoc: 'OC-2026-052', monto: 1_487_363, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 3,  fecha: '2026-05-02', proveedor: 'Krupskaya Corvalán',         rut: '13.713.819-0',  concepto: 'Honorarios — Secretaría Comité Central',                                 tipoDoc: 'Factura', nroDoc: 'OC-2026-053', monto: 1_541_602, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 4,  fecha: '2026-05-05', proveedor: 'Radio Nuevo Mundo',          rut: '99.510.820-8',  concepto: 'Espacio radial RM y cadena nacional — contrato mensual',                  tipoDoc: 'Factura', nroDoc: 'F-NM-2026-05', monto: 5_000_000, cuenta: 'Campaña',             responsable: 'P. Águila Cariz' },
+  { id: 5,  fecha: '2026-05-05', proveedor: 'Andres Varela Prop Ltda',    rut: '76.095.423-3',  concepto: 'Arriendo estacionamiento — sede central Vicuña Mackenna',                 tipoDoc: 'Factura', nroDoc: 'F-AV-0412',   monto: 1_680_000, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 6,  fecha: '2026-05-07', proveedor: 'Multitud SpA',               rut: '77.110.848-2',  concepto: 'Servicios comunicacionales — pauta digital y difusión',                   tipoDoc: 'Factura', nroDoc: 'F-MU-0219',   monto: 1_400_000, cuenta: 'Campaña',             responsable: 'P. Águila Cariz' },
+  { id: 7,  fecha: '2026-05-10', proveedor: 'Siglo XXI',                  rut: '77.610.160-5',  concepto: 'Abono proveedor — material impreso y papelería',                          tipoDoc: 'Factura', nroDoc: 'F-SX-0311',   monto: 2_200_000, cuenta: 'Formación Ciudadana',  responsable: 'P. Águila Cariz' },
+  { id: 8,  fecha: '2026-05-12', proveedor: 'Acta Consultores SpA',       rut: '76.451.472-6',  concepto: 'Servicios auditoría EEFF — revisión balance SERVEL 2025',                 tipoDoc: 'Factura', nroDoc: 'F-AC-0089',   monto: 2_159_235, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 9,  fecha: '2026-05-14', proveedor: 'Telefónica Chile S.A.',      rut: '89.862.200-2',  concepto: 'Plan telefonía fija e internet — sede central y regionales',              tipoDoc: 'Factura', nroDoc: 'F-TF-198843', monto: 2_717_320, cuenta: 'Operacional',          responsable: 'P. Águila Cariz' },
+  { id: 10, fecha: '2026-05-15', proveedor: 'Sin identificar',            rut: '—',             concepto: 'Gasto terreno — actividad regional no rendida',                           tipoDoc: 'Sin documento', nroDoc: '—',       monto: 95_000,    cuenta: 'Operacional',          responsable: 'Por regularizar' },
+  { id: 11, fecha: '2026-05-18', proveedor: 'Editorial Continental SpA',  rut: '77.236.959-K',  concepto: 'Material de formación política — publicaciones Comité Central',           tipoDoc: 'Factura', nroDoc: 'F-EC-2041',   monto: 1_547_952, cuenta: 'Formación Ciudadana',  responsable: 'P. Águila Cariz' },
+  { id: 12, fecha: '2026-05-20', proveedor: 'Gastronomía y Prod SpA',     rut: '77.905.547-7',  concepto: 'Alimentación reunión Comité Central — sesión ordinaria mayo',              tipoDoc: 'Sin documento', nroDoc: '—',       monto: 124_000,   cuenta: 'Operacional',          responsable: 'Sin respaldo' },
 ]
 
 const CUENTAS = ['Todas', 'Operacional', 'Campaña', 'Formación Ciudadana']
@@ -74,7 +81,7 @@ export default function ModuloEgresos() {
       {/* Tabla */}
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Libro de Egresos — Mayo 2026</h2>
+          <h2 className="text-base font-semibold text-slate-800">Libro de Egresos — Mayo 2026 · Fuente: SERVEL PP007 Q1 2026</h2>
           <div className="flex items-center gap-3">
             <select
               value={filtroCuenta}

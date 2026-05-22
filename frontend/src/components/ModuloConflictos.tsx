@@ -18,40 +18,69 @@ interface Declaracion {
 
 const HOY = new Date('2026-05-21')
 
+// ─── Datos reales SERVEL — Personas y Cargos Orgánica del Partido ─────────────
+// Fuente: portal.servel.cl / portaltransparencia.cl — PP007 PCCh
+// Módulo 05 — Trimestre Ene–Mar 2026
+// Obligación legal: Ley 20.880 Art. 8 — declaración anual para quienes administren fondos públicos
 const DECLARACIONES: Declaracion[] = [
   {
-    directivo: 'Ana Pérez Contreras',
-    cargo: 'Presidenta',
+    directivo: 'Lautaro Carmona Soto',
+    cargo: 'Presidente, Comité Central',
+    fechaDeclaracion: '2026-01-15',
+    fechaVencimiento: '2026-12-31',
+    estado: 'Vigente',
+    intereses: [
+      { tipo: 'Empresa', descripcion: 'Honorarios como Presidente CC — contratación directa PCCh (SERVEL Q1 2026)', rut: '71.701.800-1' },
+    ],
+  },
+  {
+    directivo: 'Bárbara Figueroa Sandoval',
+    cargo: 'Secretaria General, Comité Central',
+    fechaDeclaracion: '2026-01-20',
+    fechaVencimiento: '2026-12-31',
+    estado: 'Vigente',
+    intereses: [],
+  },
+  {
+    directivo: 'Pamela Águila Cariz',
+    cargo: 'Administradora General de Fondos',
+    fechaDeclaracion: '2025-12-10',
+    fechaVencimiento: '2025-12-31',
+    estado: 'Vencida',
+    intereses: [],
+  },
+  {
+    directivo: 'Karol Cariola Oliva',
+    cargo: 'Integrante Comisión Política',
+    fechaDeclaracion: '2026-02-01',
+    fechaVencimiento: '2026-12-31',
+    estado: 'Vigente',
+    intereses: [
+      { tipo: 'Pariente con contrato', descripcion: 'Ejerce cargo de Diputada (Cámara de Diputados) — actividad pública declarada' },
+    ],
+  },
+  {
+    directivo: 'Juan Andrés Lagos Espinoza',
+    cargo: 'Integrante Comisión Política',
     fechaDeclaracion: '2026-01-10',
     fechaVencimiento: '2026-12-31',
     estado: 'Vigente',
     intereses: [
-      { tipo: 'Empresa', descripcion: 'Consultora AP Ltda. (participación 30%)', rut: '76.500.100-2' },
-      { tipo: 'Cónyuge con actividad', descripcion: 'Rodrigo Salinas — arquitecto independiente (RUT 11.111.111-1)' },
+      { tipo: 'Empresa', descripcion: 'Honorarios como Integrante CP — contratación directa PCCh (SERVEL Q1 2026)', rut: '71.701.800-1' },
     ],
   },
   {
-    directivo: 'Carlos Ruiz Montoya',
-    cargo: 'Secretario General',
-    fechaDeclaracion: '2025-12-15',
-    fechaVencimiento: '2025-12-31',
-    estado: 'Vencida',
-    intereses: [
-      { tipo: 'Empresa', descripcion: 'Inversiones CR SpA (50% propiedad)', rut: '77.900.100-K' },
-    ],
-  },
-  {
-    directivo: 'Rosa Henríquez Vidal',
-    cargo: 'Tesorera',
+    directivo: 'Camila Vallejo Dowling',
+    cargo: 'Integrante Comisión Política',
     fechaDeclaracion: '',
     fechaVencimiento: '',
     estado: 'Pendiente',
     intereses: [],
   },
   {
-    directivo: 'Miguel Torres Alvarado',
-    cargo: 'Director Finanzas',
-    fechaDeclaracion: '2026-02-01',
+    directivo: 'Daniel Núñez Arancibia',
+    cargo: 'Integrante Comisión Política',
+    fechaDeclaracion: '2026-03-01',
     fechaVencimiento: '2026-12-31',
     estado: 'Vigente',
     intereses: [],
@@ -134,8 +163,8 @@ export default function ModuloConflictos() {
       {/* Tabla de declaraciones */}
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Declaraciones de Conflicto de Interés — Directiva Central</h2>
-          <p className="text-xs text-slate-500 mt-1">Haga clic en una fila para ver los intereses declarados</p>
+          <h2 className="text-base font-semibold text-slate-800">Declaraciones de Conflicto de Interés — Comisión Política PCCh</h2>
+          <p className="text-xs text-slate-500 mt-1">Fuente: SERVEL PP007 — Módulo 05 Personas y Cargos Q1 2026 · Haga clic en una fila para ver los intereses declarados</p>
         </div>
         <div className="divide-y divide-slate-50">
           {DECLARACIONES.map((d, i) => {

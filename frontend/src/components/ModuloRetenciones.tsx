@@ -12,11 +12,16 @@ interface Contratista {
 
 const TASA_RETENCION = 0.1075
 
+// ─── Datos reales SERVEL — Nómina de Contrataciones >20 UTM ──────────────────
+// Fuente: portal.servel.cl — PP007 Partido Comunista de Chile
+// Q1 2026 (Ene–Mar) confirmado; Mayo 2026 proyectado en base a contratos recurrentes
 const CONTRATISTAS: Contratista[] = [
-  { nombre: 'Javiera Muñoz Riquelme', rut: '17.345.678-9', concepto: 'Asesoría comunicacional', honorarioBruto: 1_200_000, estadoPago: 'Pagado', mesDevengado: 'Abril 2026' },
-  { nombre: 'Felipe Correa Bustamante', rut: '14.222.333-1', concepto: 'Soporte TI mensual', honorarioBruto: 900_000, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
-  { nombre: 'Valentina Ortiz Lagos', rut: '19.111.222-3', concepto: 'Investigación política comparada', honorarioBruto: 1_500_000, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
-  { nombre: 'Gonzalo Parra Espinoza', rut: '12.888.999-K', concepto: 'Servicios contables externos', honorarioBruto: 700_000, estadoPago: 'Vencido', mesDevengado: 'Marzo 2026' },
+  { nombre: 'Lautaro Carmona Soto',     rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC',      honorarioBruto: 2_245_875, estadoPago: 'Pagado',   mesDevengado: 'Abril 2026' },
+  { nombre: 'Juan Andrés Lagos Espinoza', rut: '5.926.570-9', concepto: 'Adquisición de Bienes o Servicios — Integrante CP',       honorarioBruto: 1_487_363, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Krupskaya Corvalán',        rut: '13.713.819-0', concepto: 'Adquisición de Bienes o Servicios — Secretaría',          honorarioBruto: 1_541_602, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Lautaro Carmona Soto',     rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC',      honorarioBruto: 2_245_875, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Radio Nuevo Mundo',         rut: '99.510.820-8', concepto: 'Espacio radial RM y cadena nacional — servicios medios',  honorarioBruto: 5_000_000, estadoPago: 'Vencido',  mesDevengado: 'Marzo 2026' },
+  { nombre: 'Damián Trujillo',           rut: '5.916.399-4',  concepto: 'Servicios profesionales eventuales',                      honorarioBruto: 4_284_000, estadoPago: 'Pagado',   mesDevengado: 'Febrero 2026' },
 ]
 
 export default function ModuloRetenciones() {
@@ -35,7 +40,7 @@ export default function ModuloRetenciones() {
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { icon: <Calculator size={20} />, label: 'Total honorarios brutos mayo', value: fmt(totalBrutoMes), sub: `${pendientesMes.length} contratos vigentes` },
+          { icon: <Calculator size={20} />, label: 'Total honorarios brutos mayo', value: fmt(totalBrutoMes), sub: `${pendientesMes.length} contratos vigentes — Fuente: SERVEL Q1 2026` },
           { icon: <Calculator size={20} />, label: 'Retención a enterar al SII (10,75%)', value: fmt(totalRetencionMes), sub: 'Vence el día 20 del mes siguiente' },
           { icon: vencidos.length > 0 ? <AlertTriangle size={20} /> : <CheckCircle size={20} />, label: 'Retenciones vencidas sin pagar', value: `${vencidos.length}`, sub: vencidos.length > 0 ? 'Riesgo multa e intereses SII' : 'Al día' },
         ].map((k, i) => (
@@ -67,7 +72,7 @@ export default function ModuloRetenciones() {
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Detalle Retenciones Honorarios</h2>
-          <p className="text-xs text-slate-500 mt-1">Tasa: 10,75% sobre honorario bruto — Art. 74 N°2 Ley de la Renta</p>
+          <p className="text-xs text-slate-500 mt-1">Tasa: 10,75% sobre honorario bruto — Art. 74 N°2 Ley de la Renta · Datos: Nómina SERVEL PP007 Q1 2026</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
