@@ -49,16 +49,28 @@ const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Sistema']
 
 // ─── Mock data (módulos inline) ───────────────────────────────────────────────
 
+// ─── Datos reales SERVEL — Gastos totales mensuales 2025 ─────────────────────
+// Fuente: CSV SERVEL 2025-4 (reporte anual Q4). "estatal" = gasto operacional
+// declarado; "cotizaciones" = actividades género + juvenil. Eje Y = egresos reales.
+// Para ver ingresos reales: incorporar balance aprobado SERVEL cuando esté disponible.
 const presupuestoData = [
-  { mes: 'Ene', estatal: 18_500_000, cotizaciones: 4_200_000 },
-  { mes: 'Feb', estatal: 18_500_000, cotizaciones: 4_350_000 },
-  { mes: 'Mar', estatal: 18_500_000, cotizaciones: 4_100_000 },
-  { mes: 'Abr', estatal: 18_500_000, cotizaciones: 4_600_000 },
-  { mes: 'May', estatal: 18_500_000, cotizaciones: 4_800_000 },
+  { mes: 'Ene', estatal: 56_633_189 + 58_462_232 + 11_781_754, cotizaciones: 1_201_730 + 1_700_000 },
+  { mes: 'Feb', estatal: 48_555_132 + 25_631_239 +  5_871_778, cotizaciones: 2_403_466 + 2_300_008 },
+  { mes: 'Mar', estatal: 34_947_637 + 27_524_310 + 25_183_082, cotizaciones: 1_201_733 + 1_700_006 },
+  { mes: 'Abr', estatal: 28_913_965 +  3_990_144 + 18_558_390, cotizaciones: 0 },
+  { mes: 'May', estatal: 37_429_775 + 22_411_641 +  7_795_405, cotizaciones: 0 },
+  { mes: 'Jun', estatal: 36_694_774 + 27_186_310 +  7_577_170, cotizaciones: 1_530_535 + 1_700_006 },
+  { mes: 'Jul', estatal: 44_633_427 + 45_953_490 +  9_527_218, cotizaciones: 0 },
+  { mes: 'Ago', estatal: 21_011_213 + 11_024_206 +  4_583_270, cotizaciones: 0 },
+  { mes: 'Sep', estatal: 28_752_855 + 22_551_473 + 22_055_237, cotizaciones: 0 },
+  { mes: 'Oct', estatal: 59_551_077 +  9_336_895 + 48_831_977, cotizaciones: 0 },
+  { mes: 'Nov', estatal: 42_770_701 +  5_641_443 +  2_767_166, cotizaciones: 0 },
+  { mes: 'Dic', estatal: 18_656_152 +  6_737_738 +  6_249_689, cotizaciones: 0 },
 ]
 
 const CUOTA_GENERO = APORTE_ESTATAL_ANUAL * 0.10
-const GASTO_GENERO = 17_500_000
+// Gasto real 2025 Fomento Participación Femenina (fuente: SERVEL 2025-4)
+const GASTO_GENERO = 6_337_464
 const pctGenero = Math.round((GASTO_GENERO / CUOTA_GENERO) * 100)
 const generoOk = pctGenero >= 100
 const generoAlerta = pctGenero >= 75 && pctGenero < 100
@@ -95,20 +107,20 @@ function ModuloPresupuesto() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
-        <StatCard icon={<DollarSign size={20} />} label="Total ingresos YTD" value={fmt(totalEstatal + totalCotiz)} />
-        <StatCard icon={<DollarSign size={20} />} label="Aportes estatales" value={fmt(totalEstatal)} sub="Ley 20.900" />
-        <StatCard icon={<DollarSign size={20} />} label="Cotizaciones internas" value={fmt(totalCotiz)} sub="Militantes activos" />
+        <StatCard icon={<DollarSign size={20} />} label="Gasto total 2025 (SERVEL)" value={fmt(totalEstatal + totalCotiz)} sub="Personal + Bienes + Admin + Actividades" />
+        <StatCard icon={<DollarSign size={20} />} label="Gasto operacional 2025" value={fmt(totalEstatal)} sub="Fuente: CSV SERVEL 2025-4" />
+        <StatCard icon={<DollarSign size={20} />} label="Actividades Género + Juvenil" value={fmt(totalCotiz)} sub="Fomento Participación Femenina/Juvenil" />
       </div>
       <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-800 mb-4">Ingresos Mensuales — Estatal vs Cotizaciones</h2>
+        <h2 className="text-base font-semibold text-slate-800 mb-4">Gastos Mensuales 2025 — Operacional vs Actividades (Fuente: SERVEL)</h2>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={presupuestoData} margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
             <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
             <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v) => fmt(Number(v))} />
             <Legend />
-            <Bar dataKey="estatal" name="Estatal" fill="#6366f1" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="cotizaciones" name="Cotizaciones" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="estatal" name="Operacional (Personal+Bienes+Admin)" fill="#6366f1" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="cotizaciones" name="Actividades Género+Juvenil" fill="#22d3ee" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

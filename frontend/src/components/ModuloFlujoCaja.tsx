@@ -17,19 +17,28 @@ interface Compromiso {
   cuenta: string
 }
 
-const SALDO_INICIAL = 28_450_300
+// ─── Datos reales y proyecciones — Fuente: SERVEL Q1 2026 ────────────────────
+// Prom. egreso operacional Q1 2026: ~69.5 M/mes → ~17.4 M/semana
+// (Personal 45.3M + Bienes 7.5M + OtrosAdmin 13.3M + Fin 1.6M) / 4 sem
+// Ingresos: estimados en base a transferencias y aporte estatal histórico
+// Saldo inicial: estimado en base a balance 2025 — actualizar con cartola real
+
+const SALDO_INICIAL = 85_000_000   // estimado — reemplazar con saldo real de cartola
 
 const SEMANAS_RAW = [
-  { semana: 'S1 Jun', ingresos: 18_500_000, egresos: 3_200_000 },
-  { semana: 'S2 Jun', ingresos: 4_800_000, egresos: 1_200_000 },
-  { semana: 'S3 Jun', ingresos: 1_200_000, egresos: 4_500_000 },
-  { semana: 'S4 Jun', ingresos: 900_000, egresos: 8_800_000 },
-  { semana: 'S1 Jul', ingresos: 1_000_000, egresos: 3_100_000 },
-  { semana: 'S2 Jul', ingresos: 4_500_000, egresos: 1_800_000 },
-  { semana: 'S3 Jul', ingresos: 800_000, egresos: 2_200_000 },
-  { semana: 'S4 Jul', ingresos: 900_000, egresos: 9_200_000 },
-  { semana: 'S1 Ago', ingresos: 19_000_000, egresos: 3_000_000 },
-  { semana: 'S2 Ago', ingresos: 3_500_000, egresos: 1_400_000 },
+  // ── Mayo 2026 (semanas restantes) ──────────────────────────────────────────
+  { semana: 'S3 May', ingresos: 22_000_000, egresos: 17_400_000 },
+  { semana: 'S4 May', ingresos:  8_000_000, egresos: 32_000_000 }, // nómina fin de mes
+  // ── Junio 2026 (proyectado) ────────────────────────────────────────────────
+  { semana: 'S1 Jun', ingresos: 60_000_000, egresos: 17_400_000 }, // ingreso aporte
+  { semana: 'S2 Jun', ingresos: 10_000_000, egresos: 17_400_000 },
+  { semana: 'S3 Jun', ingresos:  8_000_000, egresos: 17_400_000 },
+  { semana: 'S4 Jun', ingresos:  6_000_000, egresos: 32_000_000 }, // nómina
+  // ── Julio 2026 (proyectado) ────────────────────────────────────────────────
+  { semana: 'S1 Jul', ingresos: 55_000_000, egresos: 17_400_000 },
+  { semana: 'S2 Jul', ingresos:  8_000_000, egresos: 17_400_000 },
+  { semana: 'S3 Jul', ingresos:  7_000_000, egresos: 17_400_000 },
+  { semana: 'S4 Jul', ingresos:  5_000_000, egresos: 32_000_000 }, // nómina
 ]
 
 const FLUJO: Semana[] = (() => {
@@ -40,16 +49,22 @@ const FLUJO: Semana[] = (() => {
   })
 })()
 
+// Compromisos basados en promedios reales Q1 2026 (SERVEL) + obligaciones fijas
 const COMPROMISOS: Compromiso[] = [
-  { concepto: 'Sueldos personal planta', monto: 3_000_000, fechaVencimiento: '2026-06-05', tipo: 'Fijo', cuenta: 'Operacional' },
-  { concepto: 'Arriendo oficinas', monto: 850_000, fechaVencimiento: '2026-06-01', tipo: 'Fijo', cuenta: 'Operacional' },
-  { concepto: 'Retención honorarios mayo (F29)', monto: 289_125, fechaVencimiento: '2026-06-20', tipo: 'Fijo', cuenta: 'Operacional' },
-  { concepto: 'Evento congreso regional', monto: 4_500_000, fechaVencimiento: '2026-06-15', tipo: 'Variable', cuenta: 'Eventos' },
-  { concepto: 'Sueldos personal planta (Jul)', monto: 3_000_000, fechaVencimiento: '2026-07-05', tipo: 'Fijo', cuenta: 'Operacional' },
-  { concepto: 'Arriendo julio', monto: 850_000, fechaVencimiento: '2026-07-01', tipo: 'Fijo', cuenta: 'Operacional' },
-  { concepto: 'Materiales formación Q3', monto: 2_000_000, fechaVencimiento: '2026-07-10', tipo: 'Variable', cuenta: 'Formación Ciudadana' },
-  { concepto: 'Sueldos agosto', monto: 3_000_000, fechaVencimiento: '2026-08-05', tipo: 'Fijo', cuenta: 'Operacional' },
+  // ── Junio 2026 ────────────────────────────────────────────────────────────
+  { concepto: 'Nómina junio (Personal)',          monto: 45_268_581, fechaVencimiento: '2026-06-05', tipo: 'Fijo',     cuenta: 'Operacional' },
+  { concepto: 'Adquisición bienes/servicios jun', monto:  7_476_391, fechaVencimiento: '2026-06-15', tipo: 'Variable', cuenta: 'Operacional' },
+  { concepto: 'Otros gastos adm. junio',          monto: 13_324_256, fechaVencimiento: '2026-06-20', tipo: 'Variable', cuenta: 'Operacional' },
+  { concepto: 'Fomento Participación Femenina',   monto:  1_584_366, fechaVencimiento: '2026-06-30', tipo: 'Fijo',     cuenta: 'Fondo Género' },
+  { concepto: 'Fomento Participación Juvenil',    monto:  1_850_005, fechaVencimiento: '2026-06-30', tipo: 'Fijo',     cuenta: 'Actividades' },
+  // ── Julio 2026 ────────────────────────────────────────────────────────────
+  { concepto: 'Nómina julio (Personal)',          monto: 45_268_581, fechaVencimiento: '2026-07-05', tipo: 'Fijo',     cuenta: 'Operacional' },
+  { concepto: 'Adquisición bienes/servicios jul', monto:  7_476_391, fechaVencimiento: '2026-07-15', tipo: 'Variable', cuenta: 'Operacional' },
+  { concepto: 'Otros gastos adm. julio',          monto: 13_324_256, fechaVencimiento: '2026-07-20', tipo: 'Variable', cuenta: 'Operacional' },
+  // ── Agosto 2026 ───────────────────────────────────────────────────────────
+  { concepto: 'Nómina agosto (Personal)',         monto: 45_268_581, fechaVencimiento: '2026-08-05', tipo: 'Fijo',     cuenta: 'Operacional' },
 ]
+// Promedio mensual calculado: Personal=135.8M/3=45.3M · Bienes=22.4M/3=7.5M · Admin=40M/3=13.3M
 
 export default function ModuloFlujoCaja() {
   const semanasNegativas = FLUJO.filter(s => s.saldo < 0)

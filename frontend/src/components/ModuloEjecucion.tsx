@@ -8,22 +8,28 @@ interface LineaPresupuestaria {
   ejecutadoYTD: number
 }
 
-const LINEAS: LineaPresupuestaria[] = [
-  { item: 'Remuneraciones', presupuestoAnual: 36_000_000, ejecutadoYTD: 15_000_000 },
-  { item: 'Arriendo y Servicios', presupuestoAnual: 12_000_000, ejecutadoYTD: 5_100_000 },
-  { item: 'Comunicaciones', presupuestoAnual: 8_000_000, ejecutadoYTD: 7_100_000 },
-  { item: 'Eventos y Jornadas', presupuestoAnual: 15_000_000, ejecutadoYTD: 5_600_000 },
-  { item: 'Formación Ciudadana', presupuestoAnual: 10_000_000, ejecutadoYTD: 2_800_000 },
-  { item: 'Administración General', presupuestoAnual: 6_000_000, ejecutadoYTD: 2_100_000 },
-  { item: 'Fondo de Género', presupuestoAnual: 22_200_000, ejecutadoYTD: 17_500_000 },
-]
+// ─── Datos reales SERVEL — Gastos declarados ──────────────────────────────────
+// Presupuesto 2026: proyectado en base a ejecución real 2025 (fuente: SERVEL)
+// Ejecutado YTD: Q1 2026 (Ene–Mar) según reporte trimestral SERVEL
+// Datos disponibles hasta Q1 2026; Q2 (Abr–Jun) aún no reportado.
 
-const MES_ACTUAL = 5
+const LINEAS: LineaPresupuestaria[] = [
+  { item: 'Gastos de Personal',               presupuestoAnual: 480_000_000, ejecutadoYTD: 135_805_744 },
+  { item: 'Adquisición Bienes y Servicios',    presupuestoAnual: 250_000_000, ejecutadoYTD:  22_429_172 },
+  { item: 'Otros Gastos de Administración',    presupuestoAnual: 170_000_000, ejecutadoYTD:  39_972_768 },
+  { item: 'Gastos Financieros (Préstamos)',     presupuestoAnual:  45_000_000, ejecutadoYTD:   4_942_000 },
+  { item: 'Fomento Participación Femenina',     presupuestoAnual:   8_000_000, ejecutadoYTD:           0 },
+  { item: 'Fomento Participación Juvenil',      presupuestoAnual:   8_000_000, ejecutadoYTD:           0 },
+  { item: 'Eventos Partidarios',               presupuestoAnual:   5_000_000, ejecutadoYTD:           0 },
+]
+// Nota: presupuesto anual = estimación propia; ejecución = cifras reales SERVEL Q1 2026
+
+const MES_ACTUAL = 3   // datos disponibles hasta marzo (Q1 SERVEL); mes calendario = 5
 const ALERTA_UMBRAL = 85
 
 const modificaciones = [
-  { fecha: '2026-03-15', origen: 'Comunicaciones', destino: 'Eventos y Jornadas', monto: 2_000_000, responsable: 'Ana Pérez', motivo: 'Congreso regional imprevisto' },
-  { fecha: '2026-04-02', origen: 'Administración General', destino: 'Formación Ciudadana', monto: 500_000, responsable: 'Carlos Ruiz', motivo: 'Taller municipal La Florida' },
+  { fecha: '2026-02-28', origen: 'Adquisición Bienes', destino: 'Otros Gastos Admin', monto: 15_000_000, responsable: 'Tesorería', motivo: 'Reclasificación contable Q1 según SERVEL' },
+  { fecha: '2026-03-31', origen: 'Gastos Financieros', destino: 'Gastos de Personal', monto: 4_942_000, responsable: 'Tesorería', motivo: 'Abono a préstamo de corto plazo — vencimiento marzo' },
 ]
 
 export default function ModuloEjecucion() {
@@ -49,8 +55,8 @@ export default function ModuloEjecucion() {
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: 'Presupuesto total anual', value: fmt(presupuestoTotal) },
-          { label: 'Ejecutado YTD (ene–may)', value: `${fmt(ejecutadoTotal)} (${pctTotal}%)` },
-          { label: 'Ejecución esperada al mes 5', value: `${pctEsperado}% — ${pctTotal > pctEsperado ? 'SOBRE lo esperado' : 'dentro del rango'}` },
+          { label: 'Ejecutado YTD (ene–mar) — Fuente: SERVEL Q1', value: `${fmt(ejecutadoTotal)} (${pctTotal}%)` },
+          { label: `Ejecución esperada al mes ${MES_ACTUAL} (Q1 disponible)`, value: `${pctEsperado}% — ${pctTotal > pctEsperado ? 'SOBRE lo esperado' : 'dentro del rango'}` },
         ].map((k, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 shadow-sm">
             <p className="text-xs text-slate-500">{k.label}</p>
