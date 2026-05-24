@@ -3,6 +3,7 @@ import {
   BarChart2, Heart, Users, Receipt, Building2, PieChart,
   Gift, Calculator, TrendingUp, Shield, Package,
   AlertTriangle, CheckCircle, UserX, DollarSign, ClipboardList,
+  CalendarDays,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
@@ -19,6 +20,8 @@ import ModuloConflictos from './components/ModuloConflictos'
 import ModuloActivos from './components/ModuloActivos'
 import ModuloCargaDatos from './components/ModuloCargaDatos'
 import ModuloAfiliados from './components/ModuloAfiliados'
+import ModuloHistorico from './components/ModuloHistorico'
+import LoginPage from './components/LoginPage'
 import { fmt, APORTE_ESTATAL_ANUAL } from './utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -27,7 +30,7 @@ type Tab =
   | 'presupuesto' | 'genero' | 'personal'
   | 'egresos' | 'conciliacion' | 'ejecucion'
   | 'donaciones' | 'retenciones' | 'flujo'
-  | 'conflictos' | 'activos' | 'afiliados' | 'datos'
+  | 'conflictos' | 'activos' | 'afiliados' | 'historico' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -43,8 +46,9 @@ const NAV: NavItem[] = [
   { id: 'conciliacion', label: 'Conciliación Bancaria',icon: <Building2 size={18} />,   group: 'Control' },
   { id: 'ejecucion',    label: 'Ejecución Ppto.',      icon: <PieChart size={18} />,    group: 'Control' },
   { id: 'flujo',        label: 'Flujo de Caja',        icon: <TrendingUp size={18} />,  group: 'Control' },
-  { id: 'activos',      label: 'Activos Fijos',        icon: <Package size={18} />,     group: 'Control' },
-  { id: 'datos',        label: 'Carga de Datos',       icon: <ClipboardList size={18} />, group: 'Sistema' },
+  { id: 'activos',      label: 'Activos Fijos',        icon: <Package size={18} />,        group: 'Control' },
+  { id: 'historico',   label: 'Análisis Histórico',   icon: <CalendarDays size={18} />,   group: 'Control' },
+  { id: 'datos',       label: 'Carga de Datos',       icon: <ClipboardList size={18} />,  group: 'Sistema' },
 ]
 
 const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Sistema']
@@ -351,19 +355,43 @@ const TITLES: Record<Tab, string> = {
   conflictos: 'Declaraciones de Conflicto de Interés',
   activos: 'Inventario de Activos Fijos',
   afiliados: 'Afiliados, Sedes y Sanciones SERVEL',
+  historico: 'Análisis Histórico Financiero 2019–2026',
   datos: 'Carga de Datos Reales',
 }
 
 export default function App() {
+  const [autenticado, setAutenticado] = useState(false)
   const [tab, setTab] = useState<Tab>('presupuesto')
 
+  // ── Pantalla de login ───────────────────────────────────────────────────────
+  if (!autenticado) {
+    return <LoginPage onLogin={() => setAutenticado(true)} />
+  }
+
+  // ── Aplicación principal ────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100">
       <Sidebar active={tab} onSelect={setTab} />
       <div className="ml-56 flex flex-col min-h-screen">
-        <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-10">
-          <h1 className="text-base font-bold text-slate-800 m-0">{TITLES[tab]}</h1>
-          <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · Ley 18.603 · 19.884 · 20.900</p>
+        <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-base font-bold text-slate-800 m-0">{TITLES[tab]}</h1>
+            <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · Ley 18.603 · 19.884 · 20.900</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-xs font-semibold text-slate-700">Cristóbal Morales</p>
+              <p className="text-xs text-slate-400">Administrador</p>
+            </div>
+            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">CM</div>
+            <button
+              onClick={() => setAutenticado(false)}
+              className="text-xs text-slate-400 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
+              title="Cerrar sesión"
+            >
+              Salir
+            </button>
+          </div>
         </header>
         <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
           {tab === 'presupuesto'  && <ModuloPresupuesto />}
@@ -378,6 +406,7 @@ export default function App() {
           {tab === 'conflictos'   && <ModuloConflictos />}
           {tab === 'activos'      && <ModuloActivos />}
           {tab === 'afiliados'    && <ModuloAfiliados />}
+          {tab === 'historico'    && <ModuloHistorico />}
           {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>
