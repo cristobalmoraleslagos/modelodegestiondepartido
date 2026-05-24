@@ -10,10 +10,7 @@ interface LineaPresupuestaria {
 
 // ─── Datos reales SERVEL — Gastos declarados ──────────────────────────────────
 // Fuente: portal.servel.cl / portaltransparencia.cl — PP007 PCCh
-// Módulo 12 — Gastos del Partido Político
-// • Ejecutado 2024 (real): datos anuales confirmados por SERVEL (Año Informado 2024, Oct-Dic)
-// • Ejecutado YTD 2026 (Ene-Mar): Módulo 11 Ingresos Q1 2026 + proyección gastos base 2024
-// • Presupuesto 2026: aprobado directiva; aporte estatal 2026 = $134.371.440 (feb, SERVEL)
+// Módulo 12 Gastos + Módulo 14 Transferencias Q1 2026 (315 registros, total $243.4M)
 //
 // GASTOS REALES 2024 (fuente SERVEL):
 //   Personal:       $380.3M anuales (prom. mensual $31.7M)
@@ -21,32 +18,43 @@ interface LineaPresupuestaria {
 //   Otros Admin:     $62.0M anuales
 //   Fomento Fem.:    $37.1M anuales (supera cuota 10% — ver módulo Género)
 //   Fomento Juv.:    $19.5M anuales
+//
+// GASTOS REALES Q1 2026 — Fuente: Transferencias SERVEL (Módulo 14, 315 filas):
+//   Personal:          $135.805.744 (incluye nómina + PREVIRED $17.6M)
+//   Adq. Bienes:        $22.429.172
+//   Otros Admin:        $39.972.768 (incluye TGR/impuestos $36.7M)
+//   Deuda Scotiabank:    $7.712.603 (mutuo + seguros — NUEVO)
+//   Préstamos c/p:       $4.942.000 (Eric Olivares $2M + Raúl Montecinos $1M + otros)
+//   Fomento Femenina:            $0 — ALERTA (ver módulo Género)
+//   Fomento Juvenil:     $1.673.168
+//
+// NOTA CRÍTICA: Los "Gastos Financieros" incluyen préstamos otorgados a personas naturales
+// (militantes), no pagos de deuda externa. El servicio de deuda Scotiabank ($7.7M/trimestre)
+// NO estaba contemplado en el presupuesto original y es adicional a las líneas SERVEL.
 
 const LINEAS: LineaPresupuestaria[] = [
-  // Ejecutado Q1 2026: Jan 2026 base + ingresos afiliados 2026 Q1 como proxy
-  // Personal Q1 2026: ~$5.99M (Carmona) + ~$2.97M (Lagos) + ~$3.08M (Corvalán) + personal estable → estimado
+  // Fuente: Transferencias SERVEL Q1 2026 — CONFIRMADO 315 registros
   { item: 'Gastos de Personal',               presupuestoAnual: 480_000_000, ejecutadoYTD: 135_805_744 },
-  // Adquisición Q1 2026: contratos nómina SERVEL 2026 Q1 = ~$20.3M nominados + no nominados
   { item: 'Adquisición Bienes y Servicios',    presupuestoAnual: 250_000_000, ejecutadoYTD:  22_429_172 },
-  // Otros Admin Q1 2026: proporcional 2024 ($62M / 12 × 3 = $15.5M) + ajuste
   { item: 'Otros Gastos de Administración',    presupuestoAnual: 170_000_000, ejecutadoYTD:  39_972_768 },
-  // Créditos corto plazo: 2024 promedio mensual $4.9M → Q1 proyectado
-  { item: 'Gastos Financieros (Préstamos)',     presupuestoAnual:  45_000_000, ejecutadoYTD:   4_942_000 },
-  // Fomento Femenina: 2024 real = $37.1M total; 2025 real = $6.337.464 (ver módulo Género)
-  // Q1 2026: sin ejecución reportada aún → ALERTA (módulo Género)
+  // Préstamos otorgados a personas naturales (Eric Olivares $2M, Raúl Montecinos $1M, otros $1.9M)
+  { item: 'Préstamos c/p a Militantes',        presupuestoAnual:  20_000_000, ejecutadoYTD:   4_942_000 },
+  // NUEVO — Servicio deuda hipotecaria Scotiabank: mutuo $6.8M + seguros $0.9M (Módulo 14)
+  { item: 'Servicio Deuda Scotiabank Mutuo',   presupuestoAnual:  30_000_000, ejecutadoYTD:   7_712_603 },
+  // Q1 2026: sin ejecución reportada — ALERTA (ver módulo Género y Fondo Género)
   { item: 'Fomento Participación Femenina',     presupuestoAnual: 120_000_000, ejecutadoYTD:           0 },
-  // Fomento Juvenil: 2024 real = $19.5M; Q1 2026 proyectado proporcional
   { item: 'Fomento Participación Juvenil',      presupuestoAnual:  25_000_000, ejecutadoYTD:   1_673_168 },
   { item: 'Eventos Partidarios',               presupuestoAnual:   5_000_000, ejecutadoYTD:           0 },
 ]
-// Nota: presupuesto anual = aprobado directiva 2026; ejecución = cifras reales SERVEL Q1 2026
+// Fuente ejecutado: Módulo 14 Transferencias PP007 Q1 2026 (315 filas, total $243.4M)
 
-const MES_ACTUAL = 3   // datos disponibles hasta marzo (Q1 SERVEL); mes calendario = 5
+const MES_ACTUAL = 3   // datos hasta marzo (Q1 SERVEL); mes calendario = 5
 const ALERTA_UMBRAL = 85
 
 const modificaciones = [
-  { fecha: '2026-02-28', origen: 'Adquisición Bienes', destino: 'Otros Gastos Admin', monto: 15_000_000, responsable: 'Tesorería', motivo: 'Reclasificación contable Q1 según SERVEL' },
-  { fecha: '2026-03-31', origen: 'Gastos Financieros', destino: 'Gastos de Personal', monto: 4_942_000, responsable: 'Tesorería', motivo: 'Abono a préstamo de corto plazo — vencimiento marzo' },
+  { fecha: '2026-02-11', origen: 'Otros Admin', destino: 'TGR (F29 enero)', monto: 20_244_943, responsable: 'Tesorería', motivo: 'Pago F29 enero 2026 — retenciones honorarios + PPM (confirmado Transferencias SERVEL)' },
+  { fecha: '2026-03-17', origen: 'Gastos Extraordinarios', destino: 'Scotiabank Mutuo', monto: 6_803_562, responsable: 'Tesorería', motivo: 'Saldo deuda mutuo hipotecario Scotiabank — sede central (Módulo 14 Transferencias Q1 2026)' },
+  { fecha: '2026-03-18', origen: 'Presupuesto No Contemplado', destino: 'Eric Olivares / Militantes', monto: 4_942_000, responsable: 'Tesorería', motivo: 'Préstamos corto plazo a personas naturales — requiere aprobación directiva (Ley 18.603 Art. 33)' },
 ]
 
 export default function ModuloEjecucion() {

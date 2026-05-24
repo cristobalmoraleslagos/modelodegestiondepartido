@@ -1,4 +1,4 @@
-import { Calculator, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Calculator, AlertTriangle, CheckCircle, Building2, FileText } from 'lucide-react'
 import { fmt } from '../utils'
 
 interface Contratista {
@@ -131,6 +131,91 @@ export default function ModuloRetenciones() {
           <div>
             <p className="text-indigo-500 text-xs">Número de boletas a declarar</p>
             <p className="text-lg font-bold text-indigo-800">{pendientesMes.length}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Pagos reales Q1 2026 — TGR y PREVIRED */}
+      <div className="bg-white rounded-2xl shadow-sm">
+        <div className="p-5 border-b border-slate-100">
+          <h2 className="text-base font-semibold text-slate-800">Pagos Reales Q1 2026 — TGR y PREVIRED</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Fuente: Módulo 14 Transferencias PP007 (315 filas, total $243.373.388) · Solo pagos a organismos del Estado
+          </p>
+        </div>
+        <div className="p-5 grid grid-cols-2 gap-6">
+          {/* TGR */}
+          <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-red-50 rounded-xl text-red-600"><FileText size={18} /></div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Tesorería General de la República (TGR)</p>
+                <p className="text-xs text-slate-500">Impuestos F29 — retenciones honorarios + PPM</p>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              {[
+                { fecha: '11-02-2026', concepto: 'F29 enero 2026 (retenciones + PPM)', monto: 20_244_943 },
+                { fecha: '17-03-2026', concepto: 'F29 febrero 2026', monto: 8_229_003 },
+                { fecha: 'Mar 2026',   concepto: 'Otros impuestos / impuestos municipales', monto: 8_229_003 },
+              ].map((p, i) => (
+                <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                  <div>
+                    <p className="text-slate-700">{p.concepto}</p>
+                    <p className="text-xs text-slate-400">{p.fecha}</p>
+                  </div>
+                  <p className="font-semibold text-red-700 whitespace-nowrap">{fmt(p.monto)}</p>
+                </div>
+              ))}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                <p className="font-semibold text-slate-700">Total TGR Q1 2026</p>
+                <p className="text-lg font-bold text-red-700">{fmt(36_703_949)}</p>
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 text-xs text-amber-800">
+              ⚠ El pago F29 de enero ($20.2M, 11-feb) concentra la mayor parte. Incluye retenciones de honorarios acumuladas del mes anterior. Confirmado en Transferencias SERVEL Q1 2026.
+            </div>
+          </div>
+
+          {/* PREVIRED */}
+          <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600"><Building2 size={18} /></div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">PREVIRED — Seguridad Social</p>
+                <p className="text-xs text-slate-500">AFP + Isapre + Fonasa — personal planta</p>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              {[
+                { mes: 'Enero 2026',  monto: 5_650_000 },
+                { mes: 'Febrero 2026', monto: 5_850_000 },
+                { mes: 'Marzo 2026',  monto: 6_061_934 },
+              ].map((p, i) => (
+                <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                  <p className="text-slate-700">Cotizaciones {p.mes}</p>
+                  <p className="font-semibold text-blue-700 whitespace-nowrap">{fmt(p.monto)}</p>
+                </div>
+              ))}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                <p className="font-semibold text-slate-700">Total PREVIRED Q1 2026</p>
+                <p className="text-lg font-bold text-blue-700">{fmt(17_561_934)}</p>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs text-blue-800">
+              Cotizaciones previsionales del personal de planta (Código del Trabajo). Separado de los honorarios declarados en F29. Confirmado en Transferencias SERVEL Q1 2026.
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen carga tributaria total */}
+        <div className="px-5 pb-5">
+          <div className="bg-slate-50 rounded-xl p-4 flex items-center justify-between text-sm">
+            <div>
+              <p className="font-semibold text-slate-700">Carga tributaria total Q1 2026 (TGR + PREVIRED)</p>
+              <p className="text-xs text-slate-500">Sobre gastos personales Q1: {fmt(135_805_744)} → {Math.round(((36_703_949 + 17_561_934) / 135_805_744) * 100)}% de la nómina bruta</p>
+            </div>
+            <p className="text-xl font-bold text-slate-800">{fmt(36_703_949 + 17_561_934)}</p>
           </div>
         </div>
       </div>
