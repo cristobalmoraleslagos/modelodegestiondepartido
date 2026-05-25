@@ -360,12 +360,12 @@ const TITLES: Record<Tab, string> = {
 }
 
 export default function App() {
-  const [autenticado, setAutenticado] = useState(false)
+  const [usuario, setUsuario] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('presupuesto')
 
   // ── Pantalla de login ───────────────────────────────────────────────────────
-  if (!autenticado) {
-    return <LoginPage onLogin={() => setAutenticado(true)} />
+  if (!usuario) {
+    return <LoginPage onLogin={(nombre) => setUsuario(nombre)} />
   }
 
   // ── Aplicación principal ────────────────────────────────────────────────────
@@ -380,12 +380,14 @@ export default function App() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-xs font-semibold text-slate-700">Cristóbal Morales</p>
+              <p className="text-xs font-semibold text-slate-700">{usuario}</p>
               <p className="text-xs text-slate-400">Administrador</p>
             </div>
-            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">CM</div>
+            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
+              {usuario.split(' ').map(p => p[0]).slice(0, 2).join('')}
+            </div>
             <button
-              onClick={() => setAutenticado(false)}
+              onClick={() => setUsuario(null)}
               className="text-xs text-slate-400 hover:text-red-500 transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
               title="Cerrar sesión"
             >

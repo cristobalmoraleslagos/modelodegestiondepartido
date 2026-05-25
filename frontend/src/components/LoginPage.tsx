@@ -1,9 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 
-const CREDENCIALES = { usuario: 'Cristóbal Morales', clave: 'CBAML241243.' }
+const USUARIOS: Record<string, string> = {
+  'Cristóbal Morales': 'CBAML241243.',
+  'Alejandro Urquiza': 'FINANZAS2026.',
+}
 
-interface Props { onLogin: () => void }
+interface Props { onLogin: (nombre: string) => void }
 
 export default function LoginPage({ onLogin }: Props) {
   const [usuario, setUsuario] = useState('')
@@ -18,8 +21,9 @@ export default function LoginPage({ onLogin }: Props) {
     setError('')
     setCargando(true)
     setTimeout(() => {
-      if (usuario.trim() === CREDENCIALES.usuario && clave === CREDENCIALES.clave) {
-        onLogin()
+      const claveEsperada = USUARIOS[usuario.trim()]
+      if (claveEsperada && clave === claveEsperada) {
+        onLogin(usuario.trim())
       } else {
         setError('Usuario o contraseña incorrectos. Verifique sus credenciales.')
         setCargando(false)
