@@ -167,7 +167,7 @@ function ModuloPresupuesto() {
             <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v) => fmt(Number(v))} />
             <Legend />
-            <Bar dataKey="estatal" name="Operacional (Personal+Bienes+Admin)" fill="#6366f1" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="estatal" name="Operacional (Personal+Bienes+Admin)" fill="#003087" radius={[4, 4, 0, 0]} />
             <Bar dataKey="cotizaciones" name="Actividades Género+Juvenil" fill="#22d3ee" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -260,7 +260,7 @@ function ModuloPersonal() {
             <span className={`font-semibold ${pctSueldo > 90 ? 'text-red-600' : 'text-slate-700'}`}>{fmt(sueldoTotal)} / {fmt(PRESUPUESTO_SUELDOS)} ({pctSueldo}%)</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-3">
-            <div className="h-3 rounded-full" style={{ width: `${Math.min(pctSueldo, 100)}%`, background: pctSueldo > 90 ? '#ef4444' : pctSueldo > 70 ? '#f59e0b' : '#6366f1' }} />
+            <div className="h-3 rounded-full" style={{ width: `${Math.min(pctSueldo, 100)}%`, background: pctSueldo > 90 ? '#ef4444' : pctSueldo > 70 ? '#f59e0b' : '#003087' }} />
           </div>
         </div>
         <div>
@@ -297,7 +297,7 @@ function ModuloPersonal() {
             </div>
             {blocked && <div className="col-span-2 flex items-start gap-2 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm font-medium"><UserX size={16} className="mt-0.5 shrink-0" />{blocked}</div>}
             {submitted && <div className="col-span-2 flex items-center gap-2 bg-green-50 text-green-800 rounded-xl px-4 py-3 text-sm font-medium"><CheckCircle size={16} />Funcionario agregado correctamente.</div>}
-            <div className="col-span-2"><button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl py-2.5 text-sm transition-colors">Registrar funcionario</button></div>
+            <div className="col-span-2"><button type="submit" className="w-full bg-amaranto-600 hover:bg-amaranto-700 text-white font-medium rounded-xl py-2.5 text-sm transition-colors">Registrar funcionario</button></div>
           </form>
         </div>
       </div>
@@ -322,8 +322,8 @@ function Sidebar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void
               <button
                 key={n.id}
                 onClick={() => onSelect(n.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5 text-left ${
-                  active === n.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5 text-left ${
+                  active === n.id ? 'bg-indigo-50 text-indigo-700 border-l-[3px] border-amaranto-500 pl-[9px] pr-3' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800 px-3'
                 }`}
               >
                 <span className={active === n.id ? 'text-indigo-600' : 'text-slate-400'}>{n.icon}</span>
@@ -370,10 +370,10 @@ export default function App() {
 
   // ── Aplicación principal ────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <Sidebar active={tab} onSelect={setTab} />
       <div className="ml-56 flex flex-col min-h-screen">
-        <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
+        <header className="bg-white border-b-[2px] border-amaranto-500 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-slate-800 m-0">{TITLES[tab]}</h1>
             <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · Ley 18.603 · 19.884 · 20.900</p>
@@ -383,7 +383,7 @@ export default function App() {
               <p className="text-xs font-semibold text-slate-700">{usuario}</p>
               <p className="text-xs text-slate-400">Administrador</p>
             </div>
-            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
+            <div className="w-8 h-8 bg-amaranto-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
               {usuario.split(' ').map(p => p[0]).slice(0, 2).join('')}
             </div>
             <button

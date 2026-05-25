@@ -131,7 +131,7 @@ export default function ModuloFlujoCaja() {
             <YAxis tickFormatter={v => `$${v.toLocaleString('es-CL')}K`} tick={{ fontSize: 10 }} />
             <Tooltip formatter={(v) => fmt(Number(v) * 1_000)} labelFormatter={(l) => `Semana: ${l}`} />
             <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 4" label={{ value: 'Saldo 0', position: 'right', fontSize: 10, fill: '#ef4444' }} />
-            <Line type="monotone" dataKey="saldo" stroke="#6366f1" strokeWidth={2.5} dot={{ fill: '#6366f1', r: 4 }} name="Saldo proyectado (M$)" />
+            <Line type="monotone" dataKey="saldo" stroke="#003087" strokeWidth={2.5} dot={{ fill: '#003087', r: 4 }} name="Saldo proyectado (M$)" />
           </LineChart>
         </ResponsiveContainer>
       </div>

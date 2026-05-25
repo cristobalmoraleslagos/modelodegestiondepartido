@@ -112,7 +112,7 @@ export default function ModuloEjecucion() {
           {LINEAS.map((l, i) => {
             const pct = Math.round((l.ejecutadoYTD / l.presupuestoAnual) * 100)
             const saldo = l.presupuestoAnual - l.ejecutadoYTD
-            const color = pct >= ALERTA_UMBRAL ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#6366f1'
+            const color = pct >= ALERTA_UMBRAL ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#003087'
             return (
               <div key={i} className="px-5 py-4">
                 <div className="flex items-center justify-between mb-2">
@@ -142,8 +142,8 @@ export default function ModuloEjecucion() {
             <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(0)}M`} tick={{ fontSize: 11 }} />
             <Tooltip formatter={(v) => fmt(Number(v))} />
             <Legend />
-            <Bar dataKey="Presupuesto" fill="#e0e7ff" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="Ejecutado" fill="#6366f1" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Presupuesto" fill="#DDEAFF" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Ejecutado" fill="#003087" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

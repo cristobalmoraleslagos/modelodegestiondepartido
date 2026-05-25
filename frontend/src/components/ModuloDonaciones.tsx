@@ -27,7 +27,7 @@ const DONACIONES: Donacion[] = [
 function barColor(pct: number) {
   if (pct >= 100) return '#ef4444'
   if (pct >= 80) return '#f59e0b'
-  return '#6366f1'
+  return '#003087'
 }
 
 export default function ModuloDonaciones() {

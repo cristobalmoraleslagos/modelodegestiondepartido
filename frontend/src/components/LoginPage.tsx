@@ -42,7 +42,7 @@ export default function LoginPage({ onLogin }: Props) {
       <div className="relative w-full max-w-sm z-10">
         {/* Logo / Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-900/50 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-amaranto-600 rounded-2xl shadow-lg shadow-indigo-900/50 mb-4">
             <ShieldCheck size={30} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">FinParty</h1>
@@ -53,7 +53,7 @@ export default function LoginPage({ onLogin }: Props) {
         {/* Card */}
         <div className="bg-slate-800/70 border border-slate-700/50 rounded-2xl p-7 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-1 h-5 bg-indigo-500 rounded-full" />
+            <div className="w-1 h-5 bg-amaranto-500 rounded-full" />
             <h2 className="text-base font-semibold text-white">Acceso al Sistema</h2>
           </div>
 
@@ -116,7 +116,7 @@ export default function LoginPage({ onLogin }: Props) {
             <button
               type="submit"
               disabled={cargando}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-2.5 text-sm transition-colors mt-1 flex items-center justify-center gap-2"
+              className="w-full bg-amaranto-600 hover:bg-amaranto-500 active:bg-amaranto-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-2.5 text-sm transition-colors mt-1 flex items-center justify-center gap-2"
             >
               {cargando ? (
                 <>

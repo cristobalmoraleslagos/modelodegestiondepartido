@@ -104,7 +104,7 @@ const SANCIONES = [
 
 const PIE_DATA = [
   { name: 'Mujeres', value: MUJERES, color: '#a855f7' },
-  { name: 'Hombres', value: HOMBRES, color: '#6366f1' },
+  { name: 'Hombres', value: HOMBRES, color: '#003087' },
 ]
 
 export default function ModuloAfiliados() {
@@ -181,7 +181,7 @@ export default function ModuloAfiliados() {
               <Tooltip formatter={(v: number) => v.toLocaleString('es-CL')} />
               <Legend />
               <Bar dataKey="mujeres" name="Mujeres" fill="#a855f7" stackId="a" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="hombres" name="Hombres" fill="#6366f1" stackId="a" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="hombres" name="Hombres" fill="#003087" stackId="a" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

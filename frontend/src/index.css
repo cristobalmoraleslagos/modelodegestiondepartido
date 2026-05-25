@@ -1,8 +1,40 @@
 @import "tailwindcss";
 
+/* ─── Paleta Propuesta 2 — Línea Fina ────────────────────────────────────────
+   Azul Bandera Chilena reemplaza indigo en toda la app (efecto global).
+   Amaranto PCCh se usa como acento selectivo: bordes activos, botones primarios.
+   Fondo dominante blanco-hielo (#FAFAFA) para no sobrecargar.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Azul Bandera Chilena — reemplaza indigo en toda la app */
+  --color-indigo-50:  #EEF3FF;
+  --color-indigo-100: #DDEAFF;
+  --color-indigo-200: #BBD5FF;
+  --color-indigo-300: #80AAEE;
+  --color-indigo-400: #4477CC;
+  --color-indigo-500: #1A4A9B;
+  --color-indigo-600: #003087;
+  --color-indigo-700: #002270;
+  --color-indigo-800: #001755;
+  --color-indigo-900: #000E3A;
+
+  /* Amaranto PCCh — acento selectivo */
+  --color-amaranto-50:  #FDE8EC;
+  --color-amaranto-100: #FAD0D8;
+  --color-amaranto-200: #F4A2B2;
+  --color-amaranto-300: #EC6F8A;
+  --color-amaranto-400: #C94E6A;
+  --color-amaranto-500: #9B2335;
+  --color-amaranto-600: #8B1A2B;
+  --color-amaranto-700: #6D1422;
+  --color-amaranto-800: #4F0E19;
+  --color-amaranto-900: #320810;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f1f5f9;
-  color: #1e293b;
+  background: #FAFAFA;
+  color: #1E3A5F;
 }

@@ -466,9 +466,9 @@ export default function ModuloHistorico() {
                 <Line
                   type="monotone"
                   dataKey="Gasto Total"
-                  stroke="#6366f1"
+                  stroke="#003087"
                   strokeWidth={2.5}
-                  dot={{ r: 5, fill: '#6366f1' }}
+                  dot={{ r: 5, fill: '#003087' }}
                   activeDot={{ r: 7 }}
                 />
               </LineChart>
@@ -492,7 +492,7 @@ export default function ModuloHistorico() {
                 <YAxis tickFormatter={fmtM} tick={{ fontSize: 11 }} width={55} />
                 <Tooltip formatter={(v) => fmt(Number(v))} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="Personal"       fill="#6366f1" radius={[3,3,0,0]} />
+                <Bar dataKey="Personal"       fill="#003087" radius={[3,3,0,0]} />
                 <Bar dataKey="Bienes y Serv." fill="#8b5cf6" radius={[3,3,0,0]} />
                 <Bar dataKey="Otros Admin"    fill="#06b6d4" radius={[3,3,0,0]} />
                 <Bar dataKey="F. Género"      fill="#ec4899" radius={[3,3,0,0]} />
@@ -557,7 +557,7 @@ export default function ModuloHistorico() {
                   <Tooltip formatter={(v) => fmt(Number(v))} />
                   <Bar dataKey="Aporte Estatal" radius={[4,4,0,0]}>
                     {CHART_APORTE.map((entry, index) => (
-                      <Cell key={index} fill={entry.estimado ? '#a5b4fc' : '#6366f1'} />
+                      <Cell key={index} fill={entry.estimado ? '#BBD5FF' : '#003087'} />
                     ))}
                   </Bar>
                 </BarChart>

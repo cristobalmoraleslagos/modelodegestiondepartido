@@ -55,7 +55,7 @@ const ACTIVOS: Activo[] = [
 
 const COLORES: Record<Activo['categoria'], string> = {
   'Inmuebles':  '#8b5cf6',
-  'Tecnología': '#6366f1',
+  'Tecnología': '#003087',
   'Mobiliario': '#22d3ee',
   'Vehículos':  '#f59e0b',
   'Equipos AV': '#10b981',

@@ -143,7 +143,7 @@ function EditableTable({ storageKey, cols, empty }: {
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <button onClick={add}
-            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
+            className="flex items-center gap-1.5 bg-amaranto-600 hover:bg-amaranto-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
             <Plus size={13} /> Agregar fila
           </button>
           <button onClick={exportCSV}
@@ -270,7 +270,7 @@ function SeccionConfig() {
 
       <div className="flex items-center gap-3 pt-1">
         <button onClick={save}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors">
+          className="flex items-center gap-2 bg-amaranto-600 hover:bg-amaranto-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors">
           <Save size={14} /> Guardar configuración
         </button>
         {flash && <span className="flex items-center gap-1 text-sm text-green-600"><CheckCircle size={14} /> Guardado</span>}

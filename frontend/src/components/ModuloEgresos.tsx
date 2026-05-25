@@ -100,7 +100,7 @@ export default function ModuloEgresos() {
             </select>
             <button
               onClick={() => setShowForm(v => !v)}
-              className="bg-indigo-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="bg-amaranto-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-amaranto-700 transition-colors"
             >
               + Nuevo egreso
             </button>
