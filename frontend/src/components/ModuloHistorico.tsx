@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Calendar, Shield, Info, Zap } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Calendar, Shield, Info, Zap, Wifi, WifiOff } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line, ReferenceLine, Cell,
 } from 'recharts'
 import { fmt } from '../utils'
+import { api, type DatoAnualAPI } from '../api'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 interface DatoAnual {
@@ -254,21 +255,71 @@ const tipoEvento = {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function ModuloHistorico() {
-  const [tab, setTab] = useState<TabH>('resumen')
+  const [tab, setTab]       = useState<TabH>('resumen')
+  const [serieApi, setSerieApi] = useState<DatoAnualAPI[] | null>(null)
+  const [apiOk, setApiOk]   = useState<boolean | null>(null)  // null = cargando
 
-  const totalSanciones = SERIE.reduce((s, d) => s + d.sanciones, 0)
-  const añosConGenero = SERIE.filter(d => d.genero !== null && d.cuotaGenero !== null)
+  useEffect(() => {
+    api.gastosSerie().then(data => {
+      if (data && data.serie.length > 0) {
+        setSerieApi(data.serie)
+        setApiOk(true)
+      } else {
+        setApiOk(false)
+      }
+    })
+  }, [])
+
+  // Enriquecer SERIE hardcodeada con datos del API cuando estén disponibles
+  const serieEnriquecida: DatoAnual[] = SERIE.map(base => {
+    if (!serieApi) return base
+    const apiRow = serieApi.find(r => r.año === base.año)
+    if (!apiRow) return base
+    return {
+      ...base,
+      gastoTotal: apiRow.gastoTotal || base.gastoTotal,
+      personal:   apiRow.personal   || base.personal,
+      bienes:     apiRow.bienes_servicios || base.bienes,
+      admin:      apiRow.otros_admin || base.admin,
+      genero:     apiRow.genero      || base.genero,
+      juvenil:    apiRow.juvenil     || base.juvenil,
+    }
+  })
+
+  // Usar serie enriquecida (con datos API si están disponibles, fallback hardcodeado)
+  const serieActiva = serieEnriquecida
+
+  const totalSanciones = serieActiva.reduce((s, d) => s + d.sanciones, 0)
+  const añosConGenero = serieActiva.filter(d => d.genero !== null && d.cuotaGenero !== null)
   const avgGenero = añosConGenero.length
     ? Math.round(añosConGenero.reduce((s, d) => s + (d.genero! / d.cuotaGenero!) * 100, 0) / añosConGenero.length)
     : 0
   const tendenciaGastos = (() => {
-    const c = SERIE.filter(d => d.gastoTotal !== null && !d.esParcial)
+    const c = serieActiva.filter(d => d.gastoTotal !== null && !d.esParcial)
     if (c.length < 2) return null
     const last = c[c.length - 1].gastoTotal!
     const prev = c[c.length - 2].gastoTotal!
     return Math.round(((last - prev) / prev) * 100)
   })()
   const eventosAlta = EVENTOS.filter(e => e.gravedad === 'alta').length
+
+  // Charts derivados de la serie activa
+  const CHART_GENERO_ACTIVO = serieActiva
+    .filter(d => d.genero !== null && d.cuotaGenero !== null)
+    .map(d => ({
+      año: String(d.año),
+      pct: Math.round((d.genero! / d.cuotaGenero!) * 100),
+      ejecutado: d.genero!,
+      cuota: d.cuotaGenero!,
+    }))
+
+  const CHART_TOTALES_ACTIVO = serieActiva
+    .filter(d => d.gastoTotal !== null)
+    .map(d => ({
+      año: d.esParcial ? `${d.año}*` : String(d.año),
+      'Gasto Total': d.gastoTotal!,
+      esParcial: d.esParcial,
+    }))
 
   const TABS: { id: TabH; label: string }[] = [
     { id: 'resumen',  label: 'Resumen Histórico' },
@@ -279,6 +330,26 @@ export default function ModuloHistorico() {
 
   return (
     <div className="space-y-6">
+      {/* Badge de fuente de datos */}
+      <div className="flex items-center gap-2 text-xs">
+        {apiOk === null && (
+          <span className="flex items-center gap-1.5 text-slate-400">
+            <span className="inline-block w-2 h-2 bg-slate-300 rounded-full animate-pulse" />
+            Conectando con base de datos...
+          </span>
+        )}
+        {apiOk === true && (
+          <span className="flex items-center gap-1.5 text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+            <Wifi size={11} /> Datos actualizados desde PostgreSQL
+          </span>
+        )}
+        {apiOk === false && (
+          <span className="flex items-center gap-1.5 text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+            <WifiOff size={11} /> Usando datos compilados (backend no conectado)
+          </span>
+        )}
+      </div>
+
       {/* KPIs globales */}
       <div className="grid grid-cols-4 gap-4">
         {[
@@ -459,7 +530,7 @@ export default function ModuloHistorico() {
             <h2 className="text-base font-semibold text-slate-800 mb-1">Evolución de Gastos Totales (años con datos)</h2>
             <p className="text-xs text-slate-500 mb-4">* Años marcados con asterisco son parciales o representan solo gastos de campaña electoral.</p>
             <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={CHART_TOTALES} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
+              <LineChart data={CHART_TOTALES_ACTIVO} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
                 <XAxis dataKey="año" tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={fmtM} tick={{ fontSize: 11 }} width={55} />
                 <Tooltip formatter={(v) => fmt(Number(v))} />
@@ -581,7 +652,7 @@ export default function ModuloHistorico() {
               Ningún año ha cumplido la obligación completa.
             </p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={CHART_GENERO} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+              <BarChart data={CHART_GENERO_ACTIVO} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <XAxis dataKey="año" tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 11 }} domain={[0, 120]} />
                 <Tooltip
@@ -590,7 +661,7 @@ export default function ModuloHistorico() {
                 />
                 <ReferenceLine y={100} stroke="#ef4444" strokeWidth={2} strokeDasharray="6 3" label={{ value: '100% (meta legal)', position: 'right', fontSize: 11, fill: '#ef4444' }} />
                 <Bar dataKey="pct" name="% Cumplimiento" radius={[4,4,0,0]}>
-                  {CHART_GENERO.map((entry, index) => (
+                  {CHART_GENERO_ACTIVO.map((entry, index) => (
                     <Cell key={index} fill={colorGenero(entry.pct)} />
                   ))}
                 </Bar>

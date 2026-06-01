@@ -1,0 +1,23 @@
+# Credenciales — NUNCA subir al repositorio
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Logs y adjuntos (datos reales)
+logs/
+attachments/
+
+# pgAdmin
+*.db
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

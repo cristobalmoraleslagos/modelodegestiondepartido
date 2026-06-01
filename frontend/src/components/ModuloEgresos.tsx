@@ -1,6 +1,66 @@
 import { useState } from 'react'
-import { Receipt, AlertTriangle, FileText, TrendingUp } from 'lucide-react'
+import { Receipt, AlertTriangle, FileText, TrendingUp, CheckSquare, Square, ChevronDown } from 'lucide-react'
 import { fmt } from '../utils'
+
+// ─── Documentos requeridos por categoría SERVEL ────────────────────────────
+const DOCS_POR_CATEGORIA: Record<string, { tipo: string; label: string; obligatorio: boolean }[]> = {
+  'Gastos de Personal':            [
+    { tipo: 'liquidacion',    label: 'Liquidación de sueldo firmada',        obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'contrato',       label: 'Contrato de trabajo vigente',          obligatorio: true  },
+    { tipo: 'previred',       label: 'Comprobante PREVIRED (cotizaciones)',  obligatorio: true  },
+  ],
+  'Honorarios':                    [
+    { tipo: 'bhe_sii',        label: 'BHE SII (estado: pagada)',             obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'contrato',       label: 'Contrato de honorarios',               obligatorio: true  },
+    { tipo: 'f29',            label: 'F29 con retención 10,75% declarada',   obligatorio: true  },
+  ],
+  'Bienes y Servicios':            [
+    { tipo: 'factura_dte',    label: 'Factura electrónica DTE (aceptada SII)', obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'cotizacion',     label: 'Cotización (monto > 3 UTM $198k)',     obligatorio: false },
+  ],
+  'Fondo Género':                  [
+    { tipo: 'factura_dte',    label: 'Factura o boleta del proveedor',       obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'programa',       label: 'Programa oficial del evento (PDF)',    obligatorio: true  },
+    { tipo: 'lista',          label: 'Lista de asistentes con firmas',       obligatorio: true  },
+    { tipo: 'informe',        label: 'Informe de actividad realizada',       obligatorio: true  },
+  ],
+  'Fomento Juvenil':               [
+    { tipo: 'factura_dte',    label: 'Factura o boleta del proveedor',       obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'programa',       label: 'Programa del evento (con rango etario)', obligatorio: true },
+    { tipo: 'lista',          label: 'Lista de asistentes',                  obligatorio: true  },
+    { tipo: 'informe',        label: 'Informe de actividad',                 obligatorio: true  },
+  ],
+  'Activo Fijo':                   [
+    { tipo: 'factura_dte',    label: 'Factura de compra DTE (aceptada SII)', obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'acta',           label: 'Acta de recepción del bien (firmada)', obligatorio: true  },
+    { tipo: 'ficha',          label: 'Ficha inventario (código, vida útil)', obligatorio: true  },
+  ],
+  'Campaña Electoral':             [
+    { tipo: 'factura_dte',    label: 'Factura del proveedor de campaña',     obligatorio: true  },
+    { tipo: 'cta_campana',    label: 'Pago DESDE cuenta corriente campaña', obligatorio: true  },
+    { tipo: 'declaracion',    label: 'Declaración gastos TRICEL/SERVEL',    obligatorio: true  },
+    { tipo: 'muestra',        label: 'Muestra del material (foto/captura)',  obligatorio: false },
+  ],
+  'Formación / Preparación':       [
+    { tipo: 'factura_dte',    label: 'Factura o BHE del relator',            obligatorio: true  },
+    { tipo: 'transferencia',  label: 'Comprobante transferencia bancaria',   obligatorio: true  },
+    { tipo: 'programa',       label: 'Programa o contenidos del curso',      obligatorio: true  },
+    { tipo: 'lista',          label: 'Registro de participantes',            obligatorio: true  },
+  ],
+  'Préstamos / Créditos':          [
+    { tipo: 'contrato',       label: 'Contrato (solo banco/inst. financiera)', obligatorio: true },
+    { tipo: 'transferencia',  label: 'Comprobante desembolso',               obligatorio: true  },
+    { tipo: 'amortizacion',   label: 'Tabla de amortización firmada',        obligatorio: true  },
+  ],
+}
+
+const CATEGORIAS_SERVEL = Object.keys(DOCS_POR_CATEGORIA)
 
 interface Egreso {
   id: number
@@ -44,6 +104,126 @@ const EGRESOS: Egreso[] = [
 // ALERTA: Estos egresos corresponden a Campaña Presidencial 2025 — deben constar
 // en cuenta separada y declararse ante SERVEL dentro de 15 días del gasto (Ley 19.884 Art. 24).
 const CUENTAS = ['Todas', 'Operacional', 'Campaña', 'Formación Ciudadana']
+
+// ─── Formulario con árbol de documentos requeridos ───────────────────────────
+function FormNuevoEgreso({ onClose }: { onClose: () => void }) {
+  const [categoria, setCategoria] = useState(CATEGORIAS_SERVEL[0])
+  const [checkedDocs, setCheckedDocs] = useState<Record<string, boolean>>({})
+  const [showDocs, setShowDocs] = useState(true)
+
+  const docs = DOCS_POR_CATEGORIA[categoria] ?? []
+  const obligatorios = docs.filter(d => d.obligatorio)
+  const opcionales   = docs.filter(d => !d.obligatorio)
+  const completados  = obligatorios.filter(d => checkedDocs[d.tipo]).length
+  const pctCompleto  = obligatorios.length > 0 ? Math.round((completados / obligatorios.length) * 100) : 0
+  const puedeGuardar = pctCompleto === 100
+
+  function toggleDoc(tipo: string) {
+    setCheckedDocs(prev => ({ ...prev, [tipo]: !prev[tipo] }))
+  }
+
+  return (
+    <div className="border-b border-slate-100 bg-slate-50">
+      <div className="p-5 grid grid-cols-2 gap-5">
+        {/* Columna izquierda: datos del egreso */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-slate-700">Datos del egreso</h3>
+          {[
+            { label: 'Proveedor / razón social', ph: 'Ej: Editorial Continental SpA' },
+            { label: 'RUT proveedor', ph: '77.236.959-K' },
+            { label: 'N° documento (factura/boleta)', ph: 'F-EC-2041' },
+            { label: 'Monto (CLP)', ph: '1547952' },
+          ].map(({ label, ph }) => (
+            <div key={label} className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-slate-600">{label}</label>
+              <input type="text" placeholder={ph}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+            </div>
+          ))}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-slate-600">Categoría SERVEL</label>
+            <select value={categoria} onChange={e => { setCategoria(e.target.value); setCheckedDocs({}) }}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              {CATEGORIAS_SERVEL.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Columna derecha: árbol documental */}
+        <div>
+          <button
+            onClick={() => setShowDocs(v => !v)}
+            className="flex items-center gap-2 w-full text-sm font-semibold text-slate-700 mb-3">
+            <ChevronDown size={14} className={`transition-transform ${showDocs ? '' : '-rotate-90'}`} />
+            Documentos requeridos — {categoria}
+            <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${puedeGuardar ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+              {completados}/{obligatorios.length} obligatorios
+            </span>
+          </button>
+
+          {showDocs && (
+            <div className="space-y-1.5">
+              {/* Barra de progreso */}
+              <div className="w-full bg-slate-200 rounded-full h-1.5 mb-3">
+                <div className="h-1.5 rounded-full transition-all"
+                  style={{ width: `${pctCompleto}%`, background: puedeGuardar ? '#22c55e' : '#f59e0b' }} />
+              </div>
+
+              {obligatorios.length > 0 && (
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Obligatorios</p>
+              )}
+              {obligatorios.map(doc => (
+                <button key={doc.tipo} onClick={() => toggleDoc(doc.tipo)}
+                  className="flex items-center gap-2.5 w-full text-left px-3 py-2 rounded-lg hover:bg-white transition-colors">
+                  {checkedDocs[doc.tipo]
+                    ? <CheckSquare size={15} className="text-green-500 shrink-0" />
+                    : <Square size={15} className="text-slate-300 shrink-0" />}
+                  <span className={`text-xs ${checkedDocs[doc.tipo] ? 'text-green-700 line-through' : 'text-slate-700'}`}>
+                    {doc.label}
+                  </span>
+                  <span className="ml-auto text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded shrink-0">obligatorio</span>
+                </button>
+              ))}
+
+              {opcionales.length > 0 && (
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mt-2 mb-1">Opcionales (recomendados)</p>
+              )}
+              {opcionales.map(doc => (
+                <button key={doc.tipo} onClick={() => toggleDoc(doc.tipo)}
+                  className="flex items-center gap-2.5 w-full text-left px-3 py-2 rounded-lg hover:bg-white transition-colors">
+                  {checkedDocs[doc.tipo]
+                    ? <CheckSquare size={15} className="text-green-500 shrink-0" />
+                    : <Square size={15} className="text-slate-300 shrink-0" />}
+                  <span className={`text-xs ${checkedDocs[doc.tipo] ? 'text-green-700 line-through' : 'text-slate-500'}`}>
+                    {doc.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-5 pb-4 gap-3">
+        {!puedeGuardar && (
+          <p className="text-xs text-amber-700 flex items-center gap-1.5">
+            <AlertTriangle size={13} /> Marcar todos los documentos obligatorios antes de guardar.
+          </p>
+        )}
+        <div className="flex gap-2 ml-auto">
+          <button onClick={onClose}
+            className="text-sm text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
+            Cancelar
+          </button>
+          <button disabled={!puedeGuardar}
+            className={`text-sm font-medium px-5 py-2 rounded-lg transition-colors ${puedeGuardar ? 'bg-amaranto-600 hover:bg-amaranto-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
+            {puedeGuardar ? 'Guardar egreso' : `Faltan ${obligatorios.length - completados} doc(s)`}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ModuloEgresos() {
   const [filtroCuenta, setFiltroCuenta] = useState('Todas')
@@ -107,11 +287,7 @@ export default function ModuloEgresos() {
           </div>
         </div>
 
-        {showForm && (
-          <div className="p-5 border-b border-slate-100 bg-slate-50 rounded-t-none">
-            <p className="text-sm text-slate-500 italic">Formulario de ingreso en desarrollo — integración con backend requerida.</p>
-          </div>
-        )}
+        {showForm && <FormNuevoEgreso onClose={() => setShowForm(false)} />}
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

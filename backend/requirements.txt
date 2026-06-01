@@ -1,0 +1,35 @@
+# ─── API REST ─────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# ─── Base de datos ────────────────────────────────────────────
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# ─── Lectura de correos ────────────────────────────────────────
+# imaplib viene en stdlib — no se necesita instalar
+
+# ─── Parseo de documentos ─────────────────────────────────────
+pdfplumber==0.11.0          # extracción de texto en PDF
+openpyxl==3.1.2             # Excel .xlsx
+lxml==5.2.1                 # XML (DTE / BHE)
+python-dateutil==2.9.0      # parseo flexible de fechas
+
+# ─── Scheduling y orquestación ────────────────────────────────
+schedule==1.2.1             # scheduler simple para Windows sin cron
+apscheduler==3.10.4         # alternativa más robusta (jobs persistentes)
+
+# ─── Notificaciones ───────────────────────────────────────────
+# smtplib viene en stdlib — no se necesita instalar
+
+# ─── Utilidades ───────────────────────────────────────────────
+python-dotenv==1.0.1        # carga .env
+requests==2.32.3            # UF desde mindicador.cl
+rich==13.7.1                # salida de consola legible
+click==8.1.7                # CLI para setup.py
+chardet==5.2.0              # detección de encoding en emails
+
+# ─── Opcional: OCR para PDFs escaneados ───────────────────────
+# pytesseract==0.3.10       # descomentar si se instala Tesseract OCR
+# Pillow==10.3.0            # requerido por pytesseract
