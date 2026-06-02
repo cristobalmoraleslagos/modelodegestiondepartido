@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Credenciales del sistema — NO commitear
+src/auth.config.ts

@@ -309,7 +309,7 @@ const TABLE_SECTIONS: { id: string; label: string; storageKey: string; cols: Col
   {
     id: 'donaciones', label: 'Donaciones',
     storageKey: 'cfp_donaciones',
-    note: 'Personas jurídicas no pueden donar (Ley 19.884). Límite por persona natural: 3.000 UF al año.',
+    note: 'Personas jurídicas no pueden donar (Ley 19.884). Límite al partido: 500 UF/año (Art. 15 Ley 20.900). Límite a campaña: 3.000 UF/año por persona (Art. 6 Ley 19.884).',
     cols: [
       { key: 'nombre', label: 'Nombre donante',       type: 'text'   },
       { key: 'rut',    label: 'RUT',                   type: 'text'   },

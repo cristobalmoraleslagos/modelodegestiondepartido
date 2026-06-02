@@ -102,14 +102,19 @@ export default function ModuloDeuda() {
   })
 
   useEffect(() => {
+    // Cargar registros guardados localmente
+    const guardados: Prestamo[] = JSON.parse(localStorage.getItem('fp_prestamos') ?? '[]')
+
     api.prestamos().then(data => {
       if (data && data.prestamos.length > 0) {
-        setPrestamos(data.prestamos)
-        setTotalDeuda(data.total_deuda_vigente)
+        setPrestamos([...guardados, ...data.prestamos])
+        setTotalDeuda(data.total_deuda_vigente + guardados.filter(p => p.estado === 'vigente').reduce((s, p) => s + p.monto_pendiente, 0))
         setIlegales(data.alertas)
         setDesdeApi(true)
       } else {
-        const vigentes = PRESTAMOS_FALLBACK.filter(p => p.estado === 'vigente')
+        const base = [...guardados, ...PRESTAMOS_FALLBACK]
+        setPrestamos(base)
+        const vigentes = base.filter(p => p.estado === 'vigente')
         setTotalDeuda(vigentes.reduce((s, p) => s + p.monto_pendiente, 0))
         setDesdeApi(false)
       }
@@ -125,7 +130,31 @@ export default function ModuloDeuda() {
     const tipoInfo = TIPOS_ACREEDOR.find(t => t.id === form.tipo_acreedor)
     if (!tipoInfo?.legal) {
       alert('ALERTA: Este tipo de acreedor NO está permitido por Art. 14 Ley 20.900. Solo bancos, cooperativas y cajas de compensación.')
+      return
     }
+    const montoNum = Number(form.monto_original)
+    const nuevoPrestamo: Prestamo = {
+      id: Date.now(),
+      fecha_inicio:      form.fecha_inicio,
+      acreedor_rut:      form.acreedor_rut,
+      acreedor_nombre:   form.acreedor_nombre,
+      tipo_acreedor:     form.tipo_acreedor,
+      monto_original:    montoNum,
+      tasa_interes:      form.tasa_interes ? Number(form.tasa_interes) : null,
+      plazo_meses:       form.plazo_meses  ? Number(form.plazo_meses)  : null,
+      monto_pendiente:   montoNum,
+      estado:            'vigente',
+      numero_contrato:   form.numero_contrato || null,
+      fecha_vencimiento: null,
+      es_legal:          true,
+      alerta_legal:      null,
+    }
+    // Persistir en localStorage
+    const guardados: Prestamo[] = JSON.parse(localStorage.getItem('fp_prestamos') ?? '[]')
+    localStorage.setItem('fp_prestamos', JSON.stringify([nuevoPrestamo, ...guardados]))
+    setPrestamos(prev => [nuevoPrestamo, ...prev])
+    setTotalDeuda(prev => prev + montoNum)
+
     setSubmitted(true)
     setShowForm(false)
     setForm({ fecha_inicio: '', acreedor_rut: '', acreedor_nombre: '', tipo_acreedor: 'banco', monto_original: '', tasa_interes: '', plazo_meses: '', numero_contrato: '', garantia: '' })

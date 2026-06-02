@@ -48,7 +48,7 @@ const LINEAS: LineaPresupuestaria[] = [
 ]
 // Fuente ejecutado: Módulo 14 Transferencias PP007 Q1 2026 (315 filas, total $243.4M)
 
-const MES_ACTUAL = 3   // datos hasta marzo (Q1 SERVEL); mes calendario = 5
+const MES_DATOS = 3    // corte de datos: Q1 2026 (ene–mar) — fuente SERVEL Módulo 14
 const ALERTA_UMBRAL = 85
 
 const modificaciones = [
@@ -61,11 +61,11 @@ export default function ModuloEjecucion() {
   const presupuestoTotal = LINEAS.reduce((s, l) => s + l.presupuestoAnual, 0)
   const ejecutadoTotal = LINEAS.reduce((s, l) => s + l.ejecutadoYTD, 0)
   const pctTotal = Math.round((ejecutadoTotal / presupuestoTotal) * 100)
-  const pctEsperado = Math.round((MES_ACTUAL / 12) * 100)
+  const pctEsperado = Math.round((MES_DATOS / 12) * 100)
 
   const sobreejecutadas = LINEAS.filter(l => {
     const pct = Math.round((l.ejecutadoYTD / l.presupuestoAnual) * 100)
-    return pct >= ALERTA_UMBRAL && MES_ACTUAL < 10
+    return pct >= ALERTA_UMBRAL
   })
 
   const chartData = LINEAS.map(l => ({
@@ -81,7 +81,7 @@ export default function ModuloEjecucion() {
         {[
           { label: 'Presupuesto total anual', value: fmt(presupuestoTotal) },
           { label: 'Ejecutado YTD (ene–mar) — Fuente: SERVEL Q1', value: `${fmt(ejecutadoTotal)} (${pctTotal}%)` },
-          { label: `Ejecución esperada al mes ${MES_ACTUAL} (Q1 disponible)`, value: `${pctEsperado}% — ${pctTotal > pctEsperado ? 'SOBRE lo esperado' : 'dentro del rango'}` },
+          { label: `Ejecución esperada al mes ${MES_DATOS} (Q1 disponible)`, value: `${pctEsperado}% — ${pctTotal > pctEsperado ? 'SOBRE lo esperado' : 'dentro del rango'}` },
         ].map((k, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 shadow-sm">
             <p className="text-xs text-slate-500">{k.label}</p>
@@ -95,7 +95,7 @@ export default function ModuloEjecucion() {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <AlertTriangle size={18} className="shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-sm">Ítem(s) sobre el {ALERTA_UMBRAL}% de ejecución en el mes {MES_ACTUAL}</p>
+            <p className="font-semibold text-sm">Ítem(s) sobre el {ALERTA_UMBRAL}% de ejecución en el mes {MES_DATOS}</p>
             <p className="text-xs mt-0.5">
               {sobreejecutadas.map(l => l.item).join(', ')} — requieren aprobación de directiva para modificación presupuestaria.
             </p>

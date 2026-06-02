@@ -66,17 +66,20 @@ export default function ModuloAportes() {
   })
 
   useEffect(() => {
-    const filtrados = APORTES_FALLBACK.filter(a => new Date(a.fecha).getFullYear() === year)
-    setAportes(filtrados)
-    setTotal(filtrados.reduce((s, a) => s + a.monto, 0))
-    setExcedidos(filtrados.filter(a => !a.dentro_limite).length)
-    setNoDeclarados(filtrados.filter(a => !a.declarado_servel).length)
+    const guardados: AporteCandidato[] = (JSON.parse(localStorage.getItem('fp_aportes') ?? '[]') as AporteCandidato[])
+      .filter(a => new Date(a.fecha).getFullYear() === year)
+    const fallback = APORTES_FALLBACK.filter(a => new Date(a.fecha).getFullYear() === year)
+    const base = [...guardados, ...fallback]
+    setAportes(base)
+    setTotal(base.reduce((s, a) => s + a.monto, 0))
+    setExcedidos(base.filter(a => !a.dentro_limite).length)
+    setNoDeclarados(base.filter(a => !a.declarado_servel).length)
 
     api.aportesCandidatos(year).then(data => {
       if (data && data.aportes.length > 0) {
-        setAportes(data.aportes)
+        setAportes([...guardados, ...data.aportes])
         setLimites(data.limites_por_cargo)
-        setTotal(data.total_aportes)
+        setTotal(data.total_aportes + guardados.reduce((s, a) => s + a.monto, 0))
         setExcedidos(data.cantidad_exceden_limite)
         setNoDeclarados(data.cantidad_no_declarados_servel)
         setDesdeApi(true)
@@ -99,11 +102,35 @@ export default function ModuloAportes() {
     const montoNum = parseInt(form.monto)
     const limiteUF = LIMITES_UF[form.tipo_eleccion] ?? 1000
     const limiteCLP = Math.round(limiteUF * VALOR_UF)
-    if (montoNum > limiteCLP) {
+    const dentroLimite = montoNum <= limiteCLP
+    if (!dentroLimite) {
       alert(`ALERTA: El monto supera el límite legal de ${limiteUF} UF (${fmt(limiteCLP)}) para ${form.tipo_eleccion}.\n\nArt. 19.884 prohíbe exceder este límite.`)
     }
+    const nuevoAporte: AporteCandidato = {
+      id:               Date.now(),
+      rut_candidato:    form.rut_candidato,
+      nombre_candidato: form.nombre_candidato,
+      tipo_eleccion:    form.tipo_eleccion,
+      monto:            montoNum,
+      fecha:            form.fecha || new Date().toISOString().slice(0, 10),
+      cuenta_campana:   form.cuenta_campana || null,
+      dentro_limite:    dentroLimite,
+      pct_del_limite:   Math.round((montoNum / limiteCLP) * 100),
+      mensaje_validacion: dentroLimite ? 'Registrado manualmente — verificar con SERVEL' : `⚠ Supera límite ${limiteUF} UF`,
+      declarado_servel: false,
+      estado:           dentroLimite ? 'pendiente_verificacion' : 'alerta',
+    }
+    // Persistir en localStorage
+    const todos: AporteCandidato[] = JSON.parse(localStorage.getItem('fp_aportes') ?? '[]')
+    localStorage.setItem('fp_aportes', JSON.stringify([nuevoAporte, ...todos]))
+    setAportes(prev => [nuevoAporte, ...prev])
+    setTotal(prev => prev + montoNum)
+    if (!dentroLimite) setExcedidos(prev => prev + 1)
+    setNoDeclarados(prev => prev + 1)
+
     setSubmitted(true)
     setShowForm(false)
+    setForm({ rut_candidato: '', nombre_candidato: '', tipo_eleccion: 'diputado', monto: '', fecha: '', cuenta_campana: '', nro_transferencia: '' })
     setTimeout(() => setSubmitted(false), 3000)
   }
 

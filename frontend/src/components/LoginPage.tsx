@@ -1,10 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react'
-
-const USUARIOS: Record<string, string> = {
-  'Cristóbal Morales': 'CBAML241243.',
-  'Alejandro Urquiza': 'FINANZAS2026.',
-}
+import { USUARIOS } from '../auth.config'
 
 interface Props { onLogin: (nombre: string) => void }
 

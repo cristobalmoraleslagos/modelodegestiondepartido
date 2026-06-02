@@ -11,7 +11,8 @@ import { api, type BalanceMes } from '../api'
 // Aportes estatales reales extraídos de balances aprobados SERVEL
 const APORTES_HISTORICOS: Record<number, number> = {
   2017: 800_000_000,   2018: 900_000_000,   2019: 950_000_000,
-  2020: 950_000_000,   2021: 980_000_000,   2022: 1_240_127_041,
+  2020: 950_000_000,   2021: 1_370_047_598, // balance SERVEL 2022 aprobado (columna 2021)
+  2022: 1_240_127_041,
   2023: 1_200_000_000, 2024: 1_200_000_000, 2025: 1_200_000_000,
   2026: 134_400_000,
 }
@@ -83,7 +84,23 @@ export default function ModuloIngresos() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    // En modo sin backend, simula el éxito
+    interface IngresoManual { id: number; tipo: string; monto: number; descripcion: string; rut_origen: string; doc_ref: string; fecha: string; year: number }
+    const nuevoIngreso: IngresoManual = {
+      id:          Date.now(),
+      tipo:        form.tipo,
+      monto:       Number(form.monto),
+      descripcion: form.descripcion,
+      rut_origen:  form.rut_origen,
+      doc_ref:     form.doc_ref,
+      fecha:       new Date().toISOString().slice(0, 10),
+      year,
+    }
+    // Persistir en localStorage
+    const guardados: IngresoManual[] = JSON.parse(localStorage.getItem('fp_ingresos') ?? '[]')
+    localStorage.setItem('fp_ingresos', JSON.stringify([nuevoIngreso, ...guardados]))
+    // Actualizar totales en pantalla
+    setTotalIng(prev => prev + nuevoIngreso.monto)
+
     setSubmitted(true)
     setShowForm(false)
     setForm({ tipo: 'aporte_estatal', monto: '', descripcion: '', rut_origen: '', doc_ref: '' })
