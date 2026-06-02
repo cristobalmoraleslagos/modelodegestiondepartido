@@ -1,5 +1,11 @@
-import { Calculator, AlertTriangle, CheckCircle, Building2, FileText } from 'lucide-react'
+import { Calculator, AlertTriangle, CheckCircle, Building2, FileText, Clock } from 'lucide-react'
 import { fmt } from '../utils'
+import {
+  TASA_RETENCION_HONORARIOS,
+  F29_DIA_VENCIMIENTO, PREVIRED_DIA_VENCIMIENTO,
+  F29_MULTA_BASE_PCT, F29_MULTA_MENSUAL_PCT,
+  diasHastaf29, diasHastaPrevired,
+} from '../normativa'
 
 interface Contratista {
   nombre: string
@@ -10,7 +16,7 @@ interface Contratista {
   mesDevengado: string
 }
 
-const TASA_RETENCION = 0.1075
+const TASA_RETENCION = TASA_RETENCION_HONORARIOS  // Art. 74 N°2 DL 824 — 10,75%
 
 // ─── Datos reales SERVEL — Nómina de Contrataciones >20 UTM ──────────────────
 // Fuente: portal.servel.cl — PP007 Partido Comunista de Chile
@@ -30,6 +36,15 @@ export default function ModuloRetenciones() {
   const totalRetencionMes = pendientesMes.reduce((s, c) => s + c.honorarioBruto * TASA_RETENCION, 0)
   const totalBrutoMes = pendientesMes.reduce((s, c) => s + c.honorarioBruto, 0)
 
+  // Contadores dinámicos
+  const diasF29      = diasHastaf29()
+  const diasPrevired = diasHastaPrevired()
+  const colorDias    = (d: number) => d <= 0 ? 'text-red-600' : d <= 3 ? 'text-red-500' : d <= 7 ? 'text-amber-600' : 'text-green-600'
+  const bgDias       = (d: number) => d <= 0 ? 'bg-red-50 border-red-200' : d <= 3 ? 'bg-red-50 border-red-100' : d <= 7 ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'
+  const multaF29     = vencidos.length > 0
+    ? vencidos.reduce((s, c) => s + c.honorarioBruto * TASA_RETENCION * (F29_MULTA_BASE_PCT + F29_MULTA_MENSUAL_PCT), 0)
+    : 0
+
   const colorEstado = (e: Contratista['estadoPago']) =>
     e === 'Pagado' ? 'bg-green-100 text-green-700' :
     e === 'Vencido' ? 'bg-red-100 text-red-700' :
@@ -37,6 +52,58 @@ export default function ModuloRetenciones() {
 
   return (
     <div className="space-y-6">
+      {/* Contadores vencimientos */}
+      <div className="grid grid-cols-2 gap-4">
+        {[
+          {
+            label: `F29 — Retención honorarios`, sub: `Vence el día ${F29_DIA_VENCIMIENTO} de cada mes`,
+            dias: diasF29, ley: 'Art. 74 N°2 DL 824 (Ley de la Renta)',
+            nota: diasF29 <= 0
+              ? `Vencido — multa mín. ${(F29_MULTA_BASE_PCT * 100).toFixed(0)}% impuesto + ${(F29_MULTA_MENSUAL_PCT * 100).toFixed(1)}%/mes`
+              : `Declarar en sii.cl antes del día ${F29_DIA_VENCIMIENTO} — Código 92`,
+          },
+          {
+            label: 'PREVIRED — Cotizaciones previsionales', sub: `Vence el día ${PREVIRED_DIA_VENCIMIENTO} de cada mes`,
+            dias: diasPrevired, ley: 'DL 3.500 + DFL 1 Ley 18.566',
+            nota: diasPrevired <= 0
+              ? 'Vencido — interés UF + 3%/mes. Responsabilidad solidaria representante legal.'
+              : `Pagar en previred.com antes del día ${PREVIRED_DIA_VENCIMIENTO}`,
+          },
+        ].map((k, i) => (
+          <div key={i} className={`border rounded-2xl p-5 ${bgDias(k.dias)}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock size={15} className={colorDias(k.dias)} />
+                  <p className={`font-semibold text-sm ${colorDias(k.dias)}`}>{k.label}</p>
+                </div>
+                <p className="text-xs text-slate-500">{k.sub}</p>
+                <p className="text-xs text-slate-600 mt-1 italic">{k.nota}</p>
+                <p className="text-xs text-indigo-600 font-medium mt-1">{k.ley}</p>
+              </div>
+              <div className="text-center shrink-0">
+                <p className={`text-4xl font-black ${colorDias(k.dias)}`}>
+                  {k.dias <= 0 ? '!' : k.dias}
+                </p>
+                <p className={`text-xs ${colorDias(k.dias)}`}>{k.dias <= 0 ? 'VENCIDO' : 'días'}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Alerta multa F29 vencido */}
+      {multaF29 > 0 && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-3">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+          <p className="text-sm">
+            <strong>Multa estimada F29 vencido:</strong> {fmt(multaF29)} mínimo
+            ({(F29_MULTA_BASE_PCT * 100).toFixed(0)}% impuesto + {(F29_MULTA_MENSUAL_PCT * 100).toFixed(1)}%/mes de atraso).
+            Aumenta cada mes sin declarar.
+          </p>
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
         {[

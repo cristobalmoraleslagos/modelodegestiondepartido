@@ -3,6 +3,7 @@ import {
   BarChart2, Heart, Users, Receipt, Building2, PieChart,
   Gift, Calculator, TrendingUp, Shield, Package,
   ClipboardList, CalendarDays, Wallet, CreditCard, Vote,
+  ShieldAlert, CalendarCheck,
 } from 'lucide-react'
 
 // Módulos extraídos
@@ -23,6 +24,8 @@ import ModuloHistorico    from './components/ModuloHistorico'
 import ModuloIngresos     from './components/ModuloIngresos'
 import ModuloDeuda        from './components/ModuloDeuda'
 import ModuloAportes      from './components/ModuloAportes'
+import ModuloAlertas      from './components/ModuloAlertas'
+import ModuloCalendario   from './components/ModuloCalendario'
 import LoginPage          from './components/LoginPage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -32,7 +35,7 @@ type Tab =
   | 'egresos' | 'conciliacion' | 'ejecucion'
   | 'donaciones' | 'retenciones' | 'flujo'
   | 'conflictos' | 'activos' | 'afiliados' | 'historico' | 'datos'
-  | 'ingresos' | 'deuda' | 'aportes'
+  | 'ingresos' | 'deuda' | 'aportes' | 'alertas' | 'calendario'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -53,10 +56,12 @@ const NAV: NavItem[] = [
   { id: 'flujo',        label: 'Flujo de Caja',         icon: <TrendingUp size={18} />,   group: 'Control' },
   { id: 'activos',      label: 'Activos Fijos',         icon: <Package size={18} />,      group: 'Control' },
   { id: 'historico',    label: 'Análisis Histórico',    icon: <CalendarDays size={18} />, group: 'Control' },
+  { id: 'alertas',      label: 'Alertas Legales',       icon: <ShieldAlert size={18} />,  group: 'Compliance' },
+  { id: 'calendario',   label: 'Calendario Legal',      icon: <CalendarCheck size={18} />,group: 'Compliance' },
   { id: 'datos',        label: 'Carga de Datos',        icon: <ClipboardList size={18} />,group: 'Sistema' },
 ]
 
-const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Sistema']
+const GROUPS = ['Ingresos', 'Egresos', 'Personal', 'Control', 'Compliance', 'Sistema']
 
 // ─── Mock data (módulos inline) ───────────────────────────────────────────────
 
@@ -115,6 +120,8 @@ const TITLES: Record<Tab, string> = {
   datos:       'Carga de Datos Reales',
   deuda:       'Préstamos y Créditos — Art. 14 Ley 20.900',
   aportes:     'Aportes a Candidatos — Ley 19.884',
+  alertas:     'Panel de Alertas Legales — Compliance SERVEL',
+  calendario:  'Calendario de Obligaciones Legales 2026',
 }
 
 export default function App() {
@@ -184,6 +191,8 @@ export default function App() {
           {tab === 'datos'        && <ModuloCargaDatos />}
           {tab === 'deuda'        && <ModuloDeuda />}
           {tab === 'aportes'      && <ModuloAportes />}
+          {tab === 'alertas'      && <ModuloAlertas />}
+          {tab === 'calendario'   && <ModuloCalendario />}
         </main>
       </div>
     </div>
