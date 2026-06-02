@@ -64,6 +64,18 @@ export default function ModuloDonaciones() {
     .filter(d => !d.esPersonaJuridica && d.acumuladoAnualCLP <= (d.tipo === 'partido' ? LIMITE_PARTIDO_UF : LIMITE_CAMPANA_UF) * VALOR_UF)
     .reduce((s, d) => s + d.montoCLP, 0)
 
+  // Plazo publicación web: 10 días corridos desde recepción (Art. 13 Ley 19.884)
+  const hoy = new Date()
+  const plazosVencidos = DONACIONES.filter(d => {
+    if (d.esPersonaJuridica) return false
+    if (d.montoCLP < DONACION_UMBRAL_PUBLICACION_CLP) return false
+    const diasTranscurridos = Math.floor((hoy.getTime() - new Date(d.fecha).getTime()) / 86_400_000)
+    return diasTranscurridos > DONACION_PLAZO_PUBLICACION_DIAS
+  }).map(d => ({
+    ...d,
+    diasTranscurridos: Math.floor((hoy.getTime() - new Date(d.fecha).getTime()) / 86_400_000),
+  }))
+
   // Detectar personas jurídicas por RUT (heurística)
   const suspechosasRUT = DONACIONES.filter(d => {
     const det = detectarPersonaJuridica(d.rut)
@@ -120,6 +132,31 @@ export default function ModuloDonaciones() {
           <div>
             <p className="font-semibold text-sm">{sobreLimitePartido.length} donante(s) superan {LIMITE_PARTIDO_UF} UF/año al PARTIDO (Art. 15 Ley 20.900)</p>
             <p className="text-xs mt-0.5">{sobreLimitePartido.map(d => `${d.donante}: acumulado ${fmt(d.acumuladoAnualCLP)} (límite ${fmt(LIMITE_PARTIDO_UF * VALOR_UF)})`).join(' · ')} — Devolver exceso.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Alerta plazo publicación web vencido — Art. 13 Ley 19.884 */}
+      {plazosVencidos.length > 0 && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
+          <ShieldAlert size={18} className="shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-sm">
+              PLAZO VENCIDO — {plazosVencidos.length} donación(es) sin publicar en web (Art. 13 Ley 19.884)
+            </p>
+            <p className="text-xs mt-0.5">
+              Las donaciones sobre {DONACION_UMBRAL_PUBLICACION_UF} UF (~{fmt(DONACION_UMBRAL_PUBLICACION_CLP)}) deben publicarse en el sitio web del partido dentro de <strong>10 días corridos</strong> desde su recepción.
+            </p>
+            <ul className="mt-1.5 space-y-0.5">
+              {plazosVencidos.map((d, i) => (
+                <li key={i} className="text-xs">
+                  <strong>{d.donante}</strong> — {fmt(d.montoCLP)} recibido el {d.fecha} —
+                  <span className="font-semibold text-red-700"> {d.diasTranscurridos} días sin publicar</span>
+                  {' '}(plazo venció hace {d.diasTranscurridos - DONACION_PLAZO_PUBLICACION_DIAS} día{d.diasTranscurridos - DONACION_PLAZO_PUBLICACION_DIAS > 1 ? 's' : ''})
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs mt-1.5 font-medium">Publicar en sitio web del partido con nombre, RUT y monto. Multa hasta 30 UTA si no se cumple.</p>
           </div>
         </div>
       )}

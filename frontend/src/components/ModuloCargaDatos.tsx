@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Trash2, Plus, CheckCircle, Save, Download, Upload, RefreshCw, Zap } from 'lucide-react'
+import { useConfig } from '../context/ConfigContext'
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -177,12 +178,23 @@ const CFG_FIELDS: { key: keyof Cfg; label: string; hint: string; num: boolean }[
 ]
 
 function SeccionConfig() {
+  const { updateConfig } = useConfig()
   const [cfg, setCfg] = useState<Cfg>(() => load('cfp_config', CFG_DEF))
   const [flash, setFlash] = useState(false)
   const [ufLoading, setUfLoading] = useState(false)
   const [ufMsg, setUfMsg] = useState('')
 
-  const save = () => { persist('cfp_config', cfg); setFlash(true); setTimeout(() => setFlash(false), 2000) }
+  const save = () => {
+    persist('cfp_config', cfg)
+    // Propagar al contexto global para que todos los módulos usen los valores actualizados
+    updateConfig({
+      valorUF:    Number(cfg.valorUF)    || undefined,
+      mesActual:  Number(cfg.mesActual)  || undefined,
+      aporteAnual: Number(cfg.aporteEstatal) || undefined,
+    })
+    setFlash(true)
+    setTimeout(() => setFlash(false), 2000)
+  }
 
   // Auto-fetch UF from mindicador.cl (free, no key needed)
   const fetchUF = async () => {

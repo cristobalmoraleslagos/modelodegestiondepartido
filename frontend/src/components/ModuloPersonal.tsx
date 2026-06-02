@@ -2,27 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { Users, UserX, CheckCircle, AlertTriangle, ShieldAlert, Scale } from 'lucide-react'
 import { fmt, VALOR_UF } from '../utils'
 import { SUELDO_MAX_UF, SUELDO_MAX_CLP } from '../normativa'
-
-interface Funcionario {
-  nombre: string; rut: string; calidad: string; sueldo: string
-  banco: string; tipoCuenta: string; numeroCuenta: string
-  area: string; imputableGenero: boolean; activo: boolean
-}
+import { FUNCIONARIOS_CANON, type Funcionario } from '../data/personal'
 
 // Parentescos para chequeo antinepotismo (Art. 39 bis Ley 18.603)
 const parentescos: Record<string, { directivo: string; grado: string }> = {}
-
-const FUNCIONARIOS_INIT: Funcionario[] = [
-  { nombre: 'Lautaro Carmona Soto',      rut: '5892999-9',  calidad: 'Honorarios Permanente',           sueldo: '2245875', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Dirección General',        imputableGenero: false, activo: true },
-  { nombre: 'Juan Andrés Lagos Espinoza', rut: '5926570-9',  calidad: 'Honorarios Permanente',           sueldo: '1487363', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Dirección General',        imputableGenero: false, activo: true },
-  { nombre: 'Krupskaya Corvalán',         rut: '13713819-0', calidad: 'Honorarios Permanente',           sueldo: '1541602', banco: 'Banco Chile',  tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Secretaría',              imputableGenero: true,  activo: true },
-  { nombre: 'Pamela Águila Cariz',        rut: '8178828-6',  calidad: 'Código del Trabajo - Indefinido', sueldo: '1800000', banco: '—',           tipoCuenta: '—',         numeroCuenta: '—', area: 'Administración y Finanzas', imputableGenero: true,  activo: true },
-  { nombre: 'Bárbara Figueroa Sandoval',  rut: '13664938-8', calidad: 'Honorarios Permanente',           sueldo: '1840000', banco: 'Banco Estado', tipoCuenta: 'Corriente', numeroCuenta: '—', area: 'Secretaría General',      imputableGenero: true,  activo: true },
-  { nombre: 'Carlos Ugas Tapia',          rut: '12636656-6', calidad: 'Honorarios Permanente',           sueldo: '2300000', banco: '—',           tipoCuenta: '—',         numeroCuenta: '—', area: 'Dirección General',        imputableGenero: false, activo: true },
-  { nombre: 'Catalina Lufin',             rut: '20637037-8', calidad: 'Honorarios Permanente',           sueldo: '1400000', banco: '—',           tipoCuenta: '—',         numeroCuenta: '—', area: 'Administración',           imputableGenero: true,  activo: true },
-  { nombre: 'Guillermo Adriazola',        rut: '13847847-5', calidad: 'Honorarios Permanente',           sueldo: '1167000', banco: '—',           tipoCuenta: '—',         numeroCuenta: '—', area: 'Dirección General',        imputableGenero: false, activo: true },
-  { nombre: 'Damián Trujillo',            rut: '5916399-4',  calidad: 'Honorarios por Proyecto',         sueldo: '4284000', banco: '—',           tipoCuenta: '—',         numeroCuenta: '—', area: 'Comunicaciones',           imputableGenero: false, activo: true },
-]
 
 const PRESUPUESTO_SUELDOS = 40_000_000
 
@@ -37,7 +20,7 @@ export default function ModuloPersonal() {
   const [submitted, setSubmitted] = useState(false)
   const [blocked, setBlocked]     = useState<string | null>(null)
   const [blockedSueldo, setBlockedSueldo] = useState<string | null>(null)
-  const [funcionarios, setFuncionarios] = useState<Funcionario[]>(FUNCIONARIOS_INIT)
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>(FUNCIONARIOS_CANON)
 
   const activos = funcionarios.filter(f => f.activo)
   const sueldoTotal = activos.reduce((s, f) => s + parseInt(f.sueldo || '0'), 0)
@@ -218,13 +201,25 @@ export default function ModuloPersonal() {
             {field('Tipo de cuenta', sel('tipoCuenta', ['Corriente', 'Vista', 'Ahorro']))}
             {field('Número de cuenta', inp('numeroCuenta', 'text', '0001234567'))}
 
-            <div className="col-span-2 flex items-center gap-2">
-              <input type="checkbox" id="genero" checked={form.imputableGenero}
-                onChange={e => setForm(f => ({ ...f, imputableGenero: e.target.checked }))}
-                className="w-4 h-4 rounded" />
-              <label htmlFor="genero" className="text-sm text-slate-600">
-                Imputable al Fondo de Género (Ley 20.900)
-              </label>
+            <div className="col-span-2 space-y-2">
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="genero" checked={form.imputableGenero}
+                  onChange={e => setForm(f => ({ ...f, imputableGenero: e.target.checked }))}
+                  className="w-4 h-4 rounded" />
+                <label htmlFor="genero" className="text-sm text-slate-600">
+                  Imputable al Fondo de Género (Ley 20.900)
+                </label>
+              </div>
+              {form.imputableGenero && (
+                <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  <AlertTriangle size={13} className="text-amber-600 mt-0.5 shrink-0" />
+                  <p className="text-xs text-amber-800">
+                    <strong>Dictamen CGR:</strong> Marcar este sueldo como "Fondo de Género" <strong>NO cumple el 10% del Art. 38 Ley 20.900</strong>.
+                    El fondo exige <em>actividades específicas</em> dirigidas a mujeres: programa, lista de asistentes firmada e informe.
+                    Incluir sueldos generales en este campo no los hará válidos para SERVEL y puede ser observado en la auditoría.
+                  </p>
+                </div>
+              )}
             </div>
 
             {blocked && (

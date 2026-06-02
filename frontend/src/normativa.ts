@@ -253,15 +253,16 @@ export function validarPersonaJuridica(donante: string, esJuridica: boolean): Al
   }
 }
 
-/** Calcula días hábiles hasta el próximo F29 */
+/** Calcula días hasta el próximo F29 (día 20 del mes actual).
+ *  Retorna valor negativo si ya venció — activa alerta "VENCIDO" en alertaF29(). */
 export function diasHastaf29(): number {
   const hoy = new Date()
   const año = hoy.getFullYear()
-  const mes = hoy.getMonth() + 1
-  // F29 vence el día 20 del mes siguiente
-  const vencimiento = new Date(año, mes, F29_DIA_VENCIMIENTO) // mes siguiente
-  const diff = Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
-  return diff
+  const mes = hoy.getMonth() // 0-indexed — NO sumar 1
+  // Vencimiento = día 20 del mes en curso
+  const vencimiento = new Date(año, mes, F29_DIA_VENCIMIENTO)
+  // Si ya pasó el día 20: retorna negativo (vencido). días 1-20: positivo.
+  return Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 /** Calcula días hasta el próximo PREVIRED */

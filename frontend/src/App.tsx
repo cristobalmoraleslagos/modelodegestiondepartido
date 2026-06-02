@@ -4,6 +4,7 @@ import {
   Building2, Scale, ShieldAlert, ClipboardList,
 } from 'lucide-react'
 
+import { ConfigProvider } from './context/ConfigContext'
 import HubPresupuesto  from './components/HubPresupuesto'
 import HubIngresos     from './components/HubIngresos'
 import HubEgresos      from './components/HubEgresos'
@@ -103,6 +104,7 @@ export default function App() {
   if (!usuario) return <LoginPage onLogin={handleLogin} />
 
   return (
+    <ConfigProvider>
     <div className="min-h-screen bg-[#FAFAFA]">
       <Sidebar active={tab} onSelect={setTab} />
       <div className="ml-52 flex flex-col min-h-screen">
@@ -140,5 +142,6 @@ export default function App() {
         </main>
       </div>
     </div>
+    </ConfigProvider>
   )
 }
