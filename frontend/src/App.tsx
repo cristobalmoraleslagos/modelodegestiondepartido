@@ -3,7 +3,7 @@ import {
   BarChart2, Heart, Users, Receipt, Building2, PieChart,
   Gift, Calculator, TrendingUp, Shield, Package,
   ClipboardList, CalendarDays, Wallet, CreditCard, Vote,
-  ShieldAlert, CalendarCheck,
+  ShieldAlert, CalendarCheck, Scale,
 } from 'lucide-react'
 
 // Módulos extraídos
@@ -26,6 +26,7 @@ import ModuloDeuda        from './components/ModuloDeuda'
 import ModuloAportes      from './components/ModuloAportes'
 import ModuloAlertas      from './components/ModuloAlertas'
 import ModuloCalendario   from './components/ModuloCalendario'
+import ModuloBalance      from './components/ModuloBalance'
 import LoginPage          from './components/LoginPage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ type Tab =
   | 'donaciones' | 'retenciones' | 'flujo'
   | 'conflictos' | 'activos' | 'afiliados' | 'historico' | 'datos'
   | 'ingresos' | 'deuda' | 'aportes' | 'alertas' | 'calendario'
+  | 'balance'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -55,6 +57,7 @@ const NAV: NavItem[] = [
   { id: 'ejecucion',    label: 'Ejecución Ppto.',       icon: <PieChart size={18} />,     group: 'Control' },
   { id: 'flujo',        label: 'Flujo de Caja',         icon: <TrendingUp size={18} />,   group: 'Control' },
   { id: 'activos',      label: 'Activos Fijos',         icon: <Package size={18} />,      group: 'Control' },
+  { id: 'balance',      label: 'Balance — Módulo 15',   icon: <Scale size={18} />,        group: 'Control' },
   { id: 'historico',    label: 'Análisis Histórico',    icon: <CalendarDays size={18} />, group: 'Control' },
   { id: 'alertas',      label: 'Alertas Legales',       icon: <ShieldAlert size={18} />,  group: 'Compliance' },
   { id: 'calendario',   label: 'Calendario Legal',      icon: <CalendarCheck size={18} />,group: 'Compliance' },
@@ -115,6 +118,7 @@ const TITLES: Record<Tab, string> = {
   flujo:       'Flujo de Caja Proyectado',
   conflictos:  'Declaraciones de Conflicto de Interés',
   activos:     'Inventario de Activos Fijos',
+  balance:     'Balance Clasificado — Módulo 15 SERVEL',
   afiliados:   'Afiliados, Sedes y Sanciones SERVEL',
   historico:   'Análisis Histórico Financiero 2017–2026',
   datos:       'Carga de Datos Reales',
@@ -186,6 +190,7 @@ export default function App() {
           {tab === 'flujo'        && <ModuloFlujoCaja />}
           {tab === 'conflictos'   && <ModuloConflictos />}
           {tab === 'activos'      && <ModuloActivos />}
+          {tab === 'balance'      && <ModuloBalance />}
           {tab === 'afiliados'    && <ModuloAfiliados />}
           {tab === 'historico'    && <ModuloHistorico />}
           {tab === 'datos'        && <ModuloCargaDatos />}
