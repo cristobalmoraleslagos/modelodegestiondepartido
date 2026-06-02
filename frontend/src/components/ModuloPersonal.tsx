@@ -20,7 +20,10 @@ export default function ModuloPersonal() {
   const [submitted, setSubmitted] = useState(false)
   const [blocked, setBlocked]     = useState<string | null>(null)
   const [blockedSueldo, setBlockedSueldo] = useState<string | null>(null)
-  const [funcionarios, setFuncionarios] = useState<Funcionario[]>(FUNCIONARIOS_CANON)
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>(() => {
+    const extras: Funcionario[] = JSON.parse(localStorage.getItem('fp_personal') ?? '[]')
+    return [...FUNCIONARIOS_CANON, ...extras]
+  })
 
   const activos = funcionarios.filter(f => f.activo)
   const sueldoTotal = activos.reduce((s, f) => s + parseInt(f.sueldo || '0'), 0)
@@ -53,7 +56,11 @@ export default function ModuloPersonal() {
     } else {
       setBlockedSueldo(null)
     }
-    setFuncionarios(prev => [...prev, { ...form, activo: true }])
+    const nuevo: Funcionario = { ...form, activo: true }
+    setFuncionarios(prev => [...prev, nuevo])
+    // Persistir solo los extras (no los de FUNCIONARIOS_CANON)
+    const extras: Funcionario[] = JSON.parse(localStorage.getItem('fp_personal') ?? '[]')
+    localStorage.setItem('fp_personal', JSON.stringify([...extras, nuevo]))
     setForm(emptyForm())
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)

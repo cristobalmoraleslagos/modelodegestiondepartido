@@ -22,15 +22,26 @@ interface ConfigCtx extends AppConfig {
 
 function loadFromStorage(): AppConfig {
   try {
-    const saved = JSON.parse(localStorage.getItem(LS_KEY) ?? '{}') as Partial<AppConfig>
-    return {
-      valorUF:    saved.valorUF    ?? UF_DEFAULT,
-      mesActual:  saved.mesActual  ?? MES_DEFAULT,
-      aporteAnual: saved.aporteAnual ?? APORTE_DEFAULT,
+    // fp_runtime_config tiene prioridad (escrito por updateConfig tras guardar)
+    const runtime = JSON.parse(localStorage.getItem(LS_KEY) ?? '{}') as Partial<AppConfig>
+    if (runtime.valorUF) {
+      return {
+        valorUF:     runtime.valorUF,
+        mesActual:   runtime.mesActual  ?? MES_DEFAULT,
+        aporteAnual: runtime.aporteAnual ?? APORTE_DEFAULT,
+      }
     }
-  } catch {
-    return { valorUF: UF_DEFAULT, mesActual: MES_DEFAULT, aporteAnual: APORTE_DEFAULT }
-  }
+    // Fallback: cfp_config escrito por el formulario de ModuloCargaDatos
+    const cfp = JSON.parse(localStorage.getItem('cfp_config') ?? '{}') as Record<string, string>
+    if (cfp.valorUF) {
+      return {
+        valorUF:     Number(cfp.valorUF)       || UF_DEFAULT,
+        mesActual:   Number(cfp.mesActual)     || MES_DEFAULT,
+        aporteAnual: Number(cfp.aporteEstatal) || APORTE_DEFAULT,
+      }
+    }
+  } catch { /* ignorar */ }
+  return { valorUF: UF_DEFAULT, mesActual: MES_DEFAULT, aporteAnual: APORTE_DEFAULT }
 }
 
 const ConfigContext = createContext<ConfigCtx>({

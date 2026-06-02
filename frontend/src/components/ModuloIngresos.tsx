@@ -4,8 +4,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { fmt, APORTE_ESTATAL_ANUAL, MES_ACTUAL } from '../utils'
+import { fmt, APORTE_ESTATAL_ANUAL, MES_ACTUAL as MES_ACTUAL_DEFAULT } from '../utils'
 import { api, type BalanceMes } from '../api'
+import { useConfig } from '../context/ConfigContext'
 
 // ─── Datos de referencia históricos (Módulo 6 SERVEL) ────────────────────────
 // Aportes estatales reales extraídos de balances aprobados SERVEL
@@ -39,20 +40,23 @@ const TIPOS = [
 const MESES_NOMBRE = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
 // ─── Construye datos de balance mensuales a partir del aporte estatal ─────────
-function buildFallbackBalance(year: number): BalanceMes[] {
-  const aporte = APORTES_HISTORICOS[year] ?? APORTE_ESTATAL_ANUAL
+function buildFallbackBalance(year: number, mesActual: number, aporteAnual: number): BalanceMes[] {
+  const aporte = APORTES_HISTORICOS[year] ?? aporteAnual
   const mensual = Math.round(aporte / 12)
   return MESES_NOMBRE.slice(1).map((nombre, i) => ({
     mes: i + 1, nombre,
-    ingresos: i < MES_ACTUAL ? mensual : 0,
+    ingresos: i < mesActual ? mensual : 0,
     egresos: 0,
-    saldo: i < MES_ACTUAL ? mensual : 0,
+    saldo: i < mesActual ? mensual : 0,
   }))
 }
 
 export default function ModuloIngresos() {
+  const { mesActual, aporteAnual } = useConfig()
+  const MES_ACTUAL = mesActual || MES_ACTUAL_DEFAULT
+
   const [year, setYear]         = useState(2026)
-  const [balance, setBalance]   = useState<BalanceMes[]>(buildFallbackBalance(2026))
+  const [balance, setBalance]   = useState<BalanceMes[]>(buildFallbackBalance(2026, MES_ACTUAL, aporteAnual))
   const [totalIng, setTotalIng] = useState(0)
   const [totalEg, setTotalEg]   = useState(0)
   const [desdeApi, setDesdeApi] = useState(false)
@@ -68,9 +72,9 @@ export default function ModuloIngresos() {
         setTotalEg(data.total_egresos)
         setDesdeApi(true)
       } else {
-        const fb = buildFallbackBalance(year)
+        const fb = buildFallbackBalance(year, MES_ACTUAL, aporteAnual)
         setBalance(fb)
-        const aporteRef = APORTES_HISTORICOS[year] ?? APORTE_ESTATAL_ANUAL
+        const aporteRef = APORTES_HISTORICOS[year] ?? aporteAnual ?? APORTE_ESTATAL_ANUAL
         setTotalIng(Math.round(aporteRef * (MES_ACTUAL / 12)))
         setTotalEg(0)
         setDesdeApi(false)

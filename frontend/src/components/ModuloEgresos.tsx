@@ -373,11 +373,19 @@ function CarpetaDocumental({ egreso, onClose }: { egreso: EgresoCompleto; onClos
 // SECCIÓN 5 — FORMULARIO NUEVO EGRESO
 // ════════════════════════════════════════════════════════════════════════
 
-function FormNuevoEgreso({ onClose }: { onClose: () => void }) {
+interface EgresoGuardado {
+  id: number; proveedor: string; rut: string; nroDoc: string
+  monto: number; categoria: string; fecha: string; docsCompletos: string[]
+}
+
+function FormNuevoEgreso({ onClose, onSave }: { onClose: () => void; onSave?: (e: EgresoGuardado) => void }) {
   const [categoria, setCategoria] = useState(CATEGORIAS_SERVEL[0])
   const [checkedDocs, setCheckedDocs] = useState<Record<string, boolean>>({})
   const [showDocs, setShowDocs] = useState(true)
   const [monto, setMonto] = useState('')
+  const [proveedor, setProveedor] = useState('')
+  const [rutProv, setRutProv]   = useState('')
+  const [nroDoc, setNroDoc]     = useState('')
 
   const specs = DOCS_POR_CATEGORIA[categoria] ?? []
   const montoNum = parseInt(monto) || 0
@@ -395,13 +403,13 @@ function FormNuevoEgreso({ onClose }: { onClose: () => void }) {
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-700">Datos del egreso</h3>
           {[
-            { label: 'Proveedor / razón social', ph: 'Ej: Editorial Continental SpA', type: 'text' },
-            { label: 'RUT proveedor', ph: '77.236.959-K', type: 'text' },
-            { label: 'N° documento (factura/boleta)', ph: 'F-EC-2041', type: 'text' },
-          ].map(({ label, ph, type }) => (
+            { label: 'Proveedor / razón social', ph: 'Ej: Editorial Continental SpA', value: proveedor, set: setProveedor },
+            { label: 'RUT proveedor',            ph: '77.236.959-K',                  value: rutProv,   set: setRutProv   },
+            { label: 'N° documento (factura/boleta)', ph: 'F-EC-2041',               value: nroDoc,    set: setNroDoc    },
+          ].map(({ label, ph, value, set }) => (
             <div key={label} className="flex flex-col gap-1">
               <label className="text-xs font-medium text-slate-600">{label}</label>
-              <input type={type} placeholder={ph}
+              <input type="text" placeholder={ph} value={value} onChange={e => set(e.target.value)}
                 className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           ))}
@@ -490,7 +498,23 @@ function FormNuevoEgreso({ onClose }: { onClose: () => void }) {
             className="text-sm text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
             Cancelar
           </button>
-          <button disabled={!puedeGuardar}
+          <button
+            disabled={!puedeGuardar}
+            onClick={() => {
+              if (!puedeGuardar) return
+              const egreso: EgresoGuardado = {
+                id: Date.now(),
+                proveedor, rut: rutProv, nroDoc,
+                monto: montoNum,
+                categoria,
+                fecha: new Date().toISOString().slice(0, 10),
+                docsCompletos: Object.keys(checkedDocs).filter(k => checkedDocs[k]),
+              }
+              const prev: EgresoGuardado[] = JSON.parse(localStorage.getItem('fp_egresos_nuevos') ?? '[]')
+              localStorage.setItem('fp_egresos_nuevos', JSON.stringify([egreso, ...prev]))
+              onSave?.(egreso)
+              onClose()
+            }}
             className={`text-sm font-medium px-5 py-2 rounded-lg transition-colors ${puedeGuardar ? 'bg-amaranto-600 hover:bg-amaranto-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>
             {puedeGuardar ? 'Guardar egreso' : `Faltan ${obligatorios.length - completados} doc(s)`}
           </button>

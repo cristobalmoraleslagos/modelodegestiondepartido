@@ -276,9 +276,21 @@ export function diasHastaPrevired(): number {
   return diff
 }
 
-/** Calcula días hasta la próxima rendición trimestral SERVEL */
+/** Calcula días hasta la rendición trimestral SERVEL más crítica.
+ *  Prioriza rendiciones VENCIDAS recientes (últimos 90 días) sobre las próximas. */
 export function proximaRendicionServel(): { trimestre: string; plazo: string; diasRestantes: number } | null {
   const hoy = new Date()
+  // 1. Buscar rendición vencida recientemente (máx 90 días atrás) — mayor prioridad
+  for (let i = PLAZOS_TRIMESTRALES_2026.length - 1; i >= 0; i--) {
+    const t = PLAZOS_TRIMESTRALES_2026[i]
+    const plazo = new Date(t.plazo)
+    if (plazo < hoy) {
+      const diff = Math.ceil((plazo.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff >= -90) return { trimestre: t.label, plazo: t.plazo, diasRestantes: diff }
+      break
+    }
+  }
+  // 2. Si no hay vencida reciente, retornar la próxima upcoming
   for (const t of PLAZOS_TRIMESTRALES_2026) {
     const plazo = new Date(t.plazo)
     if (plazo >= hoy) {

@@ -4,10 +4,9 @@ import {
   RadialBarChart, RadialBar, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { fmt, APORTE_ESTATAL_ANUAL, MES_ACTUAL } from '../utils'
+import { fmt } from '../utils'
 import { api, type GeneroProyeccion } from '../api'
-
-const CUOTA_GENERO        = APORTE_ESTATAL_ANUAL * 0.10
+import { useConfig } from '../context/ConfigContext'
 const GASTO_GENERO_2026   = 0           // Q1 2026 sin datos cargados aún
 const GASTO_GENERO_2025   = 6_337_464   // Real CSV SERVEL 2025
 
@@ -22,6 +21,9 @@ const HISTORICO = [
 const MESES_NOMBRE = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
 export default function AlertaGenero() {
+  const { aporteAnual, mesActual: MES_ACTUAL } = useConfig()
+  const CUOTA_GENERO = aporteAnual * 0.10
+
   const [gastoGenero, setGastoGenero]   = useState(GASTO_GENERO_2026)
   const [proyeccion, setProyeccion]     = useState<GeneroProyeccion | null>(null)
   const [desdeApi, setDesdeApi]         = useState(false)

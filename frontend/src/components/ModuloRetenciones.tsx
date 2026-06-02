@@ -6,6 +6,12 @@ import {
   F29_MULTA_BASE_PCT, F29_MULTA_MENSUAL_PCT,
   diasHastaf29, diasHastaPrevired,
 } from '../normativa'
+import { FUNCIONARIOS_CANON } from '../data/personal'
+
+/** Obtiene el honorario bruto canónico por nombre de funcionario */
+function honorario(nombre: string): number {
+  return Number(FUNCIONARIOS_CANON.find(f => f.nombre === nombre)?.sueldo ?? 0)
+}
 
 interface Contratista {
   nombre: string
@@ -21,13 +27,14 @@ const TASA_RETENCION = TASA_RETENCION_HONORARIOS  // Art. 74 N°2 DL 824 — 10,
 // ─── Datos reales SERVEL — Nómina de Contrataciones >20 UTM ──────────────────
 // Fuente: portal.servel.cl — PP007 Partido Comunista de Chile
 // Q1 2026 (Ene–Mar) confirmado; Mayo 2026 proyectado en base a contratos recurrentes
+// Honorarios derivados de personal.ts (fuente canónica) — los montos se sincronizan automáticamente
 const CONTRATISTAS: Contratista[] = [
-  { nombre: 'Lautaro Carmona Soto',     rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC',      honorarioBruto: 2_245_875, estadoPago: 'Pagado',   mesDevengado: 'Abril 2026' },
-  { nombre: 'Juan Andrés Lagos Espinoza', rut: '5.926.570-9', concepto: 'Adquisición de Bienes o Servicios — Integrante CP',       honorarioBruto: 1_487_363, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
-  { nombre: 'Krupskaya Corvalán',        rut: '13.713.819-0', concepto: 'Adquisición de Bienes o Servicios — Secretaría',          honorarioBruto: 1_541_602, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
-  { nombre: 'Lautaro Carmona Soto',     rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC',      honorarioBruto: 2_245_875, estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
-  { nombre: 'Radio Nuevo Mundo',         rut: '99.510.820-8', concepto: 'Espacio radial RM y cadena nacional — servicios medios',  honorarioBruto: 5_000_000, estadoPago: 'Vencido',  mesDevengado: 'Marzo 2026' },
-  { nombre: 'Damián Trujillo',           rut: '5.916.399-4',  concepto: 'Servicios profesionales eventuales',                      honorarioBruto: 4_284_000, estadoPago: 'Pagado',   mesDevengado: 'Febrero 2026' },
+  { nombre: 'Lautaro Carmona Soto',      rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC', honorarioBruto: honorario('Lautaro Carmona Soto'),      estadoPago: 'Pagado',   mesDevengado: 'Abril 2026' },
+  { nombre: 'Juan Andrés Lagos Espinoza', rut: '5.926.570-9',  concepto: 'Adquisición de Bienes o Servicios — Integrante CP', honorarioBruto: honorario('Juan Andrés Lagos Espinoza'), estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Krupskaya Corvalán',         rut: '13.713.819-0', concepto: 'Adquisición de Bienes o Servicios — Secretaría',    honorarioBruto: honorario('Krupskaya Corvalán'),        estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Lautaro Carmona Soto',      rut: '5.892.999-9',   concepto: 'Adquisición de Bienes o Servicios — Presidente CC', honorarioBruto: honorario('Lautaro Carmona Soto'),      estadoPago: 'Pendiente', mesDevengado: 'Mayo 2026' },
+  { nombre: 'Radio Nuevo Mundo',          rut: '99.510.820-8', concepto: 'Espacio radial RM y cadena nacional — servicios medios', honorarioBruto: 5_000_000, estadoPago: 'Vencido',  mesDevengado: 'Marzo 2026' },
+  { nombre: 'Damián Trujillo',            rut: '5.916.399-4',  concepto: 'Servicios profesionales eventuales',                honorarioBruto: honorario('Damián Trujillo'),           estadoPago: 'Pagado',   mesDevengado: 'Febrero 2026' },
 ]
 
 export default function ModuloRetenciones() {

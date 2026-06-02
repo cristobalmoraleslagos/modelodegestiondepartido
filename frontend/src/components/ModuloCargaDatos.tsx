@@ -167,7 +167,7 @@ function EditableTable({ storageKey, cols, empty }: {
 // ─── Configuración general (key-value form) ───────────────────────────────────
 
 interface Cfg { valorUF: string; mesActual: string; aporteEstatal: string; saldoInicial: string; nombrePartido: string }
-const CFG_DEF: Cfg = { valorUF: '41500', mesActual: '5', aporteEstatal: '222000000', saldoInicial: '28450300', nombrePartido: '' }
+const CFG_DEF: Cfg = { valorUF: '40442', mesActual: '5', aporteEstatal: '1200000000', saldoInicial: '28450300', nombrePartido: 'Partido Comunista de Chile' }
 
 const CFG_FIELDS: { key: keyof Cfg; label: string; hint: string; num: boolean }[] = [
   { key: 'nombrePartido',  label: 'Nombre del partido',            hint: 'Nombre legal completo tal como figura en SERVEL',              num: false },
