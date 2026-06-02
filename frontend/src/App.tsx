@@ -1,36 +1,38 @@
 import { useState, type ReactNode } from 'react'
 import {
   BarChart2, Wallet, Receipt, Users,
-  Building2, Scale, ShieldAlert, ClipboardList,
+  Building2, Scale, ShieldAlert, ClipboardList, FileDown,
 } from 'lucide-react'
 
-import { ConfigProvider } from './context/ConfigContext'
-import HubPresupuesto  from './components/HubPresupuesto'
-import HubIngresos     from './components/HubIngresos'
-import HubEgresos      from './components/HubEgresos'
-import HubPersonal     from './components/HubPersonal'
-import HubTesoreria    from './components/HubTesoreria'
-import HubContabilidad from './components/HubContabilidad'
-import HubCompliance   from './components/HubCompliance'
-import ModuloCargaDatos from './components/ModuloCargaDatos'
-import LoginPage        from './components/LoginPage'
+import { ConfigProvider }  from './context/ConfigContext'
+import HubPresupuesto      from './components/HubPresupuesto'
+import HubIngresos         from './components/HubIngresos'
+import HubEgresos          from './components/HubEgresos'
+import HubPersonal         from './components/HubPersonal'
+import HubTesoreria        from './components/HubTesoreria'
+import HubContabilidad     from './components/HubContabilidad'
+import HubCompliance       from './components/HubCompliance'
+import HubRendicion        from './components/HubRendicion'
+import ModuloCargaDatos    from './components/ModuloCargaDatos'
+import LoginPage           from './components/LoginPage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = 'presupuesto' | 'ingresos' | 'egresos' | 'personal'
-         | 'tesoreria' | 'contabilidad' | 'compliance' | 'datos'
+         | 'tesoreria' | 'contabilidad' | 'compliance' | 'rendicion' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
 const NAV: NavItem[] = [
-  { id: 'presupuesto',  label: 'Presupuesto',   icon: <BarChart2 size={18} />,    group: 'Financiero' },
-  { id: 'ingresos',     label: 'Ingresos',       icon: <Wallet size={18} />,       group: 'Financiero' },
-  { id: 'egresos',      label: 'Egresos',        icon: <Receipt size={18} />,      group: 'Financiero' },
-  { id: 'tesoreria',    label: 'Tesorería',      icon: <Building2 size={18} />,    group: 'Financiero' },
-  { id: 'personal',     label: 'Personal',       icon: <Users size={18} />,        group: 'Organización' },
-  { id: 'contabilidad', label: 'Contabilidad',   icon: <Scale size={18} />,        group: 'Organización' },
-  { id: 'compliance',   label: 'Compliance',     icon: <ShieldAlert size={18} />,  group: 'Legal' },
-  { id: 'datos',        label: 'Carga de Datos', icon: <ClipboardList size={18} />,group: 'Sistema' },
+  { id: 'presupuesto',  label: 'Presupuesto',     icon: <BarChart2 size={18} />,  group: 'Financiero'   },
+  { id: 'ingresos',     label: 'Ingresos',         icon: <Wallet size={18} />,     group: 'Financiero'   },
+  { id: 'egresos',      label: 'Egresos',          icon: <Receipt size={18} />,    group: 'Financiero'   },
+  { id: 'tesoreria',    label: 'Tesorería',        icon: <Building2 size={18} />,  group: 'Financiero'   },
+  { id: 'personal',     label: 'Personal',         icon: <Users size={18} />,      group: 'Organización' },
+  { id: 'contabilidad', label: 'Contabilidad',     icon: <Scale size={18} />,      group: 'Organización' },
+  { id: 'compliance',   label: 'Compliance',       icon: <ShieldAlert size={18} />,group: 'Legal'        },
+  { id: 'rendicion',    label: 'Rendición SERVEL', icon: <FileDown size={18} />,   group: 'Legal'        },
+  { id: 'datos',        label: 'Carga de Datos',   icon: <ClipboardList size={18} />, group: 'Sistema'   },
 ]
 
 const GROUPS = ['Financiero', 'Organización', 'Legal', 'Sistema']
@@ -43,6 +45,7 @@ const TITLES: Record<Tab, string> = {
   tesoreria:    'Tesorería — Conciliación Bancaria y Flujo de Caja',
   contabilidad: 'Contabilidad — Activos Fijos y Balance Módulo 15',
   compliance:   'Compliance — Alertas Legales y Calendario',
+  rendicion:    'Rendición SERVEL — Exportación de Módulos DS 1174/2016',
   datos:        'Carga de Datos Reales',
 }
 
@@ -65,11 +68,16 @@ function Sidebar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void
                 onClick={() => onSelect(n.id)}
                 className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5 text-left ${
                   active === n.id
-                    ? 'bg-indigo-50 text-indigo-700 border-l-[3px] border-amaranto-500 pl-[9px] pr-3'
+                    ? 'bg-indigo-50 text-indigo-700 border-l-[3px] border-indigo-500 pl-[9px] pr-3'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800 px-3'
+                } ${n.id === 'rendicion' && active !== 'rendicion'
+                    ? 'text-indigo-600 font-semibold'
+                    : ''
                 }`}
               >
-                <span className={active === n.id ? 'text-indigo-600' : 'text-slate-400'}>{n.icon}</span>
+                <span className={active === n.id ? 'text-indigo-600' : n.id === 'rendicion' ? 'text-indigo-500' : 'text-slate-400'}>
+                  {n.icon}
+                </span>
                 {n.label}
               </button>
             ))}
@@ -108,7 +116,7 @@ export default function App() {
     <div className="min-h-screen bg-[#FAFAFA]">
       <Sidebar active={tab} onSelect={setTab} />
       <div className="ml-52 flex flex-col min-h-screen">
-        <header className="bg-white border-b-[2px] border-amaranto-500 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
+        <header className="bg-white border-b-[2px] border-indigo-500 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-slate-800 m-0">{TITLES[tab]}</h1>
             <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · Ley 18.603 · 19.884 · 20.900</p>
@@ -118,7 +126,7 @@ export default function App() {
               <p className="text-xs font-semibold text-slate-700">{usuario}</p>
               <p className="text-xs text-slate-400">Administrador</p>
             </div>
-            <div className="w-8 h-8 bg-amaranto-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
+            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
               {usuario.split(' ').map(p => p[0]).slice(0, 2).join('')}
             </div>
             <button
@@ -138,6 +146,7 @@ export default function App() {
           {tab === 'tesoreria'    && <HubTesoreria />}
           {tab === 'contabilidad' && <HubContabilidad />}
           {tab === 'compliance'   && <HubCompliance />}
+          {tab === 'rendicion'    && <HubRendicion />}
           {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>
