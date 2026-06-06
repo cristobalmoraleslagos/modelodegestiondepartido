@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { fmt } from '../utils'
 import { api, type DatoAnualAPI } from '../api'
+import { GASTOS_HISTORICO_MAP } from '../data/gastos_historico'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 interface DatoAnual {
@@ -184,10 +185,29 @@ const EVENTOS: Evento[] = [
   },
 ]
 
+// ─── Merge con datos M12 procesados ──────────────────────────────────────────
+// Combina la serie hardcoded con los datos reales de gastos_historico.ts.
+// Los campos null de SERIE se reemplazan con los valores reales del M12.
+const SERIE_MERGED: DatoAnual[] = SERIE.map(d => {
+  const real = GASTOS_HISTORICO_MAP[d.año]
+  if (!real) return d
+  return {
+    ...d,
+    gastoTotal: d.gastoTotal ?? real.gastoTotal,
+    personal:   d.personal   ?? real.personal,
+    bienes:     d.bienes     ?? real.bienes,
+    admin:      d.admin      ?? real.admin,
+    genero:     d.genero     ?? real.genero,
+    juvenil:    d.juvenil    ?? real.juvenil,
+    fuente:     (d.fuente.includes('no disponible') || d.fuente.includes('no accesible'))
+                ? real.fuente : d.fuente,
+  }
+})
+
 // ─── Datos para gráficos ──────────────────────────────────────────────────────
 
 // Género cumplimiento (años con datos confirmados)
-const CHART_GENERO = SERIE
+const CHART_GENERO = SERIE_MERGED
   .filter(d => d.genero !== null && d.cuotaGenero !== null)
   .map(d => ({
     año: d.esParcial ? `${d.año} Q1` : String(d.año),
@@ -197,7 +217,7 @@ const CHART_GENERO = SERIE
   }))
 
 // Gastos totales (años con gastoTotal)
-const CHART_TOTALES = SERIE
+const CHART_TOTALES = SERIE_MERGED
   .filter(d => d.gastoTotal !== null)
   .map(d => ({
     año: d.esParcial ? `${d.año}*` : String(d.año),
@@ -231,7 +251,7 @@ const CHART_CATEGORIAS = [
 ]
 
 // Aporte estatal (solo años confirmados)
-const CHART_APORTE = SERIE
+const CHART_APORTE = SERIE_MERGED
   .filter(d => d.aporteEstatal !== null)
   .map(d => ({
     año: d.esParcial ? `${d.año} Q1` : String(d.año),
@@ -270,8 +290,8 @@ export default function ModuloHistorico() {
     })
   }, [])
 
-  // Enriquecer SERIE hardcodeada con datos del API cuando estén disponibles
-  const serieEnriquecida: DatoAnual[] = SERIE.map(base => {
+  // Enriquecer SERIE_MERGED hardcodeada con datos del API cuando estén disponibles
+  const serieEnriquecida: DatoAnual[] = SERIE_MERGED.map(base => {
     if (!serieApi) return base
     const apiRow = serieApi.find(r => r.año === base.año)
     if (!apiRow) return base
@@ -437,7 +457,7 @@ export default function ModuloHistorico() {
                   </tr>
                 </thead>
                 <tbody>
-                  {SERIE.map((d, i) => {
+                  {SERIE_MERGED.map((d, i) => {
                     const pctGenero = d.genero !== null && d.cuotaGenero
                       ? Math.round((d.genero / d.cuotaGenero) * 100)
                       : null
@@ -683,7 +703,7 @@ export default function ModuloHistorico() {
                 </tr>
               </thead>
               <tbody>
-                {SERIE.filter(d => d.genero !== null && d.cuotaGenero !== null).map((d, i) => {
+                {SERIE_MERGED.filter(d => d.genero !== null && d.cuotaGenero !== null).map((d, i) => {
                   const pct = Math.round((d.genero! / d.cuotaGenero!) * 100)
                   const deficit = d.cuotaGenero! - d.genero!
                   const col = colorGenero(pct)

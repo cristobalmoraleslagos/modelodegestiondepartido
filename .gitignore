@@ -36,3 +36,12 @@ Thumbs.db
 # Claude Code local settings (keep launch.json, exclude local overrides)
 .claude/settings.local.json
 memory/
+procesadores/__pycache__/
+procesadores/output/bhe_todas.json
+ARCHIVOS SII/
+finanzas/
+scraper_transparencia/
+*.pptx
+*.docx
+bep*.pdf
+~$*
