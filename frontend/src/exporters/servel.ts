@@ -310,8 +310,6 @@ export function exportM16(año: number): { filas: number } {
 // MÓDULO 17 — PRÉSTAMOS Y CRÉDITOS (trimestral)
 // ════════════════════════════════════════════════════════════════════════
 
-const PRESTAMOS_FALLBACK_IDS = [1, 2, 3, 4, 5]
-
 export function exportM17(p: Periodo, prestamosBase: Prestamo[]): { filas: number } {
   const headers = [
     'RUT_PARTIDO', 'NOMBRE_PARTIDO', 'AÑO', 'PERÍODO',

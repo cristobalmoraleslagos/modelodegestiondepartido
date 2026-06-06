@@ -32,8 +32,11 @@ export const DONACION_PARTIDO_MAX_CLP   = DONACION_PARTIDO_MAX_UF * VALOR_UF // 
 /** Art. 38 Ley 20.900 — Mínimo Fondo de Género sobre aporte estatal */
 export const GENERO_PCT_MINIMO          = 0.10
 
-/** Art. 14 Ley 20.900 — Solo bancos e instituciones financieras CMF */
-export const TIPOS_ACREEDOR_LEGAL       = ['banco', 'cooperativa_ahorro', 'caja_compensacion'] as const
+/** Art. 14 Ley 20.900 — Solo bancos e instituciones financieras CMF
+ *  NOTA: usar exactamente estos valores en ModuloDeuda y datos/prestamos.ts
+ *  Backend analytics.py usa el mismo set: {"banco","cooperativa","caja_compensacion"}
+ */
+export const TIPOS_ACREEDOR_LEGAL       = ['banco', 'cooperativa', 'caja_compensacion'] as const
 
 /** Art. 12 Ley 20.900 — Categorías de gasto permitidas con aporte estatal */
 export const GASTOS_PERMITIDOS_ART12 = [

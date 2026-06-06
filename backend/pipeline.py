@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 from config import (
     MINDICADOR_URL, NOTIF_DESTINATARIOS,
     SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,
+    SII_CLAVE_TRIBUTARIA,
     TipoDocumento, EstadoDocumento,
 )
 from db.database import SessionLocal, create_tables
@@ -75,7 +76,17 @@ def ejecutar_pipeline() -> dict:
         logger.error("Error actualizando UF: %s", e)
         resumen["errores"].append(f"UF: {e}")
 
-    # ─── 2. Leer correos ──────────────────────────────────────
+    # ─── 2. Sincronizar SII ───────────────────────────────────
+    if SII_CLAVE_TRIBUTARIA:
+        try:
+            sincronizar_sii(resumen)
+        except Exception as e:
+            logger.error("Error sincronizando SII: %s", e)
+            resumen["errores"].append(f"SII: {e}")
+    else:
+        logger.info("SII_CLAVE_TRIBUTARIA no configurada — omitiendo sync SII")
+
+    # ─── 3. Leer correos ──────────────────────────────────────
     try:
         procesar_correos(resumen)
     except Exception as e:
@@ -83,13 +94,15 @@ def ejecutar_pipeline() -> dict:
         resumen["errores"].append(f"IMAP: {e}")
         traceback.print_exc()
 
-    # ─── 3. Resumen final ─────────────────────────────────────
+    # ─── 4. Resumen final ─────────────────────────────────────
     duracion = (datetime.now() - inicio).total_seconds()
     resumen["duracion_segundos"] = round(duracion, 1)
 
     logger.info("")
     logger.info("─" * 60)
     logger.info("✅ Pipeline completado en %.1f seg", duracion)
+    logger.info("   🌐 SII DTEs recibidos: %d", resumen.get("sii_dtes", 0))
+    logger.info("   🧾 SII BHEs emitidas:  %d", resumen.get("sii_bhe", 0))
     logger.info("   📧 Emails revisados:   %d", resumen["emails_revisados"])
     logger.info("   📄 Documentos cargados:  %d", resumen["documentos_cargados"])
     logger.info("   ⏳ Pendientes revisión:  %d", resumen["documentos_pendientes"])
@@ -104,6 +117,36 @@ def ejecutar_pipeline() -> dict:
         logger.warning("No se pudo enviar resumen por email: %s", e)
 
     return resumen
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  MÓDULO: Sincronización SII
+# ══════════════════════════════════════════════════════════════════════
+
+def sincronizar_sii(resumen: dict) -> None:
+    """Descarga DTEs y BHEs del período actual desde el SII."""
+    from sii_client import SIIClient
+    from datetime import date as d
+
+    hoy  = d.today()
+    anio = str(hoy.year)
+    mes  = str(hoy.month).zfill(2)
+
+    with SIIClient() as client:
+        datos = client.sincronizar_periodo(anio, mes)
+
+    resumen["sii_dtes"] = datos["dtes_recibidos"]
+    resumen["sii_bhe"]  = datos["bhe_emitidas"]
+    resumen["sii_f29"]  = datos.get("f29_estado")
+
+    if datos["errores"]:
+        for err in datos["errores"]:
+            resumen["errores"].append(f"SII: {err}")
+
+    logger.info(
+        "🌐 SII sync OK — DTEs: %d | BHEs: %d",
+        datos["dtes_recibidos"], datos["bhe_emitidas"],
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════

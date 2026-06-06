@@ -138,12 +138,7 @@ def gastos_serie():
             por_año[año]["gastoTotal"] += monto
 
     # Enriquecer con metadatos históricos conocidos
-    _APORTES_ESTATALES = {
-        2022: 1_240_127_041,
-        2024: 1_200_000_000,
-        2025: 1_200_000_000,
-        2026: 134_400_000,  # parcial Q1
-    }
+    _APORTES_ESTATALES = _APORTES_ESTATALES_FULL
     _CUOTAS_GENERO = {
         año: aporte * 0.10
         for año, aporte in _APORTES_ESTATALES.items()
@@ -316,10 +311,16 @@ def años_disponibles():
 # ══════════════════════════════════════════════════════════════════════════════
 
 _APORTES_ESTATALES_FULL = {
-    2017: 800_000_000,  2018: 900_000_000,  2019: 950_000_000,
-    2020: 950_000_000,  2021: 980_000_000,  2022: 1_240_127_041,
-    2023: 1_200_000_000, 2024: 1_200_000_000, 2025: 1_200_000_000,
-    2026: 134_400_000,  # Q1 parcial
+    2017: 800_000_000,
+    2018: 900_000_000,
+    2019: 950_000_000,
+    2020: 950_000_000,
+    2021: 1_370_047_598,  # fuente: Balance SERVEL 2021 aprobado (corregido)
+    2022: 1_240_127_041,  # fuente: Balance Clasificado SERVEL 2022
+    2023: 1_200_000_000,
+    2024: 1_200_000_000,
+    2025: 1_200_000_000,
+    2026: 134_400_000,    # Q1 2026 parcial — actualizar cuando SERVEL publique balance completo
 }
 
 TIPOS_INGRESO = ["aporte_estatal", "cotizaciones", "donacion", "reintegro", "arriendo", "interes", "otro"]

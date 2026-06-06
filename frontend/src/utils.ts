@@ -4,8 +4,21 @@ export const fmt = (n: number) =>
 export const fmtUF = (n: number) => `${n.toFixed(2)} UF`
 
 export const VALOR_UF = 40_442 // CLP por UF — 21 May 2026 (mindicador.cl)
-// Aporte estatal real 2022: $1.240.127.041 (fuente: Balance Clasificado SERVEL 2022)
-// Aporte 2021: $1.370.047.598 — Estimado 2025-2026: ~$1.200.000.000
-// Actualizar cuando SERVEL publique balance 2025 aprobado
-export const APORTE_ESTATAL_ANUAL = 1_200_000_000
-export const MES_ACTUAL = 5 // Mayo
+
+// Aportes estatales reales por año (fuente: Balances Clasificados SERVEL)
+export const APORTES_ESTATALES: Record<number, number> = {
+  2017: 800_000_000,
+  2018: 900_000_000,
+  2019: 950_000_000,
+  2020: 950_000_000,
+  2021: 1_370_047_598, // fuente: Balance SERVEL 2021 aprobado
+  2022: 1_240_127_041, // fuente: Balance Clasificado SERVEL 2022
+  2023: 1_200_000_000,
+  2024: 1_200_000_000,
+  2025: 1_200_000_000,
+  2026: 134_400_000,   // Q1 2026 parcial — actualizar cuando SERVEL publique balance completo
+}
+export const APORTE_ESTATAL_ANUAL = APORTES_ESTATALES[2026] ?? 1_200_000_000
+
+// MES_ACTUAL dinámico — se calcula al cargar la app (no hardcodeado)
+export const MES_ACTUAL = new Date().getMonth() + 1

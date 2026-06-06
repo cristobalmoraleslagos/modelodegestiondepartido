@@ -63,6 +63,18 @@ RUT_PARTIDO    = os.getenv("RUT_PARTIDO", "71701800-1")
 NOMBRE_PARTIDO = os.getenv("NOMBRE_PARTIDO", "Partido Comunista de Chile")
 
 
+# ─── SII ──────────────────────────────────────────────────────
+SII_RUT              = os.getenv("SII_RUT", RUT_PARTIDO)
+SII_CLAVE_TRIBUTARIA = os.getenv("SII_CLAVE_TRIBUTARIA", "")
+
+
+# ─── Defontana ────────────────────────────────────────────────
+DEFONTANA_BASE_URL      = os.getenv("DEFONTANA_BASE_URL", "https://api.defontana.com/api/")
+DEFONTANA_COMPANY_TOKEN = os.getenv("DEFONTANA_COMPANY_TOKEN", "")
+DEFONTANA_USER_TOKEN    = os.getenv("DEFONTANA_USER_TOKEN", "")
+DEFONTANA_TIMEOUT       = int(os.getenv("DEFONTANA_TIMEOUT", "30"))
+
+
 # ─── Tipos de documento reconocidos ───────────────────────────
 class TipoDocumento:
     BHE        = "BHE"         # Boleta Honorarios Electrónica
