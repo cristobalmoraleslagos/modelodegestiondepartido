@@ -194,11 +194,12 @@ export function exportM13(p: Periodo): { filas: number } {
     'METODO_PAGO', 'CUENTA_RECEPTORA', 'N_COMPROBANTE',
   ]
 
-  // Fuente 1: base hardcoded
-  const base    = DONACIONES_BASE.filter(d => enPeriodo(d.fecha, p))
-  // Fuente 2: tabla CargaDatos
+  // Fuente 1: base hardcoded — EXCLUIR personas jurídicas (Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900)
+  // Las jurídicas se detectan en validarPrevio() y NO deben aparecer en M13 SERVEL
+  const base    = DONACIONES_BASE.filter(d => enPeriodo(d.fecha, p) && !d.esPersonaJuridica)
+  // Fuente 2: tabla CargaDatos — excluir jurídicas también
   const cfp     = loadLS<Record<string,string>>('cfp_donaciones').filter(r => {
-    try { return enPeriodo(r.fecha ?? '', p) } catch { return false }
+    try { return enPeriodo(r.fecha ?? '', p) && (r.tipo_persona ?? 'Natural') !== 'Jurídica' } catch { return false }
   })
 
   const filasBase = base.map((d: Donacion) => [
@@ -368,10 +369,12 @@ export function validarPrevio(p: Periodo, prestamosBase: Prestamo[]): Advertenci
   if (sinMetodo.length > 0)
     adv.push({ modulo: 'M13', nivel: 'warning', msg: `${sinMetodo.length} donación(es) sin método de pago — campo requerido en M13.` })
 
-  // M14: funcionarios sin número de cuenta
-  const sinCuenta = FUNCIONARIOS_CANON.filter(f => f.activo && (f.numeroCuenta === '—' || !f.numeroCuenta))
+  // M14: funcionarios sin número de cuenta o sin banco
+  const sinCuenta = FUNCIONARIOS_CANON.filter(f =>
+    f.activo && (f.numeroCuenta === '—' || !f.numeroCuenta || f.banco === '—' || !f.banco)
+  )
   if (sinCuenta.length > 0)
-    adv.push({ modulo: 'M14', nivel: 'warning', msg: `${sinCuenta.length} funcionario(s) sin número de cuenta bancaria — completar para exportación M14.` })
+    adv.push({ modulo: 'M14', nivel: 'warning', msg: `${sinCuenta.length} funcionario(s) sin datos bancarios completos (banco o número de cuenta) — completar en Módulo Personal para exportación M14.` })
 
   // M17: préstamos vencidos no regularizados
   const vencidos = prestamosBase.filter(pr => pr.estado === 'vencido' && pr.es_legal)

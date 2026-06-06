@@ -1,7 +1,8 @@
 import { AlertTriangle, CheckCircle, Gift, ShieldAlert, Scale } from 'lucide-react'
 import { fmt, fmtUF, VALOR_UF } from '../utils'
 import {
-  DONACION_PARTIDO_MAX_UF, DONACION_PARTIDO_MAX_CLP,
+  DONACION_PARTIDO_MAX_UF_AFILIADO, DONACION_PARTIDO_MAX_CLP_AFILIADO,
+  DONACION_PARTIDO_MAX_UF_NO_AFILIADO,
   DONACION_CAMPANA_MAX_UF, DONACION_CAMPANA_MAX_CLP,
   DONACION_UMBRAL_PUBLICACION_UF, DONACION_UMBRAL_PUBLICACION_CLP,
   DONACION_PLAZO_PUBLICACION_DIAS,
@@ -13,29 +14,34 @@ interface Donacion {
   donante: string
   rut: string
   esPersonaJuridica: boolean
+  esAfiliado: boolean          // afiliado PCCh → tope 500 UF; no afiliado → 300 UF (Art. 39 DFL N°4/2017)
   montoCLP: number
   acumuladoAnualCLP: number
   tipo: 'partido' | 'campana'  // distingue Art. 39 DFL N°4/2017 (partido) vs Art. 10 DFL N°3/2017 (campaña)
 }
 
 // NORMATIVA VIGENTE (textos refundidos):
-// Donaciones AL PARTIDO: persona natural afiliada 500 UF/año, no afiliada 300 UF/año
-//   → Art. 39 DFL N°4/2017 (texto refundido Ley 18.603, últ. mod. Ley 21.311/2021)
-// Tope global aportante en elección parlamentaria/presidencial: 2.000 UF
-//   → Art. 10 DFL N°3/2017 (texto refundido Ley 19.884, últ. mod. Ley 21.693/2024)
+// Donaciones AL PARTIDO: afiliado 500 UF/año; no afiliado 300 UF/año — Art. 39 DFL N°4/2017
+// Tope global aportante en elección parlamentaria/presidencial: 2.000 UF — Art. 10 DFL N°3/2017
 // Personas jurídicas: PROHIBICIÓN ABSOLUTA — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900
-const LIMITE_PARTIDO_UF     = DONACION_PARTIDO_MAX_UF  // 500 UF (afiliado) — Art. 39 DFL N°4/2017
-const LIMITE_CAMPANA_UF     = DONACION_CAMPANA_MAX_UF  // 2.000 UF tope global — Art. 10 DFL N°3/2017
+
+// Calcula el tope aplicable según afiliación y tipo de donación
+function limiteUF(d: Donacion): number {
+  if (d.tipo === 'campana') return DONACION_CAMPANA_MAX_UF
+  return d.esAfiliado ? DONACION_PARTIDO_MAX_UF_AFILIADO : DONACION_PARTIDO_MAX_UF_NO_AFILIADO
+}
+
+const LIMITE_CAMPANA_UF     = DONACION_CAMPANA_MAX_UF
 const UMBRAL_PUBLICACION_UF = DONACION_UMBRAL_PUBLICACION_UF // 20 UF — Art. 13 DFL N°3/2017
 
 const DONACIONES: Donacion[] = [
-  { fecha: '2026-01-15', donante: 'Roberto Fuentes Araya',    rut: '8.234.567-8',   esPersonaJuridica: false, montoCLP: 1_500_000,  acumuladoAnualCLP: 4_800_000,  tipo: 'partido'  },
-  { fecha: '2026-02-10', donante: 'Constructora Del Valle SpA',rut: '77.123.456-9', esPersonaJuridica: true,  montoCLP: 3_000_000,  acumuladoAnualCLP: 3_000_000,  tipo: 'partido'  },
-  { fecha: '2026-03-05', donante: 'Carmen Leal Moreno',        rut: '12.987.654-3', esPersonaJuridica: false, montoCLP: 900_000,    acumuladoAnualCLP: 2_100_000,  tipo: 'partido'  },
-  { fecha: '2026-04-01', donante: 'Patricio Reyes Soto',       rut: '15.432.100-7', esPersonaJuridica: false, montoCLP: 4_200_000,  acumuladoAnualCLP: 18_600_000, tipo: 'partido'  }, // ~458 UF — bajo 500 UF tope afiliado Art. 39 DFL N°4/2017
-  { fecha: '2026-04-22', donante: 'Luisa Contreras Vidal',     rut: '9.876.543-2',  esPersonaJuridica: false, montoCLP: 400_000,    acumuladoAnualCLP: 400_000,    tipo: 'partido'  },
-  { fecha: '2026-05-12', donante: 'Fundación Progreso Chile',  rut: '65.432.100-K', esPersonaJuridica: true,  montoCLP: 5_000_000,  acumuladoAnualCLP: 5_000_000,  tipo: 'partido'  },
-  { fecha: '2026-05-18', donante: 'Marcos Ibáñez Pino',        rut: '16.100.200-4', esPersonaJuridica: false, montoCLP: 600_000,    acumuladoAnualCLP: 600_000,    tipo: 'partido'  },
+  { fecha: '2026-01-15', donante: 'Roberto Fuentes Araya',     rut: '8.234.567-8',   esPersonaJuridica: false, esAfiliado: true,  montoCLP: 1_500_000,  acumuladoAnualCLP: 4_800_000,  tipo: 'partido'  },
+  { fecha: '2026-02-10', donante: 'Constructora Del Valle SpA', rut: '77.123.456-9',  esPersonaJuridica: true,  esAfiliado: false, montoCLP: 3_000_000,  acumuladoAnualCLP: 3_000_000,  tipo: 'partido'  }, // PROHIBIDO
+  { fecha: '2026-03-05', donante: 'Carmen Leal Moreno',         rut: '12.987.654-3',  esPersonaJuridica: false, esAfiliado: false, montoCLP: 900_000,    acumuladoAnualCLP: 2_100_000,  tipo: 'partido'  },
+  { fecha: '2026-04-01', donante: 'Patricio Reyes Soto',        rut: '15.432.100-7',  esPersonaJuridica: false, esAfiliado: true,  montoCLP: 4_200_000,  acumuladoAnualCLP: 18_600_000, tipo: 'partido'  }, // ~458 UF — bajo 500 UF tope afiliado Art. 39 DFL N°4/2017
+  { fecha: '2026-04-22', donante: 'Luisa Contreras Vidal',      rut: '9.876.543-2',   esPersonaJuridica: false, esAfiliado: true,  montoCLP: 400_000,    acumuladoAnualCLP: 400_000,    tipo: 'partido'  },
+  { fecha: '2026-05-12', donante: 'Fundación Progreso Chile',   rut: '65.432.100-K',  esPersonaJuridica: true,  esAfiliado: false, montoCLP: 5_000_000,  acumuladoAnualCLP: 5_000_000,  tipo: 'partido'  }, // PROHIBIDO
+  { fecha: '2026-05-18', donante: 'Marcos Ibáñez Pino',         rut: '16.100.200-4',  esPersonaJuridica: false, esAfiliado: false, montoCLP: 600_000,    acumuladoAnualCLP: 600_000,    tipo: 'partido'  },
 ]
 
 function barColor(pct: number) {
@@ -47,13 +53,14 @@ function barColor(pct: number) {
 export default function ModuloDonaciones() {
   const personasJuridicas = DONACIONES.filter(d => d.esPersonaJuridica)
 
-  // Límite correcto según tipo de donación:
-  // Partido: 500 UF/año (Art. 39 DFL N°4/2017)
-  // Campaña: 3.000 UF/elección (Art. 10 DFL N°3/2017)
+  // Límite correcto según tipo de donación Y afiliación (Art. 39 DFL N°4/2017):
+  // Partido afiliado:  500 UF/año
+  // Partido no-afiliado: 300 UF/año
+  // Campaña: 2.000 UF/elección (Art. 10 DFL N°3/2017)
   const sobreLimitePartido = DONACIONES.filter(d =>
     !d.esPersonaJuridica &&
     d.tipo === 'partido' &&
-    d.acumuladoAnualCLP > LIMITE_PARTIDO_UF * VALOR_UF
+    d.acumuladoAnualCLP > limiteUF(d) * VALOR_UF
   )
   const sobreLimiteCampana = DONACIONES.filter(d =>
     !d.esPersonaJuridica &&
@@ -63,7 +70,7 @@ export default function ModuloDonaciones() {
   const sobreLimite = [...sobreLimitePartido, ...sobreLimiteCampana]
   const paraPublicar = DONACIONES.filter(d => !d.esPersonaJuridica && d.montoCLP >= UMBRAL_PUBLICACION_UF * VALOR_UF)
   const totalLegitimo = DONACIONES
-    .filter(d => !d.esPersonaJuridica && d.acumuladoAnualCLP <= (d.tipo === 'partido' ? LIMITE_PARTIDO_UF : LIMITE_CAMPANA_UF) * VALOR_UF)
+    .filter(d => !d.esPersonaJuridica && d.acumuladoAnualCLP <= limiteUF(d) * VALOR_UF)
     .reduce((s, d) => s + d.montoCLP, 0)
 
   // Plazo publicación web: 10 días corridos desde recepción (Art. 13 DFL N°3/2017)
@@ -91,7 +98,8 @@ export default function ModuloDonaciones() {
         <Scale size={16} className="text-indigo-600 mt-0.5 shrink-0" />
         <div className="text-xs text-indigo-800 space-y-1">
           <p><strong>Dos límites distintos según destino del aporte:</strong></p>
-          <p>• <strong>Al PARTIDO:</strong> máximo <strong>{LIMITE_PARTIDO_UF} UF/año</strong> por persona natural — Art. 39 DFL N°4/2017 (~{fmt(DONACION_PARTIDO_MAX_CLP)})</p>
+          <p>• <strong>Al PARTIDO (afiliado):</strong> máximo <strong>{DONACION_PARTIDO_MAX_UF_AFILIADO} UF/año</strong> — Art. 39 DFL N°4/2017 (~{fmt(DONACION_PARTIDO_MAX_CLP_AFILIADO)})</p>
+          <p>• <strong>Al PARTIDO (no afiliado):</strong> máximo <strong>{DONACION_PARTIDO_MAX_UF_NO_AFILIADO} UF/año</strong> — Art. 39 DFL N°4/2017</p>
           <p>• <strong>A CAMPAÑA ELECTORAL:</strong> máximo <strong>{LIMITE_CAMPANA_UF.toLocaleString()} UF/elección</strong> por persona natural — Art. 10 DFL N°3/2017 (~{fmt(DONACION_CAMPANA_MAX_CLP)})</p>
           <p>• <strong>Personas jurídicas: PROHIBICIÓN ABSOLUTA en ambos casos</strong> — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900</p>
         </div>

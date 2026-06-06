@@ -23,6 +23,7 @@ import {
   cumplimientoGenero,
 } from '../normativa'
 import { FUNCIONARIOS_CANON } from '../data/personal'
+import { EGRESOS_BASE }       from '../data/egresos'
 
 // ─── Datos actuales para generación de alertas ────────────────────────────────
 // Fuente: FUNCIONARIOS_CANON (personal.ts) — fuente única de datos de nómina
@@ -48,7 +49,12 @@ const PRESTAMOS = [
   // { nombre: 'Persona Natural X', tipo: 'otro' },
 ]
 
-const GASTO_GENERO_2026   = 0         // Sin datos cargados aún
+// Gasto de Género calculado dinámicamente desde EGRESOS_BASE (categoriaSERVEL === 'Fondo Género')
+// Art. 38 Ley 20.900: mínimo 10% del aporte estatal en actividades de fomento a la participación femenina
+const GASTO_GENERO_2026 = EGRESOS_BASE
+  .filter(e => e.categoriaSERVEL === 'Fondo Género')
+  .reduce((s, e) => s + e.monto, 0)
+
 const RETENCION_PENDIENTE = 9_274_613 // Mayo 2026 (F29 corriente)
 
 // ─── Iconos por módulo ────────────────────────────────────────────────────────

@@ -119,7 +119,7 @@ export default function App() {
         <header className="bg-white border-b-[2px] border-indigo-500 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-slate-800 m-0">{TITLES[tab]}</h1>
-            <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · Ley 18.603 · 19.884 · 20.900</p>
+            <p className="text-xs text-slate-400 m-0">Control Financiero Partidario · Compliance SERVEL · DFL N°4/2017 · DFL N°3/2017 · Ley 20.900</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
