@@ -8,19 +8,22 @@ import { fmt, VALOR_UF, APORTE_ESTATAL_ANUAL, MES_ACTUAL } from '../utils'
 import {
   generarAlertasCompliance,
   type AlertaLegal,
-  // Constantes para la tabla de referencia
-  SUELDO_MAX_UF, SUELDO_MAX_CLP,
-  DONACION_PARTIDO_MAX_UF, DONACION_PARTIDO_MAX_CLP,
+  // Constantes para la tabla de referencia — DFL N°4/2017 y DFL N°3/2017
+  SUELDO_REFERENCIA_UF, SUELDO_REFERENCIA_CLP,
+  DONACION_PARTIDO_MAX_UF_AFILIADO, DONACION_PARTIDO_MAX_CLP_AFILIADO,
+  DONACION_PARTIDO_MAX_UF_NO_AFILIADO, DONACION_PARTIDO_MAX_CLP_NO_AFILIADO,
   DONACION_CAMPANA_MAX_UF, DONACION_CAMPANA_MAX_CLP,
   DONACION_UMBRAL_PUBLICACION_UF, DONACION_UMBRAL_PUBLICACION_CLP,
+  TOPE_IMPONIBLE_UF,
   GENERO_PCT_MINIMO,
+  TASA_RETENCION_HONORARIOS,
   F29_DIA_VENCIMIENTO, PREVIRED_DIA_VENCIMIENTO,
   diasHastaf29, diasHastaPrevired, proximaRendicionServel,
   cumplimientoGenero,
 } from '../normativa'
 
 // ─── Datos actuales para generación de alertas ────────────────────────────────
-// En producción estos vendrían de la API; aquí usamos datos reales conocidos
+// Fuente: BHE Q1 2026 + datos reales del partido
 const FUNCIONARIOS_ACTIVOS = [
   { nombre: 'Lautaro Carmona Soto',      sueldo: 2_245_875 },
   { nombre: 'Juan Andrés Lagos Espinoza', sueldo: 1_487_363 },
@@ -30,13 +33,16 @@ const FUNCIONARIOS_ACTIVOS = [
   { nombre: 'Carlos Ugas Tapia',          sueldo: 2_300_000 },
   { nombre: 'Catalina Lufin',             sueldo: 1_400_000 },
   { nombre: 'Guillermo Adriazola',        sueldo: 1_167_000 },
-  { nombre: 'Damián Trujillo',            sueldo: 4_284_000 }, // Sobre 60 UF → ALERTA
+  // Art. 45 DFL N°4/2017: límite es "valor de mercado" — no límite nominal en la ley
+  { nombre: 'Damián Trujillo',            sueldo: 4_284_000 },
 ]
 
+// Donaciones 2026 — incluye campo esAfiliado para distinción de topes
+// Art. 39 DFL N°4/2017: afiliado → 500 UF; no afiliado → 300 UF
 const DONACIONES_2026 = [
-  { donante: 'Constructora Del Valle SpA', esJuridica: true,  acumuladoAnual: 3_000_000 },
-  { donante: 'Fundación Progreso Chile',   esJuridica: true,  acumuladoAnual: 5_000_000 },
-  { donante: 'Patricio Reyes Soto',        esJuridica: false, acumuladoAnual: 18_600_000 }, // > 500 UF partido
+  { donante: 'Constructora Del Valle SpA', esJuridica: true,  acumuladoAnual: 3_000_000, esAfiliado: false }, // PROHIBIDO — persona jurídica
+  { donante: 'Fundación Progreso Chile',   esJuridica: true,  acumuladoAnual: 5_000_000, esAfiliado: false }, // PROHIBIDO — persona jurídica
+  { donante: 'Patricio Reyes Soto',        esJuridica: false, acumuladoAnual: 18_600_000, esAfiliado: true }, // ~460 UF — bajo 500 UF (afiliado)
 ]
 
 const PRESTAMOS = [
@@ -132,25 +138,44 @@ function Contador({ label, dias, umbralRojo, ley }: { label: string; dias: numbe
 // ─── Tabla de límites normativos ──────────────────────────────────────────────
 function TablaLimites() {
   const rows = [
-    { concepto: 'Sueldo máximo por funcionario', limite: `${SUELDO_MAX_UF} UF / mes`, clp: fmt(SUELDO_MAX_CLP), ley: 'Art. 5 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Donación al partido (pers. natural)', limite: `${DONACION_PARTIDO_MAX_UF} UF / año`, clp: fmt(DONACION_PARTIDO_MAX_CLP), ley: 'Art. 15 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Donación a campaña (pers. natural)', limite: `${DONACION_CAMPANA_MAX_UF.toLocaleString()} UF / elección`, clp: fmt(DONACION_CAMPANA_MAX_CLP), ley: 'Art. 6 Ley 19.884', nivel: 'critico' },
-    { concepto: 'Publicación obligatoria donaciones', limite: `> ${DONACION_UMBRAL_PUBLICACION_UF} UF`, clp: fmt(DONACION_UMBRAL_PUBLICACION_CLP), ley: 'Art. 13 Ley 19.884', nivel: 'advertencia' },
+    // ── Remuneraciones ──
+    { concepto: 'Estándar remuneraciones personal', limite: 'Valor de mercado del cargo', clp: '(sin tope nominal en la ley)', ley: 'Art. 45 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Referencia: tope imponible AFP/Salud', limite: `${TOPE_IMPONIBLE_UF} UF / mes`, clp: fmt(TOPE_IMPONIBLE_UF * VALOR_UF), ley: 'Res. exenta N°237/2026 Sup. Pensiones', nivel: 'info' },
+    { concepto: 'Publicación remuneraciones en web', limite: 'Obligatoria y permanente', clp: '—', ley: 'Art. 49 h) DFL N°4/2017', nivel: 'critico' },
+    // ── Donaciones ──
+    { concepto: 'Donación al partido — afiliado', limite: `${DONACION_PARTIDO_MAX_UF_AFILIADO} UF / año`, clp: fmt(DONACION_PARTIDO_MAX_CLP_AFILIADO), ley: 'Art. 39 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Donación al partido — no afiliado', limite: `${DONACION_PARTIDO_MAX_UF_NO_AFILIADO} UF / año`, clp: fmt(DONACION_PARTIDO_MAX_CLP_NO_AFILIADO), ley: 'Art. 39 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Tope global aportante en elección parl./pres.', limite: `${DONACION_CAMPANA_MAX_UF.toLocaleString('es-CL')} UF / elección`, clp: fmt(DONACION_CAMPANA_MAX_CLP), ley: 'Art. 10 DFL N°3/2017', nivel: 'critico' },
+    { concepto: 'Publicación obligatoria donaciones', limite: `> ${DONACION_UMBRAL_PUBLICACION_UF} UF`, clp: fmt(DONACION_UMBRAL_PUBLICACION_CLP), ley: 'Art. 13 DFL N°3/2017', nivel: 'advertencia' },
+    { concepto: 'Donaciones personas jurídicas', limite: 'PROHIBICIÓN ABSOLUTA — pena penal', clp: '$0', ley: 'Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900', nivel: 'critico' },
+    { concepto: 'Aportes de extranjeros / exterior', limite: 'PROHIBICIÓN ABSOLUTA', clp: '$0', ley: 'Art. 39 inc. final DFL N°4/2017', nivel: 'critico' },
+    // ── Gasto electoral ──
+    { concepto: 'Tope gasto partido en campaña', limite: '1/3 del total autorizadoа candidatos', clp: '—', ley: 'Art. 5 DFL N°3/2017', nivel: 'critico' },
+    { concepto: 'Tope candidato a Senador', limite: '1.500 UF + variable por electores', clp: fmt(1_500 * VALOR_UF), ley: 'Art. 4 DFL N°3/2017', nivel: 'advertencia' },
+    { concepto: 'Tope candidato a Diputado', limite: '700 UF + 0,015 UF × electores', clp: fmt(700 * VALOR_UF), ley: 'Art. 4 DFL N°3/2017', nivel: 'advertencia' },
+    { concepto: 'Tope candidato a Alcalde', limite: '120 UF + 0,03 UF × electores', clp: fmt(120 * VALOR_UF), ley: 'Art. 4 DFL N°3/2017', nivel: 'advertencia' },
+    { concepto: 'Rendición cuenta electoral', limite: '60 días corridos desde la elección', clp: '—', ley: 'Art. 47 DFL N°3/2017', nivel: 'critico' },
+    { concepto: 'Reembolso fiscal post-electoral', limite: '0,04 UF por voto obtenido', clp: '—', ley: 'Art. 17 DFL N°3/2017', nivel: 'info' },
+    // ── Financiamiento público ──
+    { concepto: 'Aporte público trimestral', limite: '0,02 UF × votos última elección parlamentaria', clp: '—', ley: 'Art. 40 DFL N°4/2017', nivel: 'info' },
     { concepto: 'Fondo de Género mínimo', limite: `${(GENERO_PCT_MINIMO * 100).toFixed(0)}% del aporte estatal`, clp: fmt(APORTE_ESTATAL_ANUAL * GENERO_PCT_MINIMO), ley: 'Art. 38 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Donaciones personas jurídicas', limite: 'PROHIBICIÓN ABSOLUTA', clp: '$0', ley: 'Art. 17 Ley 19.884 + Art. 16 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Aporte candidato Presidencial', limite: '10.000 UF', clp: fmt(10_000 * VALOR_UF), ley: 'Art. 35 Ley 19.884', nivel: 'critico' },
-    { concepto: 'Aporte candidato Diputado', limite: '1.000 UF', clp: fmt(1_000 * VALOR_UF), ley: 'Art. 35 Ley 19.884', nivel: 'critico' },
-    { concepto: 'Plazo declarar gasto electoral', limite: '15 días hábiles', clp: '—', ley: 'Art. 24 Ley 19.884', nivel: 'advertencia' },
-    { concepto: 'Publicación donación recibida', limite: '10 días corridos', clp: '—', ley: 'Art. 13 Ley 19.884', nivel: 'advertencia' },
-    { concepto: 'Tasa retención honorarios', limite: '10,75%', clp: '—', ley: 'Art. 74 N°2 DL 824', nivel: 'info' },
+    // ── Tributario y previsional ──
+    { concepto: 'Tasa retención honorarios (BHE)', limite: `${(TASA_RETENCION_HONORARIOS * 100).toFixed(2)}%`, clp: '—', ley: 'Art. 74 N°2 DL 824', nivel: 'info' },
     { concepto: 'Vencimiento F29', limite: `Día ${F29_DIA_VENCIMIENTO} de cada mes`, clp: '—', ley: 'Art. 74 N°2 DL 824', nivel: 'info' },
     { concepto: 'Vencimiento PREVIRED', limite: `Día ${PREVIRED_DIA_VENCIMIENTO} de cada mes`, clp: '—', ley: 'DL 3.500', nivel: 'info' },
-    { concepto: 'Rendición trimestral SERVEL', limite: '30 días post-trimestre', clp: '—', ley: 'Art. 33 Ley 20.900 + DS 1174/2016', nivel: 'critico' },
-    { concepto: 'Balance anual SERVEL', limite: '30 de abril año siguiente', clp: '—', ley: 'Art. 33 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Nepotismo — parentesco prohibido', limite: '2° grado consang. / 1° afinidad', clp: '—', ley: 'Art. 39 bis Ley 18.603', nivel: 'critico' },
-    { concepto: 'Préstamos solo de bancos/CMF', limite: 'Banco, cooperativa, caja comp.', clp: '—', ley: 'Art. 14 Ley 20.900', nivel: 'critico' },
-    { concepto: 'Multa máxima por infracción', limite: 'hasta 500 UTM', clp: fmt(500 * 66_000), ley: 'Art. 34 Ley 20.900', nivel: 'info' },
-    { concepto: 'Multa Ley 21.719 (datos)', limite: 'hasta 5.000 UTM', clp: fmt(5_000 * 66_000), ley: 'Art. Ley 21.719', nivel: 'info' },
+    // ── Transparencia y rendición ──
+    { concepto: 'Rendición trimestral SERVEL', limite: '30 días corridos post-trimestre', clp: '—', ley: 'Art. 42 DFL N°4/2017 + DS 1174/2016', nivel: 'critico' },
+    { concepto: 'Balance anual SERVEL', limite: '30 de abril del año siguiente', clp: '—', ley: 'Art. 44 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Norma contable exigida', limite: 'IFRS-PYME (desde balance 2019)', clp: '—', ley: 'Instrucción SERVEL 28/03/2019', nivel: 'info' },
+    // ── Inhabilidades y contratos ──
+    { concepto: 'Nepotismo — parentesco prohibido', limite: '2° grado consang. / 1° afinidad', clp: '—', ley: 'Art. 39 bis DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Préstamos — acreedores autorizados', limite: 'Banco, cooperativa, caja compensación', clp: '—', ley: 'Art. 39 letra f) DFL N°4/2017', nivel: 'critico' },
+    // ── Sanciones ──
+    { concepto: 'No llevar libros contables', limite: 'Multa 10-100 UTM', clp: fmt(10 * 66_000) + ' – ' + fmt(100 * 66_000), ley: 'Art. 65 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Exceso de gasto electoral > 25% tope', limite: 'Multa = 5× el exceso', clp: '—', ley: 'Art. 6 c) DFL N°3/2017', nivel: 'critico' },
+    { concepto: 'Inhabilidad directivos (infracciones dolosas)', limite: '3 a 5 años', clp: '—', ley: 'Art. 65 DFL N°4/2017', nivel: 'critico' },
+    { concepto: 'Publicación donación recibida', limite: '10 días corridos', clp: '—', ley: 'Art. 13 DFL N°3/2017', nivel: 'advertencia' },
+    { concepto: 'Multa Ley 21.719 (datos personales)', limite: 'hasta 5.000 UTM', clp: fmt(5_000 * 66_000), ley: 'Ley 21.719/2024', nivel: 'info' },
   ]
 
   const nivelStyle = (n: string) =>
@@ -277,13 +302,13 @@ export default function ModuloAlertas() {
             label={rendicion ? `Rendición SERVEL — ${rendicion.trimestre}` : 'Sin rendición próxima'}
             dias={rendicion?.diasRestantes ?? 999}
             umbralRojo={15}
-            ley="Art. 33 Ley 20.900 + DS 1174/2016"
+            ley="Art. 42 DFL N°4/2017 + DS 1174/2016"
           />
           <Contador
             label="Balance anual SERVEL (30 abril 2027)"
             dias={Math.ceil((new Date('2027-04-30').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
             umbralRojo={30}
-            ley="Art. 33 Ley 20.900"
+            ley="Art. 44 DFL N°4/2017"
           />
         </div>
       </div>
@@ -331,8 +356,10 @@ export default function ModuloAlertas() {
         </div>
         <TablaLimites />
         <div className="px-5 py-3 bg-indigo-50 rounded-b-2xl text-xs text-indigo-700">
-          <strong>Fuentes:</strong> Ley 18.603 · Ley 19.884 · Ley 20.900 · Ley 21.442 · Ley 21.719 ·
-          DL 824 (Ley de la Renta) · DL 3.500 (AFP) · DS 1174/2016 SERVEL · Dictámenes CGR vigentes.
+          <strong>Fuentes (textos refundidos vigentes):</strong> DFL N°4/2017 (Ley 18.603, últ. mod. Ley 21.311/2021) ·
+          DFL N°3/2017 (Ley 19.884, últ. mod. Ley 21.693/2024) · Ley 20.900 · Ley 20.915 · Ley 21.719 ·
+          DL 824 (Ley de la Renta) · DL 3.500 (AFP) · DS 1174/2016 SERVEL ·
+          Res. exenta N°237/2026 Sup. Pensiones · Dictámenes CGR vigentes.
           Los montos en CLP son referenciales según UF del día — verificar con valor UF oficial al momento de la operación.
         </div>
       </div>
@@ -348,8 +375,14 @@ export default function ModuloAlertas() {
             color: 'bg-red-50 border-red-200 text-red-800',
           },
           {
+            titulo: 'Art. 45 DFL N°4/2017 — No existe límite nominal de sueldo en la ley',
+            descripcion: 'El único estándar legal de remuneraciones es el "valor de mercado del cargo" (Art. 45). La cifra de "60 UF" que circula no tiene base en el texto vigente. SERVEL puede objetar sueldos que superen significativamente el valor de mercado durante la auditoría del balance anual.',
+            impacto: 'Alto — sueldos sobre el mercado pueden implicar nulidad del contrato y responsabilidad de directivos',
+            color: 'bg-blue-50 border-blue-200 text-blue-800',
+          },
+          {
             titulo: 'Naturaleza jurídica — Partidos no están sujetos a Ley de Compras Públicas',
-            descripcion: 'Los partidos son personas jurídicas de derecho público pero NO son organismos del Estado. Por ello, no están obligados a licitar en ChileCompra. Sin embargo, deben justificar y respaldar con documentos toda compra con aporte estatal.',
+            descripcion: 'Los partidos son personas jurídicas de derecho público (Art. 1 DFL N°4/2017) pero NO son organismos del Estado. No están obligados a licitar en ChileCompra. Sin embargo, deben justificar y respaldar con documentos toda compra financiada con aporte estatal.',
             impacto: 'Medio — libera de licitación pero exige respaldo documental riguroso',
             color: 'bg-blue-50 border-blue-200 text-blue-800',
           },
