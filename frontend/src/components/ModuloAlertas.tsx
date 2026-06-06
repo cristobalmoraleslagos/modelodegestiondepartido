@@ -57,6 +57,11 @@ const GASTO_GENERO_2026 = EGRESOS_BASE
 
 const RETENCION_PENDIENTE = 9_274_613 // Mayo 2026 (F29 corriente)
 
+// Años sin aporte estatal SERVEL (suspensión por rendiciones pendientes)
+// Art. 42 inc. final DFL N°4/2017: SERVEL suspende el pago si no hay rendición aprobada
+const ANIOS_SIN_APORTE = [2023, 2024, 2025]
+const MONTO_APORTE_PERDIDO_EST = 3_600_000_000 // estimado ~$1.200M × 3 años
+
 // ─── Iconos por módulo ────────────────────────────────────────────────────────
 const ICONO_MODULO: Record<string, JSX.Element> = {
   personal:    <Users size={15} />,
@@ -229,9 +234,26 @@ export default function ModuloAlertas() {
       retencionPendiente: RETENCION_PENDIENTE,
       directivaCentral:   [],
     })
-    // Agregar alerta retroactiva F29 Jun-Dic 2025 (ya vencida — prioridad crítica al tope)
+    // Alerta retroactiva F29 Jun-Dic 2025 (ya vencida — prioridad crítica al tope)
     const alertaBacklog = alertaF29Retroactivo(F29_MESES_VENCIDOS_2025, F29_MONTO_BACKLOG_2025)
-    const alertas = [alertaBacklog, ...base.alertas]
+
+    // Alerta pérdida de aporte estatal 2023-2025 (Art. 42 DFL N°4/2017)
+    const alertaAporte: import('../normativa').AlertaLegal = {
+      id:          'aporte_estatal_suspendido',
+      gravedad:    'critica',
+      titulo:      `Aporte estatal SUSPENDIDO — ${ANIOS_SIN_APORTE.join(', ')} ($0 recibido)`,
+      descripcion: `El partido no recibió financiamiento público en ${ANIOS_SIN_APORTE.length} años consecutivos. ` +
+                   `Pérdida estimada: ~${MONTO_APORTE_PERDIDO_EST.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
+                   `Art. 42 DFL N°4/2017: SERVEL suspende el pago trimestral cuando existen rendiciones de cuentas no aprobadas.`,
+      accion:      'Regularizar TODAS las rendiciones pendientes (2022-2025) ante SERVEL para rehabilitar el derecho al aporte público. ' +
+                   'Presentar plan de regularización al Tesorero Nacional con plazos concretos.',
+      ley:         'Art. 42 + Art. 40 DFL N°4/2017',
+      modulo:      'aportes',
+      plazo:       'URGENTE — cada trimestre sin rendición aprobada prolonga la suspensión',
+      monto:       MONTO_APORTE_PERDIDO_EST,
+    }
+
+    const alertas = [alertaAporte, alertaBacklog, ...base.alertas]
     const criticas = alertas.filter(a => a.gravedad === 'critica').length
     return { ...base, alertas, criticas, total: alertas.length }
   }, [])
