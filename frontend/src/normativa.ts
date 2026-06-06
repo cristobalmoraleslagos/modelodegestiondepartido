@@ -772,6 +772,33 @@ export function alertaFondoGenero(pct: number, deficit: number, mes: number): Al
   }
 }
 
+/**
+ * Genera alerta crítica por F29 con backlog retroactivo (meses sin declarar).
+ * Art. 74 N°2 DL 824 — retención honorarios.
+ * Art. 97 N°11 CT — multa 10% base + interés 1,5%/mes por mora tributaria.
+ */
+export function alertaF29Retroactivo(
+  mesesVencidos: string[],
+  montoTotal:    number
+): AlertaLegal {
+  const multaEstimada = Math.round(montoTotal * (0.10 + 0.015 * mesesVencidos.length))
+  return {
+    id:          'f29_backlog_retroactivo',
+    gravedad:    'critica',
+    titulo:      `F29 SIN DECLARAR — ${mesesVencidos.length} meses vencidos (${mesesVencidos[0]} a ${mesesVencidos[mesesVencidos.length - 1]})`,
+    descripcion: `Retenciones de honorarios sin declarar: ${montoTotal.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
+                 `Multa estimada acumulada: ~${multaEstimada.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} ` +
+                 `(10% base + 1,5%×${mesesVencidos.length} meses mora). ` +
+                 `SERVEL puede objetar balances si las retenciones no están declaradas.`,
+    accion:      `Declarar ${mesesVencidos.length} F29 retroactivos en sii.cl (uno por mes, código 92). ` +
+                 `Calcular reajuste IPC + interés penal (Art. 53 CT). Informar a SERVEL del proceso de regularización.`,
+    ley:         'Art. 74 N°2 DL 824 + Art. 97 N°11 + Art. 53 CT',
+    modulo:      'retenciones',
+    plazo:       'INMEDIATO — períodos ya vencidos',
+    monto:       montoTotal + multaEstimada,
+  }
+}
+
 /** Detecta si un RUT corresponde a una persona jurídica (heurística por rango) */
 export function detectarPersonaJuridica(rut: string): { esJuridica: boolean; confianza: 'alta' | 'media' | 'baja' } {
   const limpio = rut.replace(/\./g, '').replace(/-/g, '').toLowerCase()

@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { Users, UserX, CheckCircle, AlertTriangle, ShieldAlert, Scale } from 'lucide-react'
+import { Users, UserX, CheckCircle, AlertTriangle, ShieldAlert, Scale, History, ChevronDown } from 'lucide-react'
 import { fmt, VALOR_UF } from '../utils'
 import { SUELDO_MAX_UF, SUELDO_MAX_CLP } from '../normativa'
 import { FUNCIONARIOS_CANON, type Funcionario } from '../data/personal'
+import { BHE_HISTORICO, BHE_TOTALES_ANUALES, type ContratistaBHE } from '../data/bhe_historico'
 
 // Parentescos para chequeo antinepotismo (Art. 39 bis DFL N°4/2017)
 const parentescos: Record<string, { directivo: string; grado: string }> = {}
@@ -15,6 +16,8 @@ const emptyForm = () => ({
   area: 'Administración', imputableGenero: false,
 })
 
+const ANIOS_BHE = [2025, 2024, 2023, 2022] as const
+
 export default function ModuloPersonal() {
   const [form, setForm]           = useState(emptyForm())
   const [submitted, setSubmitted] = useState(false)
@@ -24,10 +27,17 @@ export default function ModuloPersonal() {
     const extras: Funcionario[] = JSON.parse(localStorage.getItem('fp_personal') ?? '[]')
     return [...FUNCIONARIOS_CANON, ...extras]
   })
+  const [anioBHE, setAnioBHE]         = useState<number>(2025)
+  const [mostrarBHE, setMostrarBHE]   = useState(true)
 
   const activos = funcionarios.filter(f => f.activo)
   const sueldoTotal = activos.reduce((s, f) => s + parseInt(f.sueldo || '0'), 0)
   const pctSueldo   = Math.round((sueldoTotal / PRESUPUESTO_SUELDOS) * 100)
+
+  // Datos BHE filtrados por año
+  const contratistasAnio: ContratistaBHE[] = BHE_HISTORICO.filter(c => c.anio === anioBHE)
+    .sort((a, b) => b.bruto - a.bruto)
+  const totalesAnio = BHE_TOTALES_ANUALES[anioBHE]
 
   // Detectar funcionarios sobre el tope imponible previsional (referencia Art. 45 DFL N°4/2017)
   // NOTA: No existe límite nominal de sueldo en la ley — el estándar es "valor de mercado"
@@ -256,6 +266,98 @@ export default function ModuloPersonal() {
             </div>
           </form>
         </div>
+      </div>
+      {/* ── Sección Histórico BHE ── */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <History size={16} className="text-indigo-600" />
+            <h2 className="text-base font-semibold text-slate-800">Nómina Histórica BHE (SII)</h2>
+            <span className="text-xs text-slate-400">· Contratistas ≥ 20 UTM anuales · Art. 42 DFL N°4/2017</span>
+          </div>
+          <button
+            onClick={() => setMostrarBHE(v => !v)}
+            className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700"
+          >
+            <ChevronDown size={14} className={mostrarBHE ? 'rotate-180 transition-transform' : 'transition-transform'} />
+            {mostrarBHE ? 'Colapsar' : 'Expandir'}
+          </button>
+        </div>
+
+        {/* Selector de año */}
+        <div className="flex items-center gap-2">
+          {ANIOS_BHE.map(a => (
+            <button key={a} onClick={() => setAnioBHE(a)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                anioBHE === a
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}>
+              {a}
+            </button>
+          ))}
+          {totalesAnio && (
+            <span className="ml-auto text-xs text-slate-500">
+              {totalesAnio.contratistas} contratistas · Bruto: {fmt(totalesAnio.bruto)} · Retención: {fmt(totalesAnio.retencion)}
+            </span>
+          )}
+        </div>
+
+        {/* Tabla contratistas BHE */}
+        {mostrarBHE && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-xs text-slate-500 border-b border-slate-100">
+                  {['#', 'Nombre', 'RUT', 'Bruto anual', 'Retención', 'Boletas', 'Meses'].map(h => (
+                    <th key={h} className="text-left py-2 pr-4 font-medium">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {contratistasAnio.map((c, i) => (
+                  <tr key={c.rut} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                    <td className="py-2 pr-4 text-slate-400 text-xs">{i + 1}</td>
+                    <td className="py-2 pr-4 font-medium text-slate-800 capitalize">
+                      {c.nombre.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                    </td>
+                    <td className="py-2 pr-4 text-slate-500 font-mono text-xs">{c.rut}</td>
+                    <td className="py-2 pr-4 text-right font-semibold text-slate-700">
+                      {fmt(c.bruto)}
+                      <div className="text-xs font-normal text-slate-400">{(c.bruto / VALOR_UF).toFixed(1)} UF</div>
+                    </td>
+                    <td className="py-2 pr-4 text-right text-slate-600">{fmt(c.retencion)}</td>
+                    <td className="py-2 pr-4 text-center text-slate-500">{c.boletas}</td>
+                    <td className="py-2 text-center">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        c.meses >= 10 ? 'bg-green-100 text-green-700' :
+                        c.meses >= 6  ? 'bg-amber-100 text-amber-700' :
+                                        'bg-slate-100 text-slate-600'
+                      }`}>{c.meses}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-slate-200 bg-slate-50">
+                  <td colSpan={3} className="py-2 pr-4 text-xs font-semibold text-slate-600">
+                    Total {anioBHE} ({contratistasAnio.length} contratistas ≥ 20 UTM)
+                  </td>
+                  <td className="py-2 pr-4 text-right font-bold text-slate-800">
+                    {fmt(contratistasAnio.reduce((s, c) => s + c.bruto, 0))}
+                  </td>
+                  <td className="py-2 pr-4 text-right font-bold text-slate-700">
+                    {fmt(contratistasAnio.reduce((s, c) => s + c.retencion, 0))}
+                  </td>
+                  <td className="py-2 pr-4 text-center font-bold text-slate-700">
+                    {contratistasAnio.reduce((s, c) => s + c.boletas, 0)}
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

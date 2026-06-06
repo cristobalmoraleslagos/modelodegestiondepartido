@@ -7,6 +7,7 @@ import {
 import { fmt, VALOR_UF, APORTE_ESTATAL_ANUAL, MES_ACTUAL } from '../utils'
 import {
   generarAlertasCompliance,
+  alertaF29Retroactivo,
   type AlertaLegal,
   // Constantes para la tabla de referencia — DFL N°4/2017 y DFL N°3/2017
   SUELDO_REFERENCIA_UF, SUELDO_REFERENCIA_CLP,
@@ -21,21 +22,18 @@ import {
   diasHastaf29, diasHastaPrevired, proximaRendicionServel,
   cumplimientoGenero,
 } from '../normativa'
+import { FUNCIONARIOS_CANON } from '../data/personal'
 
 // ─── Datos actuales para generación de alertas ────────────────────────────────
-// Fuente: BHE Q1 2026 + datos reales del partido
-const FUNCIONARIOS_ACTIVOS = [
-  { nombre: 'Lautaro Carmona Soto',      sueldo: 2_245_875 },
-  { nombre: 'Juan Andrés Lagos Espinoza', sueldo: 1_487_363 },
-  { nombre: 'Krupskaya Corvalán',         sueldo: 1_541_602 },
-  { nombre: 'Pamela Águila Cariz',        sueldo: 1_800_000 },
-  { nombre: 'Bárbara Figueroa Sandoval',  sueldo: 1_840_000 },
-  { nombre: 'Carlos Ugas Tapia',          sueldo: 2_300_000 },
-  { nombre: 'Catalina Lufin',             sueldo: 1_400_000 },
-  { nombre: 'Guillermo Adriazola',        sueldo: 1_167_000 },
-  // Art. 45 DFL N°4/2017: límite es "valor de mercado" — no límite nominal en la ley
-  { nombre: 'Damián Trujillo',            sueldo: 4_284_000 },
-]
+// Fuente: FUNCIONARIOS_CANON (personal.ts) — fuente única de datos de nómina
+const FUNCIONARIOS_ACTIVOS = FUNCIONARIOS_CANON
+  .filter(f => f.activo)
+  .map(f => ({ nombre: f.nombre, sueldo: parseInt(f.sueldo) }))
+
+// F29 Jun-Dic 2025 — retenciones sin declarar (fuente: SII portal, cotejado con BHE 2025)
+// 2025: Solo 5/12 F29 declarados (Ene-May). Jun-Dic VENCIDOS. ~$22.4M retenciones.
+const F29_MESES_VENCIDOS_2025 = ['Jun-2025', 'Jul-2025', 'Ago-2025', 'Sep-2025', 'Oct-2025', 'Nov-2025', 'Dic-2025']
+const F29_MONTO_BACKLOG_2025  = 22_400_000 // estimado según BHE 2025 ÷ 12 × 7 meses
 
 // Donaciones 2026 — incluye campo esAfiliado para distinción de topes
 // Art. 39 DFL N°4/2017: afiliado → 500 UF; no afiliado → 300 UF
@@ -51,7 +49,7 @@ const PRESTAMOS = [
 ]
 
 const GASTO_GENERO_2026   = 0         // Sin datos cargados aún
-const RETENCION_PENDIENTE = 9_274_613 // Mayo 2026 (suma pendientes)
+const RETENCION_PENDIENTE = 9_274_613 // Mayo 2026 (F29 corriente)
 
 // ─── Iconos por módulo ────────────────────────────────────────────────────────
 const ICONO_MODULO: Record<string, JSX.Element> = {
@@ -215,15 +213,22 @@ function TablaLimites() {
 
 // ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────────
 export default function ModuloAlertas() {
-  const compliance = useMemo(() => generarAlertasCompliance({
-    funcionarios:       FUNCIONARIOS_ACTIVOS,
-    donaciones:         DONACIONES_2026,
-    prestamos:          PRESTAMOS,
-    gastoGenero:        GASTO_GENERO_2026,
-    aporteEstatal:      APORTE_ESTATAL_ANUAL,
-    retencionPendiente: RETENCION_PENDIENTE,
-    directivaCentral:   [],
-  }), [])
+  const compliance = useMemo(() => {
+    const base = generarAlertasCompliance({
+      funcionarios:       FUNCIONARIOS_ACTIVOS,
+      donaciones:         DONACIONES_2026,
+      prestamos:          PRESTAMOS,
+      gastoGenero:        GASTO_GENERO_2026,
+      aporteEstatal:      APORTE_ESTATAL_ANUAL,
+      retencionPendiente: RETENCION_PENDIENTE,
+      directivaCentral:   [],
+    })
+    // Agregar alerta retroactiva F29 Jun-Dic 2025 (ya vencida — prioridad crítica al tope)
+    const alertaBacklog = alertaF29Retroactivo(F29_MESES_VENCIDOS_2025, F29_MONTO_BACKLOG_2025)
+    const alertas = [alertaBacklog, ...base.alertas]
+    const criticas = alertas.filter(a => a.gravedad === 'critica').length
+    return { ...base, alertas, criticas, total: alertas.length }
+  }, [])
 
   const diasF29      = diasHastaf29()
   const diasPrevired = diasHastaPrevired()
