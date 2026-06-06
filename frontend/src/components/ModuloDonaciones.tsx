@@ -15,22 +15,24 @@ interface Donacion {
   esPersonaJuridica: boolean
   montoCLP: number
   acumuladoAnualCLP: number
-  tipo: 'partido' | 'campana'  // ← nuevo campo: distingue Art.15 Ley 20.900 vs Art.6 Ley 19.884
+  tipo: 'partido' | 'campana'  // distingue Art. 39 DFL N°4/2017 (partido) vs Art. 10 DFL N°3/2017 (campaña)
 }
 
-// CORRECCIÓN NORMATIVA:
-// El límite de 500 UF/año aplica a donaciones AL PARTIDO (Art. 15 Ley 20.900)
-// El límite de 3.000 UF aplica a donaciones a CAMPAÑA ELECTORAL (Art. 6 Ley 19.884)
-// Estos son dos conceptos DISTINTOS con dos leyes distintas.
-const LIMITE_PARTIDO_UF  = DONACION_PARTIDO_MAX_UF   // 500 UF — Art. 15 Ley 20.900
-const LIMITE_CAMPANA_UF  = DONACION_CAMPANA_MAX_UF   // 3.000 UF — Art. 6 Ley 19.884
-const UMBRAL_PUBLICACION_UF = DONACION_UMBRAL_PUBLICACION_UF // 20 UF — Art. 13 Ley 19.884
+// NORMATIVA VIGENTE (textos refundidos):
+// Donaciones AL PARTIDO: persona natural afiliada 500 UF/año, no afiliada 300 UF/año
+//   → Art. 39 DFL N°4/2017 (texto refundido Ley 18.603, últ. mod. Ley 21.311/2021)
+// Tope global aportante en elección parlamentaria/presidencial: 2.000 UF
+//   → Art. 10 DFL N°3/2017 (texto refundido Ley 19.884, últ. mod. Ley 21.693/2024)
+// Personas jurídicas: PROHIBICIÓN ABSOLUTA — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900
+const LIMITE_PARTIDO_UF     = DONACION_PARTIDO_MAX_UF  // 500 UF (afiliado) — Art. 39 DFL N°4/2017
+const LIMITE_CAMPANA_UF     = DONACION_CAMPANA_MAX_UF  // 2.000 UF tope global — Art. 10 DFL N°3/2017
+const UMBRAL_PUBLICACION_UF = DONACION_UMBRAL_PUBLICACION_UF // 20 UF — Art. 13 DFL N°3/2017
 
 const DONACIONES: Donacion[] = [
   { fecha: '2026-01-15', donante: 'Roberto Fuentes Araya',    rut: '8.234.567-8',   esPersonaJuridica: false, montoCLP: 1_500_000,  acumuladoAnualCLP: 4_800_000,  tipo: 'partido'  },
   { fecha: '2026-02-10', donante: 'Constructora Del Valle SpA',rut: '77.123.456-9', esPersonaJuridica: true,  montoCLP: 3_000_000,  acumuladoAnualCLP: 3_000_000,  tipo: 'partido'  },
   { fecha: '2026-03-05', donante: 'Carmen Leal Moreno',        rut: '12.987.654-3', esPersonaJuridica: false, montoCLP: 900_000,    acumuladoAnualCLP: 2_100_000,  tipo: 'partido'  },
-  { fecha: '2026-04-01', donante: 'Patricio Reyes Soto',       rut: '15.432.100-7', esPersonaJuridica: false, montoCLP: 4_200_000,  acumuladoAnualCLP: 18_600_000, tipo: 'partido'  }, // 460 UF > 500 UF → ALERTA
+  { fecha: '2026-04-01', donante: 'Patricio Reyes Soto',       rut: '15.432.100-7', esPersonaJuridica: false, montoCLP: 4_200_000,  acumuladoAnualCLP: 18_600_000, tipo: 'partido'  }, // ~458 UF — bajo 500 UF tope afiliado Art. 39 DFL N°4/2017
   { fecha: '2026-04-22', donante: 'Luisa Contreras Vidal',     rut: '9.876.543-2',  esPersonaJuridica: false, montoCLP: 400_000,    acumuladoAnualCLP: 400_000,    tipo: 'partido'  },
   { fecha: '2026-05-12', donante: 'Fundación Progreso Chile',  rut: '65.432.100-K', esPersonaJuridica: true,  montoCLP: 5_000_000,  acumuladoAnualCLP: 5_000_000,  tipo: 'partido'  },
   { fecha: '2026-05-18', donante: 'Marcos Ibáñez Pino',        rut: '16.100.200-4', esPersonaJuridica: false, montoCLP: 600_000,    acumuladoAnualCLP: 600_000,    tipo: 'partido'  },
@@ -46,8 +48,8 @@ export default function ModuloDonaciones() {
   const personasJuridicas = DONACIONES.filter(d => d.esPersonaJuridica)
 
   // Límite correcto según tipo de donación:
-  // Partido: 500 UF/año (Art. 15 Ley 20.900)
-  // Campaña: 3.000 UF/elección (Art. 6 Ley 19.884)
+  // Partido: 500 UF/año (Art. 39 DFL N°4/2017)
+  // Campaña: 3.000 UF/elección (Art. 10 DFL N°3/2017)
   const sobreLimitePartido = DONACIONES.filter(d =>
     !d.esPersonaJuridica &&
     d.tipo === 'partido' &&
@@ -64,7 +66,7 @@ export default function ModuloDonaciones() {
     .filter(d => !d.esPersonaJuridica && d.acumuladoAnualCLP <= (d.tipo === 'partido' ? LIMITE_PARTIDO_UF : LIMITE_CAMPANA_UF) * VALOR_UF)
     .reduce((s, d) => s + d.montoCLP, 0)
 
-  // Plazo publicación web: 10 días corridos desde recepción (Art. 13 Ley 19.884)
+  // Plazo publicación web: 10 días corridos desde recepción (Art. 13 DFL N°3/2017)
   const hoy = new Date()
   const plazosVencidos = DONACIONES.filter(d => {
     if (d.esPersonaJuridica) return false
@@ -89,9 +91,9 @@ export default function ModuloDonaciones() {
         <Scale size={16} className="text-indigo-600 mt-0.5 shrink-0" />
         <div className="text-xs text-indigo-800 space-y-1">
           <p><strong>Dos límites distintos según destino del aporte:</strong></p>
-          <p>• <strong>Al PARTIDO:</strong> máximo <strong>{LIMITE_PARTIDO_UF} UF/año</strong> por persona natural — Art. 15 Ley 20.900 (~{fmt(DONACION_PARTIDO_MAX_CLP)})</p>
-          <p>• <strong>A CAMPAÑA ELECTORAL:</strong> máximo <strong>{LIMITE_CAMPANA_UF.toLocaleString()} UF/elección</strong> por persona natural — Art. 6 Ley 19.884 (~{fmt(DONACION_CAMPANA_MAX_CLP)})</p>
-          <p>• <strong>Personas jurídicas: PROHIBICIÓN ABSOLUTA en ambos casos</strong> — Art. 17 Ley 19.884 + Art. 16 Ley 20.900</p>
+          <p>• <strong>Al PARTIDO:</strong> máximo <strong>{LIMITE_PARTIDO_UF} UF/año</strong> por persona natural — Art. 39 DFL N°4/2017 (~{fmt(DONACION_PARTIDO_MAX_CLP)})</p>
+          <p>• <strong>A CAMPAÑA ELECTORAL:</strong> máximo <strong>{LIMITE_CAMPANA_UF.toLocaleString()} UF/elección</strong> por persona natural — Art. 10 DFL N°3/2017 (~{fmt(DONACION_CAMPANA_MAX_CLP)})</p>
+          <p>• <strong>Personas jurídicas: PROHIBICIÓN ABSOLUTA en ambos casos</strong> — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900</p>
         </div>
       </div>
 
@@ -100,7 +102,7 @@ export default function ModuloDonaciones() {
         {[
           { icon: <Gift size={18} />, label: 'Total donaciones legítimas', value: fmt(totalLegitimo), sub: 'Personas naturales dentro del límite', color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { icon: <ShieldAlert size={18} />, label: 'Personas jurídicas detectadas', value: String(personasJuridicas.length), sub: 'Art. 17 Ley 19.884 — prohibición absoluta', color: personasJuridicas.length > 0 ? 'text-red-600' : 'text-green-600', bg: personasJuridicas.length > 0 ? 'bg-red-50' : 'bg-green-50' },
-          { icon: <AlertTriangle size={18} />, label: 'Sobre límite (partido 500 UF)', value: String(sobreLimitePartido.length), sub: 'Art. 15 Ley 20.900 — devolver exceso', color: sobreLimitePartido.length > 0 ? 'text-red-600' : 'text-green-600', bg: sobreLimitePartido.length > 0 ? 'bg-red-50' : 'bg-green-50' },
+          { icon: <AlertTriangle size={18} />, label: 'Sobre límite (partido 500 UF)', value: String(sobreLimitePartido.length), sub: 'Art. 39 DFL N°4/2017 — devolver exceso', color: sobreLimitePartido.length > 0 ? 'text-red-600' : 'text-green-600', bg: sobreLimitePartido.length > 0 ? 'bg-red-50' : 'bg-green-50' },
           { icon: <CheckCircle size={18} />, label: 'Requieren publicación web', value: `${paraPublicar.length}`, sub: `Sobre ${UMBRAL_PUBLICACION_UF} UF · plazo ${DONACION_PLAZO_PUBLICACION_DIAS} días corridos`, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((k, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3">
@@ -120,7 +122,7 @@ export default function ModuloDonaciones() {
           <ShieldAlert size={18} className="shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-sm">INFRACCIÓN — {personasJuridicas.length} aporte(s) de personas jurídicas</p>
-            <p className="text-xs font-medium mt-0.5">Art. 17 Ley 19.884 + Art. 16 Ley 20.900 — Prohibición absoluta. Posibles consecuencias penales para el representante legal que entregue y quien reciba.</p>
+            <p className="text-xs font-medium mt-0.5">Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900 — Prohibición absoluta. Posibles consecuencias penales para el representante legal que entregue y quien reciba.</p>
             <p className="text-xs mt-1">{personasJuridicas.map(d => `${d.donante} (${fmt(d.montoCLP)})`).join(' · ')} — Devolver íntegramente y reportar a SERVEL.</p>
           </div>
         </div>
@@ -130,19 +132,19 @@ export default function ModuloDonaciones() {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <AlertTriangle size={18} className="shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-sm">{sobreLimitePartido.length} donante(s) superan {LIMITE_PARTIDO_UF} UF/año al PARTIDO (Art. 15 Ley 20.900)</p>
+            <p className="font-semibold text-sm">{sobreLimitePartido.length} donante(s) superan {LIMITE_PARTIDO_UF} UF/año al PARTIDO (Art. 39 DFL N°4/2017)</p>
             <p className="text-xs mt-0.5">{sobreLimitePartido.map(d => `${d.donante}: acumulado ${fmt(d.acumuladoAnualCLP)} (límite ${fmt(LIMITE_PARTIDO_UF * VALOR_UF)})`).join(' · ')} — Devolver exceso.</p>
           </div>
         </div>
       )}
 
-      {/* Alerta plazo publicación web vencido — Art. 13 Ley 19.884 */}
+      {/* Alerta plazo publicación web vencido — Art. 13 DFL N°3/2017 */}
       {plazosVencidos.length > 0 && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <ShieldAlert size={18} className="shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-sm">
-              PLAZO VENCIDO — {plazosVencidos.length} donación(es) sin publicar en web (Art. 13 Ley 19.884)
+              PLAZO VENCIDO — {plazosVencidos.length} donación(es) sin publicar en web (Art. 13 DFL N°3/2017)
             </p>
             <p className="text-xs mt-0.5">
               Las donaciones sobre {DONACION_UMBRAL_PUBLICACION_UF} UF (~{fmt(DONACION_UMBRAL_PUBLICACION_CLP)}) deben publicarse en el sitio web del partido dentro de <strong>10 días corridos</strong> desde su recepción.
@@ -166,8 +168,8 @@ export default function ModuloDonaciones() {
         <div className="p-5 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Registro de Donaciones 2026</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Límite partido: {LIMITE_PARTIDO_UF} UF/año ({fmt(LIMITE_PARTIDO_UF * VALOR_UF)}) — Art. 15 Ley 20.900 |
-            Límite campaña: {LIMITE_CAMPANA_UF.toLocaleString()} UF/elección ({fmt(LIMITE_CAMPANA_UF * VALOR_UF)}) — Art. 6 Ley 19.884
+            Límite partido: {LIMITE_PARTIDO_UF} UF/año ({fmt(LIMITE_PARTIDO_UF * VALOR_UF)}) — Art. 39 DFL N°4/2017 |
+            Límite campaña: {LIMITE_CAMPANA_UF.toLocaleString()} UF/elección ({fmt(LIMITE_CAMPANA_UF * VALOR_UF)}) — Art. 10 DFL N°3/2017
           </p>
         </div>
         <div className="overflow-x-auto">
@@ -241,7 +243,7 @@ export default function ModuloDonaciones() {
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Publicación Obligatoria Web — Donantes sobre {UMBRAL_PUBLICACION_UF} UF</h2>
-          <p className="text-xs text-slate-500 mt-1">Art. 13 Ley 19.884 — Plazo: dentro de los 10 días siguientes a la recepción</p>
+          <p className="text-xs text-slate-500 mt-1">Art. 13 DFL N°3/2017 — Plazo: dentro de los 10 días siguientes a la recepción</p>
         </div>
         <div className="p-5 space-y-2">
           {paraPublicar.map((d, i) => (

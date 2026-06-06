@@ -318,15 +318,23 @@ export const BALANCE_ANUAL_PLAZO = '2027-04-30'   // Art. 44 DFL N°4/2017
 export const RENDICION_CUENTA_ELECTORAL_DIAS = 60   // Art. 47 DFL N°3/2017 — días corridos
 
 /**
- * DS 1174/2016 SERVEL — Plazos de rendición trimestral.
- * 30 días corridos después del cierre del trimestre.
+ * DS 1174/2016 SERVEL — Genera plazos de rendición trimestral para cualquier año.
+ * Plazo: 30 días corridos después del cierre del trimestre.
  */
-export const PLAZOS_TRIMESTRALES_2026 = [
-  { trimestre: 'Q1', inicio: '2026-01-01', fin: '2026-03-31', plazo: '2026-04-30', label: 'Q1 2026 (Ene–Mar)' },
-  { trimestre: 'Q2', inicio: '2026-04-01', fin: '2026-06-30', plazo: '2026-07-31', label: 'Q2 2026 (Abr–Jun)' },
-  { trimestre: 'Q3', inicio: '2026-07-01', fin: '2026-09-30', plazo: '2026-10-31', label: 'Q3 2026 (Jul–Sep)' },
-  { trimestre: 'Q4', inicio: '2026-10-01', fin: '2026-12-31', plazo: '2027-01-31', label: 'Q4 2026 (Oct–Dic)' },
-]
+export function generarPlazosTrimestrales(anio: number) {
+  return [
+    { trimestre: 'Q1', inicio: `${anio}-01-01`, fin: `${anio}-03-31`, plazo: `${anio}-04-30`, label: `Q1 ${anio} (Ene–Mar)` },
+    { trimestre: 'Q2', inicio: `${anio}-04-01`, fin: `${anio}-06-30`, plazo: `${anio}-07-31`, label: `Q2 ${anio} (Abr–Jun)` },
+    { trimestre: 'Q3', inicio: `${anio}-07-01`, fin: `${anio}-09-30`, plazo: `${anio}-10-31`, label: `Q3 ${anio} (Jul–Sep)` },
+    { trimestre: 'Q4', inicio: `${anio}-10-01`, fin: `${anio}-12-31`, plazo: `${anio + 1}-01-31`, label: `Q4 ${anio} (Oct–Dic)` },
+  ]
+}
+
+/** Plazos del año en curso — evaluado dinámicamente */
+export const PLAZOS_TRIMESTRALES_2026 = generarPlazosTrimestrales(new Date().getFullYear())
+
+/** Alias dinámico para uso en componentes */
+export const PLAZOS_TRIMESTRALES_VIGENTES = PLAZOS_TRIMESTRALES_2026
 
 /** DS 1174/2016 — Módulos obligatorios de la rendición SERVEL */
 export const MODULOS_SERVEL = [

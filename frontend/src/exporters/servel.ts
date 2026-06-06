@@ -331,7 +331,7 @@ export function exportM17(p: Periodo, prestamosBase: Prestamo[]): { filas: numbe
     cel(pr.tasa_interes ?? ''), cel(pr.plazo_meses ?? ''),
     cel(fmt_fecha(pr.fecha_inicio)), cel(fmt_fecha(pr.fecha_vencimiento ?? '')),
     cel(pr.numero_contrato ?? ''), cel(pr.estado),
-    cel(pr.es_legal ? 'Sí' : 'No — Verificar Art. 14 Ley 20.900'),
+    cel(pr.es_legal ? 'Sí' : 'No — Verificar Art. 39 letra f) DFL N°4/2017'),
   ])
 
   const csv = construirCSV(headers, filas)
@@ -361,7 +361,7 @@ export function validarPrevio(p: Periodo, prestamosBase: Prestamo[]): Advertenci
   // M13: donaciones de personas jurídicas (prohibidas)
   const juridicas = DONACIONES_BASE.filter(d => enPeriodo(d.fecha, p) && d.esPersonaJuridica)
   if (juridicas.length > 0)
-    adv.push({ modulo: 'M13', nivel: 'error', msg: `${juridicas.length} donación(es) de personas jurídicas — Art. 17 Ley 19.884: prohibición absoluta.` })
+    adv.push({ modulo: 'M13', nivel: 'error', msg: `${juridicas.length} donación(es) de personas jurídicas — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900: prohibición absoluta con pena penal.` })
 
   // M13: donaciones sin método de pago
   const sinMetodo = DONACIONES_BASE.filter(d => enPeriodo(d.fecha, p) && !d.metodoPago)
@@ -381,7 +381,7 @@ export function validarPrevio(p: Periodo, prestamosBase: Prestamo[]): Advertenci
   // M17: préstamos ilegales
   const ilegales = prestamosBase.filter(pr => !pr.es_legal)
   if (ilegales.length > 0)
-    adv.push({ modulo: 'M17', nivel: 'error', msg: `${ilegales.length} préstamo(s) con acreedor no permitido por Art. 14 Ley 20.900 — excluidos del CSV.` })
+    adv.push({ modulo: 'M17', nivel: 'error', msg: `${ilegales.length} préstamo(s) con acreedor no permitido por Art. 39 letra f) DFL N°4/2017 — excluidos del CSV.` })
 
   return adv
 }

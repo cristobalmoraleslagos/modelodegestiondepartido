@@ -4,7 +4,7 @@ import { fmt, VALOR_UF } from '../utils'
 import { SUELDO_MAX_UF, SUELDO_MAX_CLP } from '../normativa'
 import { FUNCIONARIOS_CANON, type Funcionario } from '../data/personal'
 
-// Parentescos para chequeo antinepotismo (Art. 39 bis Ley 18.603)
+// Parentescos para chequeo antinepotismo (Art. 39 bis DFL N°4/2017)
 const parentescos: Record<string, { directivo: string; grado: string }> = {}
 
 const PRESUPUESTO_SUELDOS = 40_000_000
@@ -29,28 +29,31 @@ export default function ModuloPersonal() {
   const sueldoTotal = activos.reduce((s, f) => s + parseInt(f.sueldo || '0'), 0)
   const pctSueldo   = Math.round((sueldoTotal / PRESUPUESTO_SUELDOS) * 100)
 
-  // Detectar funcionarios sobre el límite Art. 5 Ley 20.900
+  // Detectar funcionarios sobre el tope imponible previsional (referencia Art. 45 DFL N°4/2017)
+  // NOTA: No existe límite nominal de sueldo en la ley — el estándar es "valor de mercado"
   const sobreLimiteLegal = activos.filter(f => parseInt(f.sueldo || '0') > SUELDO_MAX_CLP)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    // Chequeo antinepotismo — Art. 39 bis Ley 18.603
+    // Chequeo antinepotismo — Art. 39 bis DFL N°4/2017
     const p = parentescos[form.rut]
     if (p) {
       setBlocked(
-        `CONTRATACIÓN RECHAZADA: Infracción al Art. 39 bis de la Ley 18.603. ` +
+        `CONTRATACIÓN RECHAZADA: Infracción al Art. 39 bis DFL N°4/2017. ` +
         `El RUT ${form.rut} es ${p.grado} de ${p.directivo}, miembro de la Directiva Central.`
       )
       return
     }
     setBlocked(null)
-    // Chequeo límite sueldo — Art. 5 Ley 20.900
+    // Referencia sueldo — Art. 45 DFL N°4/2017 (estándar: valor de mercado)
+    // No existe límite nominal en la ley — se usa tope imponible previsional como referencia
     const sueldoNum = parseInt(form.sueldo || '0')
     if (sueldoNum > SUELDO_MAX_CLP) {
       setBlockedSueldo(
-        `ADVERTENCIA Art. 5 Ley 20.900: El sueldo ingresado (${fmt(sueldoNum)}) ` +
-        `supera el máximo legal de ${SUELDO_MAX_UF} UF = ${fmt(SUELDO_MAX_CLP)}. ` +
-        `El exceso (${fmt(sueldoNum - SUELDO_MAX_CLP)}) no puede imputarse al aporte estatal.`
+        `ADVERTENCIA Art. 45 DFL N°4/2017: El sueldo ingresado (${fmt(sueldoNum)}) ` +
+        `supera el tope imponible previsional de ${SUELDO_MAX_UF} UF = ${fmt(SUELDO_MAX_CLP)} (Res. 237/2026). ` +
+        `El exceso (${fmt(sueldoNum - SUELDO_MAX_CLP)}) no tributa previsional. ` +
+        `Verificar que el monto corresponde al valor de mercado del cargo.`
       )
       // No bloquea — solo advierte, permite guardar
     } else {
@@ -92,7 +95,7 @@ export default function ModuloPersonal() {
         <div>
           <h2 className="text-base font-semibold text-slate-800">Módulo de Nómina y Personal</h2>
           <p className="text-xs text-slate-500">
-            Validación antinepotismo (Art. 39 bis Ley 18.603) · Límite sueldo {SUELDO_MAX_UF} UF/mes = {fmt(SUELDO_MAX_CLP)} (Art. 5 Ley 20.900) · UF: {fmt(VALOR_UF)}
+            Antinepotismo (Art. 39 bis DFL N°4/2017) · Estándar sueldo: valor de mercado (Art. 45 DFL N°4/2017) · Referencia tope imponible: {SUELDO_MAX_UF} UF = {fmt(SUELDO_MAX_CLP)} (Res. 237/2026) · UF: {fmt(VALOR_UF)}
           </p>
         </div>
 
@@ -101,7 +104,7 @@ export default function ModuloPersonal() {
           <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3">
             <ShieldAlert size={16} className="mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-sm">Art. 5 Ley 20.900 — {sobreLimiteLegal.length} funcionario(s) sobre el límite legal de {SUELDO_MAX_UF} UF = {fmt(SUELDO_MAX_CLP)}</p>
+              <p className="font-semibold text-sm">Art. 45 DFL N°4/2017 — {sobreLimiteLegal.length} funcionario(s) sobre el tope imponible previsional ({SUELDO_MAX_UF} UF = {fmt(SUELDO_MAX_CLP)})</p>
               {sobreLimiteLegal.map((f, i) => {
                 const sueldo = parseInt(f.sueldo)
                 const uf     = (sueldo / VALOR_UF).toFixed(1)
@@ -111,7 +114,7 @@ export default function ModuloPersonal() {
                   </p>
                 )
               })}
-              <p className="text-xs mt-1 font-medium">El exceso no puede imputarse al aporte estatal. Ajustar el sueldo o financiar el exceso con fondos propios del partido.</p>
+              <p className="text-xs mt-1 font-medium">No existe límite nominal en la ley — el estándar es valor de mercado del cargo (Art. 45 DFL N°4/2017). SERVEL puede objetar sueldos que superen significativamente el mercado durante la auditoría del balance anual.</p>
             </div>
           </div>
         )}
@@ -121,7 +124,7 @@ export default function ModuloPersonal() {
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-xs">Art. 39 bis Ley 18.603 — Validación antinepotismo incompleta</p>
+              <p className="font-semibold text-xs">Art. 39 bis DFL N°4/2017 — Validación antinepotismo incompleta</p>
               <p className="text-xs mt-0.5">El registro de parentescos de la Directiva Central está vacío. Cargar los RUTs de directivos y sus parientes en el módulo Carga de Datos para activar la validación completa.</p>
             </div>
           </div>
@@ -131,7 +134,7 @@ export default function ModuloPersonal() {
         <div className="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
           <Scale size={15} className="text-slate-500 mt-0.5 shrink-0" />
           <p className="text-xs text-slate-600">
-            <strong>Art. 39 bis Ley 18.603:</strong> Prohibido contratar a cónyuge, conviviente civil o pariente hasta 2° grado de consanguinidad (padres, hijos, hermanos, abuelos, nietos) o 1° de afinidad de miembros de la Directiva Central. Infracción → nulidad del contrato + obligación de devolver lo pagado + multa hasta 50 UTM.
+            <strong>Art. 39 bis DFL N°4/2017:</strong> Prohibido contratar a cónyuge, conviviente civil o pariente hasta 2° grado de consanguinidad (padres, hijos, hermanos, abuelos, nietos) o 1° de afinidad de miembros de la Directiva Central. Infracción → nulidad del contrato + obligación de devolver lo pagado + multa hasta 50 UTM.
           </p>
         </div>
 
@@ -175,7 +178,7 @@ export default function ModuloPersonal() {
                       {fmt(parseInt(f.sueldo))}
                     </span>
                     {parseInt(f.sueldo) > SUELDO_MAX_CLP && (
-                      <span className="ml-1 text-xs text-red-500" title={`Excede límite Art. 5 Ley 20.900 (${SUELDO_MAX_UF} UF)`}>⚠</span>
+                      <span className="ml-1 text-xs text-amber-500" title={`Supera tope imponible previsional (${SUELDO_MAX_UF} UF) — verificar valor de mercado Art. 45 DFL N°4/2017`}>⚠</span>
                     )}
                     <div className="text-xs text-slate-400">{(parseInt(f.sueldo)/VALOR_UF).toFixed(1)} UF</div>
                   </td>

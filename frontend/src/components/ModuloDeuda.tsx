@@ -103,7 +103,7 @@ const PRESTAMOS_FALLBACK: Prestamo[] = [
     numero_contrato: null,
     fecha_vencimiento: null,
     es_legal: false,
-    alerta_legal: 'ALERTA: Préstamos a personas naturales (militantes) requieren aprobación de Directiva — Art. 33 Ley 18.603. Verificar si pueden imputarse al aporte estatal.',
+    alerta_legal: 'ALERTA: Préstamos a personas naturales (militantes) no son créditos autorizados por Art. 39 letra f) DFL N°4/2017 (solo bancos, cooperativas y cajas de compensación). Requiere aprobación de Directiva y no puede imputarse al aporte estatal.',
   },
 ]
 
@@ -161,7 +161,7 @@ export default function ModuloDeuda() {
     e.preventDefault()
     const tipoInfo = TIPOS_ACREEDOR.find(t => t.id === form.tipo_acreedor)
     if (!tipoInfo?.legal) {
-      alert('ALERTA: Este tipo de acreedor NO está permitido por Art. 14 Ley 20.900. Solo bancos, cooperativas y cajas de compensación.')
+      alert('ALERTA: Este tipo de acreedor NO está permitido por Art. 39 letra f) DFL N°4/2017. Solo bancos, cooperativas y cajas de compensación.')
       return
     }
     const montoNum = Number(form.monto_original)
@@ -206,7 +206,7 @@ export default function ModuloDeuda() {
         <div>
           <h2 className="text-base font-semibold text-slate-800">Módulo de Deuda — Préstamos y Créditos</h2>
           <p className="text-xs text-slate-500">
-            Art. 14 Ley 20.900 · Solo bancos e instituciones financieras autorizadas
+            Art. 39 letra f) DFL N°4/2017 · Solo bancos e instituciones financieras autorizadas
             {desdeApi && <span className="ml-2 text-indigo-500">· datos desde BD</span>}
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function ModuloDeuda() {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <ShieldAlert size={18} className="mt-0.5 shrink-0" />
           <div>
-            <p className="font-semibold text-sm">ALERTA LEGAL — Art. 14 Ley 20.900 ({ilegales.length} préstamo{ilegales.length > 1 ? 's' : ''})</p>
+            <p className="font-semibold text-sm">ALERTA LEGAL — Art. 39 letra f) DFL N°4/2017 ({ilegales.length} préstamo{ilegales.length > 1 ? 's' : ''})</p>
             {ilegales.map((a, i) => <p key={i} className="text-xs mt-0.5">{a}</p>)}
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function ModuloDeuda() {
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-700 mb-4">Registrar nuevo préstamo</h3>
           <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-            <strong>Art. 14 Ley 20.900:</strong> Los partidos solo pueden contraer préstamos con bancos, cooperativas de ahorro y crédito, o cajas de compensación. Préstamos de personas naturales o empresas son ILEGALES.
+            <strong>Art. 39 letra f) DFL N°4/2017:</strong> Los partidos solo pueden contraer préstamos con bancos, cooperativas de ahorro y crédito, o cajas de compensación. Préstamos de personas naturales o empresas son ILEGALES.
           </div>
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
             {[
@@ -284,7 +284,7 @@ export default function ModuloDeuda() {
             </div>
             {form.tipo_acreedor === 'otro' && (
               <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-800 rounded-lg px-3 py-2 text-xs col-span-2">
-                <AlertTriangle size={14} /> Este tipo de acreedor puede infringir el Art. 14 Ley 20.900. Consulte con el abogado del partido antes de continuar.
+                <AlertTriangle size={14} /> Este tipo de acreedor puede infringir el Art. 39 letra f) DFL N°4/2017. Consulte con el abogado del partido antes de continuar.
               </div>
             )}
             <div className="col-span-2">
@@ -366,7 +366,7 @@ export default function ModuloDeuda() {
 
       {/* Marco normativo */}
       <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-xs text-indigo-700 space-y-1">
-        <p><strong>Art. 14 Ley 20.900:</strong> Los partidos políticos solo podrán contraer créditos con bancos e instituciones financieras sometidos a la fiscalización de la Comisión para el Mercado Financiero (CMF).</p>
+        <p><strong>Art. 39 letra f) DFL N°4/2017:</strong> Los partidos políticos solo podrán contraer créditos con bancos e instituciones financieras sometidos a la fiscalización de la Comisión para el Mercado Financiero (CMF).</p>
         <p><strong>Documentos requeridos por préstamo:</strong> Contrato firmado · Tabla de amortización · Comprobante desembolso · Garantías si aplica.</p>
         <p><strong>Módulo 17 SERVEL:</strong> Declarar todos los préstamos vigentes en la rendición anual con nombre del acreedor, monto, tasa y plazo.</p>
       </div>

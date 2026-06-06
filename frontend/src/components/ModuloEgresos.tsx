@@ -88,10 +88,10 @@ const DOCS_POR_CATEGORIA: Record<string, DocSpec[]> = {
     { tipo: 'certificados',  label: 'Certificados de participación',        obligatorio: false, ley: 'Recomendación' },
   ],
   'Préstamos / Créditos': [
-    { tipo: 'contrato',      label: 'Contrato de mutuo (SOLO banco/CMF)',   obligatorio: true,  ley: 'Art. 14 Ley 20.900 — solo bancos e inst. financieras' },
+    { tipo: 'contrato',      label: 'Contrato de mutuo (SOLO banco/CMF)',   obligatorio: true,  ley: 'Art. 39 letra f) DFL N°4/2017 — solo bancos e inst. financieras' },
     { tipo: 'transferencia', label: 'Comprobante de desembolso',            obligatorio: true,  ley: 'DS 1174/2016 Módulo 17' },
     { tipo: 'amortizacion',  label: 'Tabla de amortización firmada',        obligatorio: true,  ley: 'DS 1174/2016 Módulo 17 — cuotas capital + interés' },
-    { tipo: 'acred_cmf',     label: 'Acreditación acreedor como inst. CMF', obligatorio: true,  ley: 'Art. 14 Ley 20.900 — verificar en cmfchile.cl' },
+    { tipo: 'acred_cmf',     label: 'Acreditación acreedor como inst. CMF', obligatorio: true,  ley: 'Art. 39 letra f) DFL N°4/2017 — verificar en cmfchile.cl' },
   ],
   'Otros Gastos de Administración': [
     { tipo: 'factura_dte',   label: 'Factura o boleta electrónica',         obligatorio: true,  ley: 'DS 1174/2016' },
@@ -172,7 +172,7 @@ function detectarAlertas(e: Omit<EgresoCompleto, 'alertas'>): string[] {
   }
   // Gasto de campaña desde cuenta operacional
   if (e.categoriaSERVEL === 'Campaña Electoral' && e.cuenta !== 'Campaña') {
-    alertas.push('Art. 30 Ley 19.884: Gasto de campaña debe pagarse DESDE la cuenta corriente exclusiva de campaña — no desde cuenta operacional')
+    alertas.push('DFL N°3/2017: Gasto de campaña debe pagarse DESDE la cuenta corriente exclusiva de campaña — no desde cuenta operacional')
   }
   // Sin documento
   if (e.tipoDoc === 'Sin documento') {
@@ -182,9 +182,11 @@ function detectarAlertas(e: Omit<EgresoCompleto, 'alertas'>): string[] {
   if (e.monto > 1_980_000 && e.categoriaSERVEL === 'Bienes y Servicios') {
     alertas.push('Monto > 30 UTM ($1.980.000) — se recomienda contar con 3 cotizaciones comparativas para la auditoría')
   }
-  // Sueldo sobre 60 UF
-  if ((e.categoriaSERVEL === 'Gastos de Personal' || e.categoriaSERVEL === 'Honorarios') && e.monto > 60 * VALOR_UF) {
-    alertas.push(`Art. 5 Ley 20.900: El monto (${fmt(e.monto)}) supera el límite de 60 UF = ${fmt(60 * VALOR_UF)}. El exceso no puede imputarse al aporte estatal.`)
+  // Sueldo/honorario sobre tope imponible previsional (referencia)
+  // Art. 45 DFL N°4/2017: no existe límite nominal — estándar es "valor de mercado"
+  // Se usa 90 UF (tope imponible AFP/Salud, Res. 237/2026) como referencia de revisión
+  if ((e.categoriaSERVEL === 'Gastos de Personal' || e.categoriaSERVEL === 'Honorarios') && e.monto > 90 * VALOR_UF) {
+    alertas.push(`Art. 45 DFL N°4/2017: El monto (${fmt(e.monto)}) supera el tope imponible previsional de 90 UF = ${fmt(90 * VALOR_UF)} (Res. 237/2026). Verificar que corresponde al valor de mercado del cargo — SERVEL puede objetar en auditoría.`)
   }
   return alertas
 }
@@ -417,8 +419,8 @@ function FormNuevoEgreso({ onClose, onSave }: { onClose: () => void; onSave?: (e
             <label className="text-xs font-medium text-slate-600">Monto (CLP)</label>
             <input type="number" placeholder="1547952" value={monto} onChange={e => setMonto(e.target.value)}
               className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-            {montoNum > 60 * VALOR_UF && (categoria === 'Gastos de Personal' || categoria === 'Honorarios') && (
-              <p className="text-xs text-red-600 font-medium mt-1">⚠ Supera 60 UF ({fmt(60 * VALOR_UF)}) — Art. 5 Ley 20.900</p>
+            {montoNum > 90 * VALOR_UF && (categoria === 'Gastos de Personal' || categoria === 'Honorarios') && (
+              <p className="text-xs text-amber-600 font-medium mt-1">⚠ Supera tope imponible 90 UF ({fmt(90 * VALOR_UF)}) — verificar valor de mercado Art. 45 DFL N°4/2017</p>
             )}
           </div>
           <div className="flex flex-col gap-1">
@@ -732,8 +734,8 @@ export default function ModuloEgresos() {
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3">
             <AlertTriangle size={16} className="shrink-0 mt-0.5" />
             <p className="text-xs">
-              <strong>Art. 30 Ley 19.884:</strong> Los gastos de campaña deben pagarse desde la cuenta corriente exclusiva del candidato.
-              <strong> Art. 24 Ley 19.884:</strong> Declarar ante SERVEL dentro de 15 días hábiles.
+              <strong>DFL N°3/2017:</strong> Los gastos de campaña deben pagarse desde la cuenta corriente exclusiva del candidato.
+              <strong>Art. 47 DFL N°3/2017:</strong> Declarar cuenta general de gastos ante SERVEL dentro de 60 días corridos desde la elección.
               Verificar que estos pagos salieron de la cuenta de campaña y no de la cuenta operacional del partido.
             </p>
           </div>

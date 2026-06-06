@@ -305,8 +305,8 @@ export default function ModuloAlertas() {
             ley="Art. 42 DFL N°4/2017 + DS 1174/2016"
           />
           <Contador
-            label="Balance anual SERVEL (30 abril 2027)"
-            dias={Math.ceil((new Date('2027-04-30').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+            label={`Balance anual SERVEL (30 abril ${new Date().getFullYear() + 1})`}
+            dias={Math.ceil((new Date(`${new Date().getFullYear() + 1}-04-30`).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
             umbralRojo={30}
             ley="Art. 44 DFL N°4/2017"
           />
