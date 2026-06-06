@@ -42,7 +42,7 @@ const MODULOS_SERVEL: ModuloDef[] = [
     label: 'Fuentes de Financiamiento',
     desc:  'Aportes estatales, cotizaciones, donaciones y otros ingresos del partido.',
     periodicidad: 'trimestral',
-    ley:   'Art. 33 Ley 20.900 · DS 1174/2016 Módulo 6',
+    ley:   'Art. 40 DFL N°4/2017 · DS 1174/2016 Módulo 6',
     exportar: (p) => exportM6(p),
   },
   {
@@ -58,7 +58,7 @@ const MODULOS_SERVEL: ModuloDef[] = [
     label: 'Donaciones Recibidas',
     desc:  'Detalle por donante: nombre, RUT, monto, fecha y tipo de donación.',
     periodicidad: 'trimestral',
-    ley:   'Art. 13 Ley 19.884 · DS 1174/2016 Módulo 13',
+    ley:   'Art. 13 DFL N°3/2017 · DS 1174/2016 Módulo 13',
     exportar: (p) => exportM13(p),
   },
   {
@@ -82,7 +82,7 @@ const MODULOS_SERVEL: ModuloDef[] = [
     label: 'Préstamos y Créditos',
     desc:  'Detalle de deudas con instituciones financieras autorizadas (solo legales).',
     periodicidad: 'trimestral',
-    ley:   'Art. 14 Ley 20.900 · DS 1174/2016 Módulo 17',
+    ley:   'Art. 39 letra f) DFL N°4/2017 · DS 1174/2016 Módulo 17',
     exportar: (p, pr) => exportM17(p, pr),
   },
 ]
@@ -152,7 +152,7 @@ export default function HubRendicion() {
           {/* Selector de año */}
           <select value={año} onChange={e => setAño(Number(e.target.value))}
             className="border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+            {[2022, 2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
           {/* Label resultante */}
           <div className="flex-1 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2.5 text-center">

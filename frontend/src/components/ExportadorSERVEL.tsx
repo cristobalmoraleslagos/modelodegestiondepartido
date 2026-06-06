@@ -117,7 +117,7 @@ export default function ExportadorSERVEL({ modulos, prestamos = [], className = 
             </div>
             <select value={año} onChange={e => setAño(Number(e.target.value))}
               className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400">
-              {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+              {[2022, 2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
             <div className="text-xs text-slate-500 whitespace-nowrap">
               <span className="font-mono bg-slate-100 px-2 py-1 rounded">{periodoLabel(periodo)}</span>

@@ -16,6 +16,8 @@ import { EGRESOS_BASE, type EgresoBase }  from '../data/egresos'
 import { DONACIONES_BASE, type Donacion } from '../data/donaciones'
 import { ACTIVOS_BASE, type Activo }      from '../data/activos'
 import { FUNCIONARIOS_CANON }             from '../data/personal'
+import { BHE_HISTORICO }                  from '../data/bhe_historico'
+import { APORTES_ESTATALES }              from '../utils'
 import type { Prestamo }                  from '../api'
 
 // ════════════════════════════════════════════════════════════════════════
@@ -122,6 +124,23 @@ export function exportM6(p: Periodo): { filas: number } {
     cel(i.tipo), cel(i.descripcion), cel(i.monto),
     cel(fmt_fecha(i.fecha)), cel(i.rut_origen), cel(i.doc_ref),
   ])
+
+  // Fila base: aporte público estatal trimestral (Art. 40 DFL N°4/2017).
+  // El aporte anual se distribuye en 4 pagos trimestrales iguales.
+  // Para 2023-2025 el aporte fue $0 (suspendido por rendiciones pendientes).
+  const aporteAnual = APORTES_ESTATALES[p.año]
+  if (aporteAnual !== undefined && aporteAnual > 0) {
+    const [, mesFin] = RANGO_MESES[p.trimestre]
+    filas.unshift([
+      cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(p.año), cel(periodoLabel(p)),
+      cel('Aporte Estatal'),
+      cel('Aporte público trimestral — Art. 40 DFL N°4/2017'),
+      cel(Math.round(aporteAnual / 4)),
+      cel(fmt_fecha(`${p.año}-${String(mesFin).padStart(2, '0')}-01`)),
+      cel('60.806.000-0'),  // RUT SERVEL
+      cel('—'),
+    ])
+  }
 
   const csv = construirCSV(headers, filas)
   descargar(csv, `M06_${p.año}_${p.trimestre}_SERVEL.csv`)
@@ -238,17 +257,33 @@ export function exportM14(p: Periodo): { filas: number } {
     'AREA', 'FECHA_INICIO_CONTRATO', 'FECHA_FIN_CONTRATO',
   ]
 
-  const extras    = loadLS<typeof FUNCIONARIOS_CANON[0]>('fp_personal')
-  const todos     = [...FUNCIONARIOS_CANON, ...extras].filter(f => f.activo)
+  let filas: string[][]
 
-  const filas = todos.map(f => [
-    cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(p.año), cel(periodoLabel(p)),
-    cel(f.nombre), cel(f.rut), cel(f.calidad),
-    cel(f.sueldo), cel(f.banco), cel(f.tipoCuenta), cel(f.numeroCuenta),
-    cel(f.area),
-    cel(''),  // fechaInicio — pendiente agregar al modelo
-    cel(''),  // fechaFin    — pendiente agregar al modelo
-  ])
+  // Años de backlog (2022-2025): usar la nómina REAL de honorarios (BHE SII),
+  // contratistas con honorario bruto anual ≥ 20 UTM procesados desde los XLS del SII.
+  const contratistasAnio = BHE_HISTORICO.filter(c => c.anio === p.año)
+  if (contratistasAnio.length > 0) {
+    filas = contratistasAnio.map(c => [
+      cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(p.año), cel(periodoLabel(p)),
+      cel(c.nombre), cel(c.rut), cel('Honorarios'),
+      cel(c.bruto), cel('—'), cel('—'), cel('—'),
+      cel('—'),
+      cel(''),  // fechaInicio — no disponible en BHE
+      cel(''),  // fechaFin    — no disponible en BHE
+    ])
+  } else {
+    // Año actual sin BHE procesado (2026+): usar nómina canónica vigente
+    const extras = loadLS<typeof FUNCIONARIOS_CANON[0]>('fp_personal')
+    const todos  = [...FUNCIONARIOS_CANON, ...extras].filter(f => f.activo)
+    filas = todos.map(f => [
+      cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(p.año), cel(periodoLabel(p)),
+      cel(f.nombre), cel(f.rut), cel(f.calidad),
+      cel(f.sueldo), cel(f.banco), cel(f.tipoCuenta), cel(f.numeroCuenta),
+      cel(f.area),
+      cel(''),  // fechaInicio — pendiente agregar al modelo
+      cel(''),  // fechaFin    — pendiente agregar al modelo
+    ])
+  }
 
   const csv = construirCSV(headers, filas)
   descargar(csv, `M14_${p.año}_${p.trimestre}_SERVEL.csv`)
@@ -259,9 +294,12 @@ export function exportM14(p: Periodo): { filas: number } {
 // MÓDULO 16 — INVENTARIO DE ACTIVOS FIJOS (anual)
 // ════════════════════════════════════════════════════════════════════════
 
-function calcDepreciacion(a: Activo): number {
+// Depreciación lineal acumulada al CIERRE del año de rendición (31-dic-añoCierre),
+// no a la fecha actual — el balance retroactivo debe reflejar el cierre del período.
+function calcDepreciacion(a: Activo, añoCierre: number): number {
   const [anio, mes] = a.fechaAdquisicion.split('-').map(Number)
-  const años = (new Date().getFullYear() - anio) + (new Date().getMonth() + 1 - mes) / 12
+  // años transcurridos desde adquisición hasta 31-dic del año de cierre
+  const años = (añoCierre - anio) + (12 - mes + 1) / 12
   return Math.min(a.valorAdquisicion / a.vidaUtilAnios * Math.max(años, 0), a.valorAdquisicion)
 }
 
@@ -291,7 +329,7 @@ export function exportM16(año: number): { filas: number } {
   ]
 
   const filas = todosActivos.map(a => {
-    const dep = Math.round(calcDepreciacion(a))
+    const dep = Math.round(calcDepreciacion(a, año))
     const vl  = Math.max(a.valorAdquisicion - dep, 0)
     return [
       cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(año),
