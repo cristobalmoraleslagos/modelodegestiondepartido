@@ -11,7 +11,7 @@ import {
   FileText, ChevronDown,
 } from 'lucide-react'
 import {
-  exportM6, exportM12, exportM13, exportM14, exportM16, exportM17,
+  exportM6, exportM12, exportM13, exportM14, exportM15, exportM16, exportM17,
   validarPrevio, periodoLabel, trimLabel,
   type Periodo, type Trimestre, type AdvertenciaExport,
 } from '../exporters/servel'
@@ -19,7 +19,7 @@ import type { Prestamo } from '../api'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
-type ModuloId = 'M6' | 'M12' | 'M13' | 'M14' | 'M16' | 'M17'
+type ModuloId = 'M6' | 'M12' | 'M13' | 'M14' | 'M15' | 'M16' | 'M17'
 
 interface ModuloDef {
   id:          ModuloId
@@ -34,6 +34,7 @@ const MODULOS: ModuloDef[] = [
   { id: 'M12', num: 12, label: 'Gastos Detallados',          desc: 'Todas las transacciones de egreso del período',              periodicidad: 'trimestral' },
   { id: 'M13', num: 13, label: 'Donaciones Recibidas',       desc: 'Detalle por donante: nombre, RUT, monto, fecha',             periodicidad: 'trimestral' },
   { id: 'M14', num: 14, label: 'Nómina de Personal',         desc: 'Contratistas y empleados activos del período',               periodicidad: 'trimestral' },
+  { id: 'M15', num: 15, label: 'Balance Clasificado',        desc: 'Activos, pasivos, patrimonio y resultados (2021-2022)',      periodicidad: 'anual'       },
   { id: 'M16', num: 16, label: 'Inventario Activos Fijos',   desc: 'Código, valor, depreciación y valor libro de cada activo',   periodicidad: 'anual'       },
   { id: 'M17', num: 17, label: 'Préstamos y Créditos',       desc: 'Detalle de deudas vigentes con instituciones financieras',   periodicidad: 'trimestral' },
 ]
@@ -68,6 +69,7 @@ export default function ExportadorSERVEL({ modulos, prestamos = [], className = 
       case 'M12': res = exportM12(periodo);              break
       case 'M13': res = exportM13(periodo);              break
       case 'M14': res = exportM14(periodo);              break
+      case 'M15': res = exportM15(año);                  break
       case 'M16': res = exportM16(año);                  break
       case 'M17': res = exportM17(periodo, prestamos);   break
       default:    return

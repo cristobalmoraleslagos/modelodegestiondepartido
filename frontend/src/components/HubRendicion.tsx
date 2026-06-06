@@ -9,7 +9,7 @@ import {
   FileText, Calendar, ChevronRight, Info,
 } from 'lucide-react'
 import {
-  exportM6, exportM12, exportM13, exportM14, exportM16, exportM17,
+  exportM6, exportM12, exportM13, exportM14, exportM15, exportM16, exportM17,
   validarPrevio, periodoLabel, trimLabel,
   type Periodo, type Trimestre,
 } from '../exporters/servel'
@@ -68,6 +68,14 @@ const MODULOS_SERVEL: ModuloDef[] = [
     periodicidad: 'trimestral',
     ley:   'DS 1174/2016 Módulo 14',
     exportar: (p) => exportM14(p),
+  },
+  {
+    id: 'M15', num: 15,
+    label: 'Balance Clasificado',
+    desc:  'Estado de situación financiera: activos, pasivos, patrimonio y estado de resultados (solo 2021-2022).',
+    periodicidad: 'anual',
+    ley:   'Art. 44 DFL N°4/2017 · IFRS-PYME · DS 1174/2016 Módulo 15',
+    exportar: (p) => exportM15(p.año),
   },
   {
     id: 'M16', num: 16,
@@ -287,6 +295,7 @@ export default function HubRendicion() {
           <li>El portal valida automáticamente — revisar los errores que SERVEL reporta</li>
           <li>Repetir para cada módulo del trimestre: M6, M12, M13, M14, M17</li>
           <li>Módulo 15 (Balance) y M16 (Activos) se suben solo al cierre anual</li>
+          <li>El Balance (M15) solo tiene datos 2021-2022; los años posteriores requieren cargar el balance IFRS-PYME del período</li>
         </ol>
         <p className="text-slate-400 mt-2">Formato: UTF-8 BOM · separador ; · DS 1174/2016 SERVEL · RUT partido en cada fila</p>
       </div>

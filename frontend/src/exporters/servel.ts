@@ -17,6 +17,7 @@ import { DONACIONES_BASE, type Donacion } from '../data/donaciones'
 import { ACTIVOS_BASE, type Activo }      from '../data/activos'
 import { FUNCIONARIOS_CANON }             from '../data/personal'
 import { BHE_HISTORICO }                  from '../data/bhe_historico'
+import { aplanarBalance }                 from '../data/balance'
 import { APORTES_ESTATALES }              from '../utils'
 import type { Prestamo }                  from '../api'
 
@@ -291,6 +292,30 @@ export function exportM14(p: Periodo): { filas: number } {
 }
 
 // ════════════════════════════════════════════════════════════════════════
+// MÓDULO 15 — BALANCE CLASIFICADO (anual)
+// Solo hay datos para 2021 y 2022 (único balance digitalizable del portal).
+// ════════════════════════════════════════════════════════════════════════
+
+export function exportM15(año: number): { filas: number } {
+  const headers = [
+    'RUT_PARTIDO', 'NOMBRE_PARTIDO', 'AÑO',
+    'SECCION', 'CODIGO_CUENTA', 'NOMBRE_CUENTA', 'MONTO_CLP',
+  ]
+
+  // El balance solo existe para 2021 y 2022
+  const filas = (año === 2021 || año === 2022)
+    ? aplanarBalance(año).map(f => [
+        cel(RUT_PARTIDO), cel(NOMBRE_PARTIDO), cel(año),
+        cel(f.seccion), cel(f.codigo), cel(f.nombre), cel(f.monto),
+      ])
+    : []
+
+  const csv = construirCSV(headers, filas)
+  descargar(csv, `M15_${año}_Balance_SERVEL.csv`)
+  return { filas: filas.length }
+}
+
+// ════════════════════════════════════════════════════════════════════════
 // MÓDULO 16 — INVENTARIO DE ACTIVOS FIJOS (anual)
 // ════════════════════════════════════════════════════════════════════════
 
@@ -391,6 +416,31 @@ export interface AdvertenciaExport {
 
 export function validarPrevio(p: Periodo, prestamosBase: Prestamo[]): AdvertenciaExport[] {
   const adv: AdvertenciaExport[] = []
+
+  // ── Backlog: los datos transaccionales detallados solo cubren 2026 ──
+  // Para años anteriores M14 usa la nómina real BHE, pero M12/M13 detallados
+  // (transacción a transacción) no están cargados — solo existen los totales M12.
+  if (p.año < 2026) {
+    const hayEgresosPeriodo = EGRESOS_BASE.some(e => enPeriodo(e.fecha, p))
+    const hayBHE            = BHE_HISTORICO.some(c => c.anio === p.año)
+    if (!hayEgresosPeriodo) {
+      adv.push({
+        modulo: 'M12/M13',
+        nivel:  'warning',
+        msg:    `Período de backlog ${p.año}: no hay transacciones detalladas cargadas. ` +
+                `M12 (gastos) y M13 (donaciones) saldrán vacíos — cargar el detalle desde Carga de Datos ` +
+                `o usar los CSV M12 consolidados de procesadores/output/.`,
+      })
+    }
+    if (hayBHE) {
+      adv.push({
+        modulo: 'M14',
+        nivel:  'warning',
+        msg:    `M14 ${p.año} usará la nómina real de honorarios (BHE SII, ≥20 UTM anual). ` +
+                `El monto es bruto ANUAL, no trimestral — verificar con el instructivo SERVEL del período.`,
+      })
+    }
+  }
 
   // M12: egresos sin documento
   const sinDoc = EGRESOS_BASE.filter(e => enPeriodo(e.fecha, p) && e.tipoDoc === 'Sin documento')
