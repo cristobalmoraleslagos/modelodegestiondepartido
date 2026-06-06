@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, type JSX } from 'react'
 import {
   AlertTriangle, ShieldAlert, Info, CheckCircle,
   Scale, Clock, FileWarning, Users, Banknote,
@@ -44,7 +44,7 @@ const DONACIONES_2026 = [
   { donante: 'Patricio Reyes Soto',        esJuridica: false, acumuladoAnual: 18_600_000, esAfiliado: true }, // ~460 UF — bajo 500 UF (afiliado)
 ]
 
-const PRESTAMOS = [
+const PRESTAMOS: Array<{ nombre: string; tipo: string }> = [
   // Ejemplo de préstamo con acreedor ilegal para demostrar la alerta
   // { nombre: 'Persona Natural X', tipo: 'otro' },
 ]

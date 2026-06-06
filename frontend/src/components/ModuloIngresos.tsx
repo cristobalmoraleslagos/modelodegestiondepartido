@@ -4,19 +4,14 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { fmt, APORTE_ESTATAL_ANUAL, MES_ACTUAL as MES_ACTUAL_DEFAULT } from '../utils'
+import { fmt, APORTE_ESTATAL_ANUAL, APORTES_ESTATALES, MES_ACTUAL as MES_ACTUAL_DEFAULT } from '../utils'
 import { api, type BalanceMes } from '../api'
 import { useConfig } from '../context/ConfigContext'
 
 // ─── Datos de referencia históricos (Módulo 6 SERVEL) ────────────────────────
-// Aportes estatales reales extraídos de balances aprobados SERVEL
-const APORTES_HISTORICOS: Record<number, number> = {
-  2017: 800_000_000,   2018: 900_000_000,   2019: 950_000_000,
-  2020: 950_000_000,   2021: 1_370_047_598, // balance SERVEL 2022 aprobado (columna 2021)
-  2022: 1_240_127_041,
-  2023: 1_200_000_000, 2024: 1_200_000_000, 2025: 1_200_000_000,
-  2026: 134_400_000,
-}
+// Fuente única compartida (utils.ts). 2023-2025 = $0 (aporte suspendido por
+// rendiciones pendientes — Art. 42 DFL N°4/2017).
+const APORTES_HISTORICOS: Record<number, number> = APORTES_ESTATALES
 
 // Cotizaciones históricas registradas en CSVs SERVEL (suma anual)
 const COTIZACIONES_HISTORICAS: Record<number, number> = {
@@ -118,7 +113,7 @@ export default function ModuloIngresos() {
         <div>
           <h2 className="text-base font-semibold text-slate-800">Módulo 6 SERVEL — Fuentes de Financiamiento</h2>
           <p className="text-xs text-slate-500">
-            Ley 20.900 Art. 12 · Rendición obligatoria trimestral y anual
+            Art. 40 DFL N°4/2017 · Rendición obligatoria trimestral y anual
             {desdeApi && <span className="ml-2 text-indigo-500">· datos desde BD</span>}
           </p>
         </div>
@@ -212,7 +207,7 @@ export default function ModuloIngresos() {
                 <input type="text" value={form.rut_origen} onChange={e => setForm(f => ({ ...f, rut_origen: e.target.value }))}
                   placeholder="12.345.678-9"
                   className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-                <p className="text-xs text-amber-600">⚠ Personas jurídicas NO pueden donar — Art. 17 Ley 19.884</p>
+                <p className="text-xs text-amber-600">⚠ Personas jurídicas NO pueden donar — Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900</p>
               </div>
             )}
             <div className="col-span-2">
@@ -273,8 +268,9 @@ export default function ModuloIngresos() {
           </table>
         </div>
         <div className="px-5 py-3 bg-indigo-50 rounded-b-2xl text-xs text-indigo-700">
-          <strong>Fuente:</strong> Balance Clasificado SERVEL 2022 · Balances aprobados 2016–2023 ·
-          Aporte 2021: $1.370.047.598 (Balance SERVEL publicado). Años 2023–2026: estimados.
+          <strong>Fuente:</strong> Balance Clasificado SERVEL 2022 · Balances aprobados 2016–2022 ·
+          Aporte 2021: $1.370.047.598 (Balance SERVEL publicado). <strong>2023–2025: $0 — aporte suspendido</strong> por
+          rendiciones pendientes (Art. 42 DFL N°4/2017). 2026: Q1 parcial.
         </div>
       </div>
     </div>

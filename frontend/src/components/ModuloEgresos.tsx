@@ -74,11 +74,11 @@ const DOCS_POR_CATEGORIA: Record<string, DocSpec[]> = {
     { tipo: 'foto_activo',   label: 'Fotografía del activo (ubicación)',    obligatorio: false, ley: 'Recomendación auditoría' },
   ],
   'Campaña Electoral': [
-    { tipo: 'factura_dte',       label: 'Factura del proveedor',                obligatorio: true,  ley: 'Ley 19.884 Art. 5 — gasto electoral documentado' },
-    { tipo: 'pago_cta_campana',  label: 'Pago DESDE cuenta corriente campaña',  obligatorio: true,  ley: 'Art. 30 Ley 19.884 — cuenta exclusiva obligatoria. Pago desde cuenta ordinaria = irregularidad grave' },
-    { tipo: 'declaracion_servel',label: 'Declaración de gastos ante SERVEL',     obligatorio: true,  ley: 'Art. 24 Ley 19.884 — dentro de 15 días hábiles desde el gasto' },
-    { tipo: 'muestra_material',  label: 'Muestra del material (foto/captura)',   obligatorio: false, ley: 'Ley 19.884 — evidencia de publicidad' },
-    { tipo: 'admin_electoral',   label: 'Nombre del Administrador Electoral',    obligatorio: true,  ley: 'Art. 31 Ley 19.884 — responsable legal de los gastos' },
+    { tipo: 'factura_dte',       label: 'Factura del proveedor',                obligatorio: true,  ley: 'DFL N°3/2017 — gasto electoral documentado' },
+    { tipo: 'pago_cta_campana',  label: 'Pago DESDE cuenta corriente campaña',  obligatorio: true,  ley: 'DFL N°3/2017 — cuenta exclusiva obligatoria. Pago desde cuenta ordinaria = irregularidad grave' },
+    { tipo: 'declaracion_servel',label: 'Rendición cuenta electoral ante SERVEL', obligatorio: true, ley: 'Art. 47 DFL N°3/2017 — dentro de 60 días corridos desde la elección' },
+    { tipo: 'muestra_material',  label: 'Muestra del material (foto/captura)',   obligatorio: false, ley: 'DFL N°3/2017 — evidencia de publicidad' },
+    { tipo: 'admin_electoral',   label: 'Nombre del Administrador Electoral',    obligatorio: true,  ley: 'Art. 35 DFL N°3/2017 — responsable legal de los gastos' },
   ],
   'Formación / Preparación': [
     { tipo: 'factura_dte',   label: 'Factura o BHE del relator/institución', obligatorio: true,  ley: 'DS 1174/2016 + Art. 12 N°5/N°8 Ley 20.900' },

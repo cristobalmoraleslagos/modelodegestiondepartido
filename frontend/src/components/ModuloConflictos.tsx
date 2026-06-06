@@ -16,7 +16,7 @@ interface Declaracion {
   intereses: Interes[]
 }
 
-const HOY = new Date('2026-05-21')
+const HOY = new Date()
 
 // ─── Datos reales SERVEL — Personas y Cargos Orgánica del Partido ─────────────
 // Fuente: portal.servel.cl / portaltransparencia.cl — PP007 PCCh
@@ -261,7 +261,7 @@ export default function ModuloConflictos() {
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Entidades con Participación o Representación</h2>
-          <p className="text-xs text-slate-500 mt-1">Fuente: SERVEL PP007 — Módulo 20 Entidades, declaración actualizada · Ley 18.603 Art. 33 letra h)</p>
+          <p className="text-xs text-slate-500 mt-1">Fuente: SERVEL PP007 — Módulo 20 Entidades, declaración actualizada · Art. 33 letra h) DFL N°4/2017</p>
         </div>
         <div className="p-5">
           {/* Única entidad declarada */}

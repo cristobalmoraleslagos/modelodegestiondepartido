@@ -515,7 +515,7 @@ export default function ModuloBalance() {
         {[
           { id: 1, origen: 'Módulo 6 (Ingresos)', destino: 'Balance pág. 3 (EERR)', regla: 'Aporte estatal M6 = "Ingresos por Aportes" del EERR', estado: year === '2022', ley: 'Art. 33 Ley 20.900' },
           { id: 2, origen: 'Módulo 12 (Gastos)', destino: 'Balance pág. 3 (EERR)', regla: 'Gastos M12 = Gastos del EERR (con reclasificación contable)', estado: false, ley: 'DS 1174/2016' },
-          { id: 3, origen: 'Módulo 17 (Préstamos)', destino: 'Balance pág. 2 (Pasivos)', regla: 'Deuda vigente M17 = Pasivos por créditos', estado: year === '2022', ley: 'Art. 14 Ley 20.900' },
+          { id: 3, origen: 'Módulo 17 (Préstamos)', destino: 'Balance pág. 2 (Pasivos)', regla: 'Deuda vigente M17 = Pasivos por créditos', estado: year === '2022', ley: 'Art. 39 letra f) DFL N°4/2017' },
           { id: 4, origen: 'Módulo 16 (Activos)', destino: 'Balance pág. 1 (Activos)', regla: 'Inventario M16 = Activos no corrientes', estado: false, ley: 'DS 1174/2016' },
           { id: 5, origen: 'Balance pág. 1', destino: 'Cartola bancaria 31-dic', regla: '"Efectivo y equivalentes" = Saldo real en banco', estado: false, ley: 'DS 1174/2016' },
           { id: 6, origen: 'Módulo 14 × 12 meses', destino: 'Módulo 12 Personal', regla: 'Sueldos anuales nómina ≈ Gastos Personal M12', estado: false, ley: 'DS 1174/2016 M14' },

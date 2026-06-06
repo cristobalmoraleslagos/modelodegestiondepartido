@@ -109,7 +109,7 @@ export default function ModuloDonaciones() {
       <div className="grid grid-cols-4 gap-4">
         {[
           { icon: <Gift size={18} />, label: 'Total donaciones legítimas', value: fmt(totalLegitimo), sub: 'Personas naturales dentro del límite', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { icon: <ShieldAlert size={18} />, label: 'Personas jurídicas detectadas', value: String(personasJuridicas.length), sub: 'Art. 17 Ley 19.884 — prohibición absoluta', color: personasJuridicas.length > 0 ? 'text-red-600' : 'text-green-600', bg: personasJuridicas.length > 0 ? 'bg-red-50' : 'bg-green-50' },
+          { icon: <ShieldAlert size={18} />, label: 'Personas jurídicas detectadas', value: String(personasJuridicas.length), sub: 'Art. 39 DFL N°4/2017 — prohibición absoluta', color: personasJuridicas.length > 0 ? 'text-red-600' : 'text-green-600', bg: personasJuridicas.length > 0 ? 'bg-red-50' : 'bg-green-50' },
           { icon: <AlertTriangle size={18} />, label: 'Sobre límite (partido 500 UF)', value: String(sobreLimitePartido.length), sub: 'Art. 39 DFL N°4/2017 — devolver exceso', color: sobreLimitePartido.length > 0 ? 'text-red-600' : 'text-green-600', bg: sobreLimitePartido.length > 0 ? 'bg-red-50' : 'bg-green-50' },
           { icon: <CheckCircle size={18} />, label: 'Requieren publicación web', value: `${paraPublicar.length}`, sub: `Sobre ${UMBRAL_PUBLICACION_UF} UF · plazo ${DONACION_PLAZO_PUBLICACION_DIAS} días corridos`, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map((k, i) => (
@@ -140,8 +140,8 @@ export default function ModuloDonaciones() {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <AlertTriangle size={18} className="shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-sm">{sobreLimitePartido.length} donante(s) superan {LIMITE_PARTIDO_UF} UF/año al PARTIDO (Art. 39 DFL N°4/2017)</p>
-            <p className="text-xs mt-0.5">{sobreLimitePartido.map(d => `${d.donante}: acumulado ${fmt(d.acumuladoAnualCLP)} (límite ${fmt(LIMITE_PARTIDO_UF * VALOR_UF)})`).join(' · ')} — Devolver exceso.</p>
+            <p className="font-semibold text-sm">{sobreLimitePartido.length} donante(s) superan su tope anual al PARTIDO — {DONACION_PARTIDO_MAX_UF_AFILIADO} UF afiliado / {DONACION_PARTIDO_MAX_UF_NO_AFILIADO} UF no afiliado (Art. 39 DFL N°4/2017)</p>
+            <p className="text-xs mt-0.5">{sobreLimitePartido.map(d => `${d.donante}: acumulado ${fmt(d.acumuladoAnualCLP)} (límite ${fmt(limiteUF(d) * VALOR_UF)})`).join(' · ')} — Devolver exceso.</p>
           </div>
         </div>
       )}
@@ -176,7 +176,7 @@ export default function ModuloDonaciones() {
         <div className="p-5 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-800">Registro de Donaciones 2026</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Límite partido: {LIMITE_PARTIDO_UF} UF/año ({fmt(LIMITE_PARTIDO_UF * VALOR_UF)}) — Art. 39 DFL N°4/2017 |
+            Límite partido: {DONACION_PARTIDO_MAX_UF_AFILIADO} UF/año afiliado · {DONACION_PARTIDO_MAX_UF_NO_AFILIADO} UF no afiliado — Art. 39 DFL N°4/2017 |
             Límite campaña: {LIMITE_CAMPANA_UF.toLocaleString()} UF/elección ({fmt(LIMITE_CAMPANA_UF * VALOR_UF)}) — Art. 10 DFL N°3/2017
           </p>
         </div>
@@ -191,7 +191,7 @@ export default function ModuloDonaciones() {
             </thead>
             <tbody>
               {DONACIONES.map((d, i) => {
-                const limiteAplicable = d.tipo === 'partido' ? LIMITE_PARTIDO_UF : LIMITE_CAMPANA_UF
+                const limiteAplicable = limiteUF(d)
                 const limiteCLP      = limiteAplicable * VALOR_UF
                 const pct            = Math.round((d.acumuladoAnualCLP / limiteCLP) * 100)
                 const bloqueado      = d.esPersonaJuridica || d.acumuladoAnualCLP > limiteCLP

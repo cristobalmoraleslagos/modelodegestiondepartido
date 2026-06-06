@@ -89,13 +89,10 @@ export default function ModuloAportes() {
 
   // Gráfico: aportes por tipo de elección (años disponibles)
   const porTipo = TIPOS_ELECCION.map(t => {
-    const aportesYears = [2024, 2025].map(y => ({
-      year: y,
-      monto: APORTES_FALLBACK.filter(a => a.tipo_eleccion === t.id && new Date(a.fecha).getFullYear() === y)
-        .reduce((s, a) => s + a.monto, 0),
-    }))
-    return { tipo: t.label, ...Object.fromEntries(aportesYears.map(a => [`${a.year}`, a.monto])) }
-  }).filter(t => (t['2024'] as number) > 0 || (t['2025'] as number) > 0)
+    const monto2024 = APORTES_FALLBACK.filter(a => a.tipo_eleccion === t.id && new Date(a.fecha).getFullYear() === 2024).reduce((s, a) => s + a.monto, 0)
+    const monto2025 = APORTES_FALLBACK.filter(a => a.tipo_eleccion === t.id && new Date(a.fecha).getFullYear() === 2025).reduce((s, a) => s + a.monto, 0)
+    return { tipo: t.label, '2024': monto2024, '2025': monto2025 }
+  }).filter(t => t['2024'] > 0 || t['2025'] > 0)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -104,7 +101,7 @@ export default function ModuloAportes() {
     const limiteCLP = Math.round(limiteUF * VALOR_UF)
     const dentroLimite = montoNum <= limiteCLP
     if (!dentroLimite) {
-      alert(`ALERTA: El monto supera el límite legal de ${limiteUF} UF (${fmt(limiteCLP)}) para ${form.tipo_eleccion}.\n\nArt. 19.884 prohíbe exceder este límite.`)
+      alert(`ALERTA: El monto supera el tope de gasto de ${limiteUF} UF (${fmt(limiteCLP)}) para ${form.tipo_eleccion}.\n\nDFL N°3/2017 prohíbe exceder este límite.`)
     }
     const nuevoAporte: AporteCandidato = {
       id:               Date.now(),
@@ -145,9 +142,9 @@ export default function ModuloAportes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold text-slate-800">Aportes a Candidatos — Ley 19.884</h2>
+          <h2 className="text-base font-semibold text-slate-800">Aportes a Candidatos — DFL N°3/2017 (Ley 19.884)</h2>
           <p className="text-xs text-slate-500">
-            Art. 30: cuenta campaña separada obligatoria · Art. 35: límites por tipo de cargo
+            Cuenta de campaña separada obligatoria · Topes de gasto por cargo — DFL N°3/2017
             {desdeApi && <span className="ml-2 text-indigo-500">· datos desde BD</span>}
           </p>
         </div>
@@ -168,7 +165,7 @@ export default function ModuloAportes() {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
           <ShieldAlert size={18} className="mt-0.5 shrink-0" />
           <div>
-            <p className="font-semibold text-sm">ALERTA LEGAL — Ley 19.884 ({excedidos} registro{excedidos > 1 ? 's' : ''} requieren verificación)</p>
+            <p className="font-semibold text-sm">ALERTA LEGAL — DFL N°3/2017 ({excedidos} registro{excedidos > 1 ? 's' : ''} requieren verificación)</p>
             <p className="text-xs mt-0.5">Los aportes agrupados pueden exceder el límite individual por candidato. Verificar distribución por RUT antes del cierre de campaña.</p>
           </div>
         </div>
@@ -176,12 +173,12 @@ export default function ModuloAportes() {
       {noDeclarados > 0 && (
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-3">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-          <p className="text-sm"><strong>{noDeclarados} aportes sin declarar ante SERVEL.</strong> Art. 24 Ley 19.884: declaración dentro de 15 días hábiles desde el gasto.</p>
+          <p className="text-sm"><strong>{noDeclarados} aportes sin declarar ante SERVEL.</strong> Art. 47 DFL N°3/2017: rendición de la cuenta electoral dentro de 60 días corridos desde la elección.</p>
         </div>
       )}
       {submitted && (
         <div className="flex items-center gap-2 bg-green-50 text-green-800 rounded-2xl px-5 py-3 text-sm">
-          <CheckCircle size={16} /> Aporte registrado. Recordar declarar ante SERVEL en 15 días hábiles.
+          <CheckCircle size={16} /> Aporte registrado. Recordar rendir la cuenta electoral ante SERVEL en 60 días corridos (Art. 47 DFL N°3/2017).
         </div>
       )}
 
@@ -190,7 +187,7 @@ export default function ModuloAportes() {
         {[
           { icon: <Vote size={18} />, label: 'Total aportes registrados', value: fmt(totalAportes), sub: `${aportes.length} registros — ${year}`, color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { icon: <AlertTriangle size={18} />, label: 'Requieren verificación límite', value: String(excedidos), sub: 'Agrupados — validar por RUT', color: excedidos > 0 ? 'text-red-600' : 'text-green-600', bg: excedidos > 0 ? 'bg-red-50' : 'bg-green-50' },
-          { icon: <AlertTriangle size={18} />, label: 'Sin declarar en SERVEL', value: String(noDeclarados), sub: 'Plazo: 15 días hábiles', color: noDeclarados > 0 ? 'text-amber-600' : 'text-green-600', bg: noDeclarados > 0 ? 'bg-amber-50' : 'bg-green-50' },
+          { icon: <AlertTriangle size={18} />, label: 'Sin declarar en SERVEL', value: String(noDeclarados), sub: 'Plazo: 60 días corridos', color: noDeclarados > 0 ? 'text-amber-600' : 'text-green-600', bg: noDeclarados > 0 ? 'bg-amber-50' : 'bg-green-50' },
           { icon: <CheckCircle size={18} />, label: 'Declarados correctamente', value: String(aportes.filter(a => a.declarado_servel).length), sub: 'Con comprobante SERVEL', color: 'text-green-600', bg: 'bg-green-50' },
         ].map((k, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3">
@@ -209,8 +206,8 @@ export default function ModuloAportes() {
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-slate-700 mb-4">Registrar aporte a candidato — {year}</h3>
           <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 space-y-1">
-            <p><strong>Art. 30 Ley 19.884:</strong> El pago DEBE realizarse desde la cuenta corriente de campaña del candidato, NO desde la cuenta ordinaria del partido.</p>
-            <p><strong>Art. 24 Ley 19.884:</strong> Declarar ante SERVEL dentro de 15 días hábiles desde la fecha del aporte.</p>
+            <p><strong>DFL N°3/2017:</strong> El pago DEBE realizarse desde la cuenta corriente de campaña del candidato, NO desde la cuenta ordinaria del partido.</p>
+            <p><strong>Art. 47 DFL N°3/2017:</strong> Rendir la cuenta electoral ante SERVEL dentro de 60 días corridos desde la elección.</p>
           </div>
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
             {[
@@ -327,7 +324,7 @@ export default function ModuloAportes() {
       {/* Tabla de límites legales */}
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-800">Límites Legales por Cargo — Ley 19.884</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Topes de Gasto Electoral por Cargo — DFL N°3/2017</h3>
           <p className="text-xs text-slate-500 mt-0.5">Calculados con UF actual: {fmt(VALOR_UF)}</p>
         </div>
         <div className="p-4">

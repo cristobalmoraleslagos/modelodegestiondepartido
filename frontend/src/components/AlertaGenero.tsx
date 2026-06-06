@@ -70,7 +70,7 @@ export default function AlertaGenero() {
         <div>
           <h2 className="text-base font-semibold text-slate-800">Alerta Fondo de Género — Ley 20.900</h2>
           <p className="text-xs text-slate-500">
-            Cuota legal 2026: {fmt(CUOTA_GENERO)} · 10% del aporte estatal {fmt(APORTE_ESTATAL_ANUAL)}
+            Cuota legal 2026: {fmt(CUOTA_GENERO)} · 10% del aporte estatal {fmt(aporteAnual)}
             {desdeApi && <span className="ml-2 text-indigo-500">· datos desde BD</span>}
           </p>
         </div>

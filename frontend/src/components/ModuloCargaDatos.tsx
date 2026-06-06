@@ -321,7 +321,7 @@ const TABLE_SECTIONS: { id: string; label: string; storageKey: string; cols: Col
   {
     id: 'donaciones', label: 'Donaciones',
     storageKey: 'cfp_donaciones',
-    note: 'Personas jurídicas no pueden donar (Ley 19.884). Límite al partido: 500 UF/año (Art. 15 Ley 20.900). Límite a campaña: 3.000 UF/año por persona (Art. 6 Ley 19.884).',
+    note: 'Personas jurídicas no pueden donar (Art. 39 DFL N°4/2017 + Art. 2 Ley 20.900). Límite al partido: 500 UF/año afiliado · 300 UF no afiliado (Art. 39 DFL N°4/2017). Tope global a campaña: 2.000 UF/elección (Art. 10 DFL N°3/2017).',
     cols: [
       { key: 'nombre', label: 'Nombre donante',       type: 'text'   },
       { key: 'rut',    label: 'RUT',                   type: 'text'   },
@@ -350,7 +350,7 @@ const TABLE_SECTIONS: { id: string; label: string; storageKey: string; cols: Col
   {
     id: 'personal', label: 'Personal / Nómina',
     storageKey: 'cfp_personal',
-    note: 'Validar RUT contra la tabla de directivos antes de registrar (Art. 39 bis, Ley 18.603 — antinepotismo).',
+    note: 'Validar RUT contra la tabla de directivos antes de registrar (Art. 39 bis DFL N°4/2017 — antinepotismo).',
     cols: [
       { key: 'nombre',      label: 'Nombre',          type: 'text'   },
       { key: 'rut',         label: 'RUT',             type: 'text'   },
@@ -448,7 +448,7 @@ const TABLE_SECTIONS: { id: string; label: string; storageKey: string; cols: Col
   {
     id: 'declaraciones', label: 'Declaraciones de interés',
     storageKey: 'cfp_declaraciones',
-    note: 'Directivos, tesorero y gerente deben renovar declaración anualmente (Art. 36 bis, Ley 18.603). Vencida = alerta roja.',
+    note: 'Directivos, tesorero y gerente deben renovar declaración anualmente (Art. 36 bis DFL N°4/2017). Vencida = alerta roja.',
     cols: [
       { key: 'nombre',           label: 'Nombre',              type: 'text' },
       { key: 'rut',              label: 'RUT',                 type: 'text' },

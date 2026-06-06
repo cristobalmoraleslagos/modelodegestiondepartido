@@ -178,7 +178,7 @@ export default function ModuloAfiliados() {
             <BarChart data={RANGOS_ETAREOS} margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
               <XAxis dataKey="rango" tick={{ fontSize: 10 }} />
               <YAxis tickFormatter={v => v.toLocaleString('es-CL')} tick={{ fontSize: 10 }} />
-              <Tooltip formatter={(v: number) => v.toLocaleString('es-CL')} />
+              <Tooltip formatter={(v) => Number(v).toLocaleString('es-CL')} />
               <Legend />
               <Bar dataKey="mujeres" name="Mujeres" fill="#a855f7" stackId="a" radius={[0, 0, 0, 0]} />
               <Bar dataKey="hombres" name="Hombres" fill="#003087" stackId="a" radius={[4, 4, 0, 0]} />

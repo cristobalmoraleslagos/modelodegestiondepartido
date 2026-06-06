@@ -103,7 +103,7 @@ function generarCalendario(): Evento[] {
       tipo: 'otro',
       titulo: 'Revisión anual Declaraciones Conflicto de Interés — Directiva',
       descripcion: 'Todos los miembros de la Directiva Central deben actualizar su declaración de conflicto de interés antes del cierre del año. Las declaraciones vencidas implican incumplimiento de normas de probidad.',
-      ley: 'Ley 18.603 + normas de probidad',
+      ley: 'Art. 36 bis DFL N°4/2017 + Ley 20.880 (probidad)',
       obligatorio: true,
     },
     {
