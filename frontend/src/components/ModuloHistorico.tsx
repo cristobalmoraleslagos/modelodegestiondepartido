@@ -186,29 +186,36 @@ const EVENTOS: Evento[] = [
 ]
 
 // ─── Merge con datos M12 procesados ──────────────────────────────────────────
-// Combina la serie hardcoded con los datos reales de gastos_historico.ts.
-// Los campos null de SERIE se reemplazan con los valores reales del M12.
+// Los datos procesados desde los CSV consolidados (gastos_historico.ts, Módulo 12
+// SERVEL) son la FUENTE DE VERDAD para los años que cubren (2022-2025).
+// Prevalecen sobre la serie narrativa hardcoded (SERIE), que solo aporta eventos,
+// sanciones y años sin CSV procesado.
 const SERIE_MERGED: DatoAnual[] = SERIE.map(d => {
   const real = GASTOS_HISTORICO_MAP[d.año]
   if (!real) return d
+  // cuota de género = 10% del aporte estatal real (Art. 38 Ley 20.900).
+  // Si el aporte fue $0 (años sin financiamiento público), la cuota exigible es $0.
+  const aporteEstatal = real.aporteEstatal ?? d.aporteEstatal
+  const cuotaGenero   = aporteEstatal != null ? Math.round(aporteEstatal * 0.10) : d.cuotaGenero
   return {
     ...d,
-    gastoTotal: d.gastoTotal ?? real.gastoTotal,
-    personal:   d.personal   ?? real.personal,
-    bienes:     d.bienes     ?? real.bienes,
-    admin:      d.admin      ?? real.admin,
-    genero:     d.genero     ?? real.genero,
-    juvenil:    d.juvenil    ?? real.juvenil,
-    fuente:     (d.fuente.includes('no disponible') || d.fuente.includes('no accesible'))
-                ? real.fuente : d.fuente,
+    aporteEstatal,
+    gastoTotal: real.gastoTotal ?? d.gastoTotal,
+    personal:   real.personal   ?? d.personal,
+    bienes:     real.bienes     ?? d.bienes,
+    admin:      real.admin      ?? d.admin,
+    genero:     real.genero     ?? d.genero,
+    juvenil:    real.juvenil    ?? d.juvenil,
+    cuotaGenero,
+    fuente:     real.fuente,
   }
 })
 
 // ─── Datos para gráficos ──────────────────────────────────────────────────────
 
-// Género cumplimiento (años con datos confirmados)
+// Género cumplimiento (años con cuota exigible > 0; si aporte fue $0 no hay cuota)
 const CHART_GENERO = SERIE_MERGED
-  .filter(d => d.genero !== null && d.cuotaGenero !== null)
+  .filter(d => d.genero !== null && d.cuotaGenero !== null && d.cuotaGenero! > 0)
   .map(d => ({
     año: d.esParcial ? `${d.año} Q1` : String(d.año),
     pct: Math.round((d.genero! / d.cuotaGenero!) * 100),
@@ -470,9 +477,11 @@ export default function ModuloHistorico() {
                           {d.periodoCubierto}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
-                          {d.aporteEstatal
-                            ? <span className={d.aporteEstatal !== 1_240_127_041 && d.año !== 2026 ? 'text-slate-400' : 'text-slate-700 font-medium'}>{fmtM(d.aporteEstatal)}{d.aporteEstatal !== 1_240_127_041 && d.año !== 2026 ? '*' : ''}</span>
-                            : <span className="text-slate-300">—</span>}
+                          {d.aporteEstatal === null
+                            ? <span className="text-slate-300">—</span>
+                            : d.aporteEstatal === 0
+                              ? <span className="text-red-600 font-semibold" title="Aporte público suspendido — Art. 42 DFL N°4/2017 (rendiciones pendientes)">$0 · suspendido</span>
+                              : <span className={d.aporteEstatal !== 1_240_127_041 && d.año !== 2026 ? 'text-slate-400' : 'text-slate-700 font-medium'}>{fmtM(d.aporteEstatal)}{d.aporteEstatal !== 1_240_127_041 && d.año !== 2026 ? '*' : ''}</span>}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
                           {d.gastoTotal
