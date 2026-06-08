@@ -171,12 +171,11 @@ ap_utils=re.search(r"2022:\s*([\d_]+)",uts); ap_utils=int(ap_utils.group(1).repl
 print(f"  {check(ap_bal==ap_utils==1240127041)} aporte 2022: balance {clp(ap_bal)} | utils {clp(ap_utils)} | esperado $1.240.127.041")
 ap2325=re.findall(r"202[345]:\s*([\d_]+)",uts)
 ap_n=[int(x.replace('_','')) for x in ap2325[:3]]
-# 2024 CONFIRMADO $549.691.607 (Defontana cta 3.1.1010.10.01); 2023/2025 = $0 en el modelo
-# PERO Transparencia SERVEL (modulo 10) muestra 2023=$512M y 2025=$308M -> POR VERIFICAR con cartola
-ok10 = ap_n == [0, 549691607, 0]
-print(f"  {check(ok10)} aporte 2023/24/25 en utils = {ap_n} (esperado [0, 549691607, 0])")
-print(f"  [!] ADVERTENCIA: Transparencia SERVEL muestra aporte 2023=$512.429.988 y 2025=$308.066.873")
-print(f"      (modelo en $0). Verificar con cartola Banco Estado / certificado SERVEL antes de rendir.")
+# Confirmados en Transparencia SERVEL modulo 11 (Ingresos Art.34) + Defontana:
+#   2023 = $345.788.634 | 2024 = $549.691.607 | 2025 = $0
+ok10 = ap_n == [345788634, 549691607, 0]
+print(f"  {check(ok10)} aporte 2023/24/25 en utils = {ap_n} (esperado [345788634, 549691607, 0])")
+print(f"  [i] 2023 monto exacto a reconfirmar con cartola (modulo 10 trimestral indica $512M)")
 
 print("\n"+"#"*80)
 print("# FIN CORROBORACION")

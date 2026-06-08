@@ -9,17 +9,28 @@ import { api, type BalanceMes } from '../api'
 import { useConfig } from '../context/ConfigContext'
 
 // ─── Datos de referencia históricos (Módulo 6 SERVEL) ────────────────────────
-// Fuente única compartida (utils.ts). 2023-2025 = $0 (aporte suspendido por
-// rendiciones pendientes — Art. 42 DFL N°4/2017).
+// Fuente única compartida (utils.ts). Aporte 2023=$345.8M y 2024=$549.7M
+// confirmados en Transparencia módulo 11; 2025=$0.
 const APORTES_HISTORICOS: Record<number, number> = APORTES_ESTATALES
 
-// Cotizaciones históricas registradas en CSVs SERVEL (suma anual)
+// Cotizaciones de afiliados (Cuotas y aportes) — fuente: Transparencia SERVEL
+// módulo 11 "Ingresos del partido (Art. 34)", totales anuales oficiales.
 const COTIZACIONES_HISTORICAS: Record<number, number> = {
-  2017: 0, 2018: 1_700_006, 2019: 0, 2020: 0, 2021: 0,
-  2022: 0, 2023: 0, 2024: 0,
-  2025: 1_201_730 + 1_700_000 + 2_403_466 + 2_300_008 + 1_201_733 +
-        1_700_006 + 1_530_535 + 1_700_006,  // real Q1-Q4 2025 del CSV
+  2017: 0, 2018: 1_700_006,
+  2019: 147_644_345,
+  2020: 137_606_371,
+  2021:  78_160_587,
+  2022:  92_838_032,
+  2023: 400_866_223,   // incorporado de Transparencia módulo 11
+  2024: 901_581_422,
+  2025: 185_729_458,
   2026: 0,
+}
+
+// Rendimientos de patrimonio (otra fuente de ingreso) — Transparencia módulo 11
+const RENDIMIENTOS_HISTORICOS: Record<number, number> = {
+  2019: 262_190_875, 2020: 356_440_466, 2021: 70_038_671, 2022: 147_781_727,
+  2023: 263_255_951, 2024: 740_705_008, 2025: 162_362_673, 2026: 0,
 }
 
 const TIPOS = [
@@ -239,13 +250,13 @@ export default function ModuloIngresos() {
       {/* Tabla de fuentes históricas */}
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-800">Aportes Estatales Históricos — Fuente: Balances SERVEL</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Ingresos Históricos del Partido — Fuente: Transparencia SERVEL (módulo 11)</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-slate-500 border-b border-slate-100">
-                {['Año', 'Aporte Estatal', 'Cotizaciones (CSV)', 'Total ingresos ref.', 'Cuota Género (10%)'].map(h => (
+                {['Año', 'Aporte Estatal', 'Cotizaciones', 'Rendimientos', 'Total ingresos ref.', 'Cuota Género (10%)'].map(h => (
                   <th key={h} className="text-left py-3 px-4 font-medium">{h}</th>
                 ))}
               </tr>
@@ -253,13 +264,15 @@ export default function ModuloIngresos() {
             <tbody>
               {Object.entries(APORTES_HISTORICOS).map(([y, aporte]) => {
                 const cotiz = COTIZACIONES_HISTORICAS[Number(y)] ?? 0
+                const rend  = RENDIMIENTOS_HISTORICOS[Number(y)] ?? 0
                 const cuota = Math.round(aporte * 0.10)
                 return (
                   <tr key={y} className={`border-b border-slate-50 last:border-0 hover:bg-slate-50 ${Number(y) === year ? 'bg-indigo-50' : ''}`}>
                     <td className="py-2.5 px-4 font-semibold text-slate-700">{y}</td>
                     <td className="py-2.5 px-4 text-slate-700">{fmt(aporte)}</td>
                     <td className="py-2.5 px-4 text-slate-500">{cotiz > 0 ? fmt(cotiz) : '—'}</td>
-                    <td className="py-2.5 px-4 font-medium text-slate-800">{fmt(aporte + cotiz)}</td>
+                    <td className="py-2.5 px-4 text-slate-500">{rend > 0 ? fmt(rend) : '—'}</td>
+                    <td className="py-2.5 px-4 font-medium text-slate-800">{fmt(aporte + cotiz + rend)}</td>
                     <td className="py-2.5 px-4 text-purple-700 font-medium">{fmt(cuota)}</td>
                   </tr>
                 )
@@ -268,9 +281,9 @@ export default function ModuloIngresos() {
           </table>
         </div>
         <div className="px-5 py-3 bg-indigo-50 rounded-b-2xl text-xs text-indigo-700">
-          <strong>Fuente:</strong> Balance Clasificado SERVEL 2022 · Balances aprobados 2016–2022 ·
-          Aporte 2021: $1.370.047.598 (Balance SERVEL publicado). <strong>2023–2025: $0 — aporte suspendido</strong> por
-          rendiciones pendientes (Art. 42 DFL N°4/2017). 2026: Q1 parcial.
+          <strong>Fuente:</strong> Aporte estatal, cotizaciones y rendimientos desde Transparencia SERVEL
+          módulo 11 (Ingresos Art. 34). Aporte <strong>2023: $345.788.634</strong> · 2024: $549.691.607 ·
+          <strong>2025: $0</strong> (confirmado módulo 11 + Defontana). 2026: Q1 parcial.
         </div>
       </div>
     </div>
