@@ -101,4 +101,19 @@ El módulo 11 (Ingresos Art. 34) **sí contiene los ingresos 2023** que faltaban
 
 ---
 
+## 7. Reconciliación módulo 11 vs módulo 13 (cotizaciones)
+
+El módulo 13 se re-extrajo completo (2016-2026). Al cruzarlo con el módulo 11 aparecen diferencias:
+
+| Año | Mód 13 (Cotiz. Ord+Extraord) | Mód 11 (Cuotas y aportes afiliados) | Dif |
+|-----|------------------------------|--------------------------------------|-----|
+| 2022 | $239.775.134 | $92.838.032 | −$146.9M |
+| 2023 | $216.532.302 | $400.866.223 | +$184.3M |
+| 2024 | **$0** (artefacto) | $901.581.422 | — |
+| 2025 | **$0** (artefacto) | $185.729.458 | — |
+
+**Decisión:** se usa el **módulo 11** como fuente (es el informe integral Art. 34 y su aporte 2024 calza al peso con Defontana). El módulo 13 quedó con $0 en 2024-2025 por un artefacto de extracción (capturó una tabla distinta) y categoriza cotizaciones de forma más estrecha. El módulo 13 queda como referencia secundaria de menor confianza; reconciliar con el contador antes de la rendición.
+
+---
+
 *Documento de trabajo interno. Cifras a verificar antes de uso oficial ante SERVEL.*
