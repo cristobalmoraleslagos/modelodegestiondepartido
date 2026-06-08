@@ -90,7 +90,9 @@ para("Este diagnostico cruza DOS fuentes con datos ciertos: (1) el portal SII (1
      "y (2) el ERP contable Defontana del partido (Estados Financieros IFRS, Balance de Comprobacion y Libro "
      "Mayor completo de 2024 y 2025). Ambas fuentes son consistentes (ej.: honorarios 2025 coinciden al peso). "
      "El gasto se duplico (x2,2) entre 2022 y 2025 por los ciclos electorales, y la contabilidad oficial revela "
-     "una crisis estructural de liquidez y una cuenta por cobrar de $4.262M a empresas relacionadas.")
+     "una crisis estructural de liquidez y una cuenta por cobrar de $4.262M a empresas relacionadas. La principal "
+     "brecha es 2023: esta sin contabilizar y sus ingresos no figuran en ninguna fuente del SII (deben "
+     "reconstruirse desde cartolas/Tesoreria).")
 tabla(["Indicador","2022","2023","2024","2025"], [
     ["Gasto total (M12)"] + [clp(m12_tot[a]) for a in anios],
     ["BHE emitidas"] + [str(bhe_anio[a]['n']) for a in anios],
@@ -133,13 +135,14 @@ tabla(["Ano","Documentos","Total compras (con IVA)"],
 
 h("5. Informacion Contable Oficial (Defontana ERP)")
 para("Estado de contabilizacion: 2024 y 2025 estan COMPLETOS y cuadran (Estados Financieros IFRS disponibles, "
-     "listos para SERVEL); 2023 y 2022 estan SIN contabilizar (vacios). Cifras del Estado de Situacion "
-     "Financiera y Balance de Comprobacion:", bold=False)
+     "listos para SERVEL); 2023 esta SIN contabilizar (el Libro Mayor Defontana 2023 tiene solo 10 asientos por "
+     "$2,19M - una factura y dos egresos) y 2022 esta vacio. Cifras del Estado de Situacion Financiera y "
+     "Balance de Comprobacion:", bold=False)
 tabla(["Indicador (Defontana)","2024","2025"],
       [["Total activos","$6.784.503.000","$6.185.202.000"],
        ["Bancos (caja)","$415.636.000","$5.596.000  (-99%)"],
        ["Resultado del ejercicio","Superavit $169.572.869","Deficit $1.278.221.363"],
-       ["Aporte estatal DFL N4","$549.691.607 (por verificar)","$0 (confirmado)"],
+       ["Aporte estatal DFL N4","$549.691.607 (CONFIRMADO)","$0 (confirmado)"],
        ["Cuenta por cobrar PROGRESO","$4.370.021.000","$4.262.217.000"],
        ["Pasivos financieros (bancos)","$8.122.000","$467.020.000"]])
 para("Hallazgos ciertos de la contabilidad Defontana:", bold=True, color=AMARANTO)
@@ -154,12 +157,28 @@ for t in ["PROGRESO: $4.262M por cobrar a empresas relacionadas con fines de luc
           "Financiamiento electoral 2024 (municipales): Concejal $413M, Consejero Reg. $329M, Primarias Alcalde $273M."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(9.5)
 
+para("Estructura de INGRESOS (M6 - Fuentes de financiamiento) segun el Libro Mayor Defontana (grupo de "
+     "cuentas 3). Esta es la cara de ingresos que el SII NO registra (el SII solo tiene gastos, honorarios y "
+     "compras). 2024 y 2025 estan contabilizados; 2023 esta VACIO:", bold=True, color=AMARANTO)
+tabla(["Fuente de ingreso (cuenta Defontana grupo 3)","2024","2025"],
+      [["3.1.1010  Aporte estatal trimestral (DFL N4)","$549.691.607","$0"],
+       ["3.1.2010  Cotizaciones (ordinarias+extraord.+no afiliados)","$321.781.637","$227.474.635"],
+       ["3.1.3010  Ingresos del propio patrimonio","$6.919.413","$5.605.048"],
+       ["3.1.4010  Financiamiento/reembolso electoral (por cargo)","$1.185.426.351","$218.288.285"],
+       ["3.5.0100  Intereses efectivamente percibidos","$110.286.768","$117.867.520"],
+       ["TOTAL INGRESOS","$2.174.105.776","$569.235.488"]])
+para("BRECHA DE FINANCIAMIENTO 2023: el partido gasto " + clp(m12_tot[2023]) + " (M12) pero tiene CERO ingresos "
+     "contabilizados en 2023 (Defontana vacio) y aporte estatal $0. Todo ese gasto se financio con cotizaciones, "
+     "reembolsos electorales (Consejo Constitucional 2023) y/o prestamos cuyo registro NO esta en el SII: debe "
+     "reconstruirse desde las cartolas bancarias y los registros de Tesoreria. Este es el principal dato faltante.",
+     bold=True, color=AMARANTO)
+
 h("6. Cruce de Fuentes SII <-> Defontana (validacion)")
 para("La consistencia entre ambas fuentes da certeza a los datos:", bold=False)
 tabla(["Concepto","SII","Defontana","Resultado"],
       [["Honorarios 2025","BHE $275.435.191","Cta HONORARIOS $275.435.191","COINCIDE EXACTO"],
        ["Honorarios 2024","BHE $233.352.835","Cta HONORARIOS $208.968.974","Dif $24,4M - reconciliar"],
-       ["Aporte estatal 2024","(no hay dato SII)","$549.691.607","Verificar con SERVEL"],
+       ["Aporte estatal 2024","(no hay dato SII)","Cta 3.1.1010 $549.691.607","CONFIRMADO (contabilidad oficial)"],
        ["Libro Mayor 2024/2025","-","Cuadra (debito=credito)","Integro"]])
 
 h("7. Hallazgos Criticos Consolidados")
@@ -168,8 +187,8 @@ hallazgos = [
  ("Crisis de liquidez / deficit 2025","Defontana - deficit $1.278M, bancos -99%","Riesgo de insolvencia"),
  ("Credito electoral $480M (07/11/2025)","Defontana - Banco Estado","Endeudamiento pre-eleccion"),
  ("F29 Jun-Dic 2025 sin declarar","SII - retencion BHE no enterada (~$23,3M)","Multa SII + objecion SERVEL"),
- ("Aporte 2024 $549M","Conflicto SII vs Defontana","Verificar con SERVEL/Tesoreria"),
- ("2022 y 2023 sin contabilizar","Defontana vacio","Falta cerrar esos balances"),
+ ("Ingresos 2023 sin registro","Brecha: gasto $1.530M vs ingreso $0","Reconstruir desde cartolas/Tesoreria (no esta en SII)"),
+ ("2022 y 2023 sin contabilizar","Defontana vacio (solo 10 asientos en 2023)","Falta cerrar esos balances - material listo"),
  ("Fondo de Genero en colapso","SII - $73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
  ("Transferencias internas $477M (nov-2025)","SII/Defontana - mes electoral","Trazar contra campana"),
  ("10 BHE 'Observado Receptor'","SII - rechazadas","Honorarios cuestionados"),
@@ -178,12 +197,16 @@ tabla(["Hallazgo","Fuente / Evidencia","Riesgo"], hallazgos)
 
 h("8. Conclusion y Diagnostico")
 para("Con certeza (datos SII + Defontana): contabilidad 2024 y 2025 completa (EEFF IFRS listos para SERVEL), "
-     "nomina de honorarios (BHE), gastos (M12) y proveedores (RCV) 2022-2025, y activo fijo real.", bold=True, color=AZUL)
+     "nomina de honorarios (BHE), gastos (M12) y proveedores (RCV) 2022-2025, activo fijo real, aporte estatal "
+     "2024 confirmado ($549,7M) y la estructura completa de cuentas de ingreso (M6) del partido.", bold=True, color=AZUL)
 para("Brechas que impiden cerrar la rendicion y los balances:", bold=True, color=AMARANTO)
-for t in ["Contabilizar 2022 y 2023 (vacios en Defontana) - usar la data SII + el plan de cuentas existente.",
+for t in ["Contabilizar 2022 y 2023 en Defontana (vacios) - material borrador YA generado "
+          "(Contabilizacion_2023_Defontana.xlsx: gastos M12 mapeados a cuentas reales $1.530M + honorarios BHE "
+          "$165M + plantilla de ingresos M6). Falta cargarlo en el ERP y validar con el contador.",
+          "INGRESOS 2023 - reconstruir desde cartolas bancarias / Tesoreria / formulario M6 presentado: el SII "
+          "no registra ingresos del partido. Sin esto no se cierra el balance 2023 (brecha $1.530M).",
           "F29 Jun-Dic 2025 (~$23,3M de retencion) - declarar en SII con reajuste e interes.",
           "PROGRESO $4.262M - conseguir el convenio de 338 cuotas y reconstruir el origen; evaluar provision.",
-          "Aporte estatal 2024 ($549M) - verificar con SERVEL/Tesoreria si se recibio.",
           "Conciliacion bancaria - confirmar que el saldo $5,6M (2025) coincide con el banco.",
           "Donaciones 2022-2025 - sin datos (solo existe 2026)."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(10)
