@@ -98,3 +98,19 @@ export const CREDITO_ELECTORAL_2025 = {
   cuenta:   'BANCO BCI 29355508',
   glosa:    'CRÉDITO ELECTORAL BANCO ESTADO',
 } as const
+
+/**
+ * Flujo de caja proyectado (Defontana) — revela crisis estructural de liquidez.
+ * Sin ingreso proyectado y ~$28M/mes de costos fijos, la caja cae a −$753M a
+ * fin de 2025. Solo el crédito electoral $480M + financiamiento electoral
+ * evitaron la insolvencia (caja real Dic-2025 = +$5,6M).
+ */
+export const FLUJO_CAJA_PROYECTADO = {
+  ingresoMensualProyectado: 0,
+  egresoFijoMensual:        28_000_000,   // sueldos + honorarios + impuestos
+  cajaInicialJun2025:       101_963_056,
+  cajaProyectadaDic2025:    -752_893_650, // sin el crédito/financiamiento electoral
+  cajaRealDic2025:          5_596_000,    // EEFF — gracias al crédito $480M
+  nota: 'Crisis estructural: costos fijos ~$340M/año sin ingreso estable. ' +
+        'El aporte estatal cubría esto; suspendido, el partido depende de créditos puntuales.',
+} as const

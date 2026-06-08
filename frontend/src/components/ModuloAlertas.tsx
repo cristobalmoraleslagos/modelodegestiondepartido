@@ -24,7 +24,7 @@ import {
 } from '../normativa'
 import { FUNCIONARIOS_CANON } from '../data/personal'
 import { EGRESOS_BASE }       from '../data/egresos'
-import { BALANCE_DEFONTANA, PROGRESO_POR_COBRAR } from '../data/defontana'
+import { BALANCE_DEFONTANA, PROGRESO_POR_COBRAR, FLUJO_CAJA_PROYECTADO } from '../data/defontana'
 
 // ─── Datos actuales para generación de alertas ────────────────────────────────
 // Fuente: FUNCIONARIOS_CANON (personal.ts) — fuente única de datos de nómina
@@ -276,7 +276,9 @@ export default function ModuloAlertas() {
       titulo:      `Déficit 2025 de ${Math.abs(d2025.resultadoEjercicio!).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} y caja casi agotada`,
       descripcion: `Resultado del ejercicio 2025: déficit de ${Math.abs(d2025.resultadoEjercicio!).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
                    `Los bancos cayeron de $415.636.000 (2024) a ${d2025.bancos!.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} (−99%). ` +
-                   `Con el aporte estatal en $0, el partido quemó su liquidez y depende de deuda y de cobrar a "Progreso".`,
+                   `El flujo de caja proyectado llega a ${FLUJO_CAJA_PROYECTADO.cajaProyectadaDic2025.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} sin ingresos: ` +
+                   `con costos fijos ~${FLUJO_CAJA_PROYECTADO.egresoFijoMensual.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}/mes y aporte estatal en $0, ` +
+                   `solo el crédito electoral $480M evitó la insolvencia. Crisis estructural de liquidez.`,
       accion:      'Plan de regularización financiera: rehabilitar el aporte estatal (rendiciones pendientes), reducir gasto, y gestionar el cobro a "Progreso". Informar al Tesorero Nacional.',
       ley:         'Art. 42 DFL N°4/2017 (aporte suspendido) · sana administración financiera',
       modulo:      'aportes',
