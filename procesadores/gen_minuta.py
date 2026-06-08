@@ -112,7 +112,7 @@ tabla(["Fuente","Documento / Registro","Cantidad","Periodo","Estado"],
  [["SII","BHE - Boletas honorarios electronicas", f"{sum(bhe_anio[a]['n'] for a in bhe_anio)}", "2022-2025","Completo"],
   ["SII","RCV - Doctos compra/venta (facturas)", f"{sii_rcv_docs}", "2022-2026","Completo"],
   ["SII","F29 - Declaraciones mensuales IVA/retencion", "41", "2022-2025","Falta Jun-Dic 2025"],
-  ["SII","M12 - Items de gasto (trimestral)", "4 anios x ~18 items", "2022-2025","Completo"],
+  ["SII","M12 - Items de gasto (trimestral)", "4 años x ~18 items", "2022-2025","Completo"],
   ["Defontana","Libro Mayor - asientos contables", "~26.928 lineas", "2023-2026","2023 casi vacio (10)"],
   ["Defontana","EEFF / Balances / Flujo de caja (archivos)", "15", "2023-2025","2022-2023 sin contab."],
   ["Transparencia","Modulo 11 Ingresos (Art.34) - filas", "347", "2016-2026","Completo (re-extraido)"],
@@ -136,17 +136,17 @@ tot_bruto = sum(bhe_anio[a]['bruto'] for a in bhe_anio); tot_ret = sum(bhe_anio[
 para("Total: " + str(tot_bhe) + " boletas - " + str(tot_vig) + " vigentes - " + str(tot_obs) +
      " en estado 'Observado Receptor' (revisar). Honorarios brutos 2022-2025: " + clp(tot_bruto) +
      " - Retencion total: " + clp(tot_ret) + ".")
-tabla(["Ano","BHE","Vigentes","Observadas","Emisores","Bruto","Retencion"],
+tabla(["Año","BHE","Vigentes","Observadas","Emisores","Bruto","Retencion"],
       [[a, bhe_anio[a]['n'], bhe_anio[a]['vig'], bhe_anio[a]['obs'], len(bhe_anio[a]['emis']), clp(bhe_anio[a]['bruto']), clp(bhe_anio[a]['ret'])] for a in anios])
 para("Comportamiento trimestral (honorarios brutos vigentes):", bold=True)
-tabla(["Ano","Q1","Q2","Q3","Q4"],
+tabla(["Año","Q1","Q2","Q3","Q4"],
       [[a] + [clp(bhe_tri[(a,t)]['bruto']) for t in (1,2,3,4)] for a in anios])
 
 h("4. Gastos M12 - Comportamiento por Trimestre")
 para("Se observan dos picos electorales claros: 2024-Q3 (municipales) y 2025-Q4 (presidencial/parlamentaria).")
-tabla(["Ano","Q1","Q2","Q3","Q4","Total"],
+tabla(["Año","Q1","Q2","Q3","Q4","Total"],
       [[a] + [clp(m12_tri[(a,t)]) for t in (1,2,3,4)] + [clp(m12_tot[a])] for a in anios])
-para("Principales categorias de gasto (acumulado por ano):", bold=True)
+para("Principales categorias de gasto (acumulado por año):", bold=True)
 cats = set()
 for a in m12_anual: cats |= set(m12_anual[a].keys())
 cattot = {c: sum(m12_anual[a].get(c,0) for a in m12_anual) for c in cats}
@@ -158,7 +158,7 @@ h("5. RCV - Proveedores y Compras")
 para("Gasto concentrado en medios y comunicacion. Proveedores recurrentes: Radio Nuevo Mundo (medio del PC), "
      "Multitud Comunicaciones Digitales (creciente), Inversiones Siglo XXI (editorial, atipico $455M en 2023), "
      "y agencias digitales de campana (Artemedios, Power ID, CCreative).")
-tabla(["Ano","Documentos","Total compras (con IVA)"],
+tabla(["Año","Documentos","Total compras (con IVA)"],
       [[a, rcv[a]['docs'], clp(rcv[a]['total'])] for a in anios])
 
 h("6. Informacion Contable Oficial (Defontana ERP)")
@@ -177,7 +177,7 @@ tabla(["Indicador (Defontana)","2024","2025"],
 para("Hallazgos ciertos de la contabilidad Defontana:", bold=True, color=AMARANTO)
 for t in ["PROGRESO: $4.262M por cobrar a empresas relacionadas con fines de lucro (Soc. de Inv. Progreso SpA "
           "76.452.615-5 y Radio Progreso SpA 76.825.989-5). Es saldo de apertura (origen <=2023, sin documentar "
-          "en libros actuales); existe convenio de 338 cuotas, pero la cuenta casi no se mueve (~25 anos para recuperar). Es ~69% del activo total.",
+          "en libros actuales); existe convenio de 338 cuotas, pero la cuenta casi no se mueve (~25 años para recuperar). Es ~69% del activo total.",
           "CREDITO ELECTORAL: el 07/11/2025 el partido tomo $480.000.000 del Banco Estado (dias antes de la eleccion).",
           "CRISIS DE LIQUIDEZ: los bancos cayeron de $415,6M (2024) a $5,6M (2025). El flujo de caja proyectado "
           "llega a -$753M sin ingresos; con costos fijos ~$28M/mes y aporte estatal en $0, solo el credito electoral "
@@ -213,18 +213,18 @@ para("NOTA SOBRE EL APORTE 2023: el aporte estatal de 2023 ($345.788.634) figura
 
 # ── 6.bis  Estado de los balances + aprobacion SERVEL + cuadratura ──
 para("Estado de los BALANCES y aprobacion SERVEL (modulo 09 Transparencia):", bold=True, color=AMARANTO)
-tabla(["Ano","Aprobado por SERVEL (mod.09)","Contabilizado Defontana","Ecuacion contable"],
+tabla(["Año","Aprobado por SERVEL (mod.09)","Contabilizado Defontana","Ecuacion contable"],
       [["2015-2021","SI - aprobados y publicados","-","-"],
        ["2022","NO aprobado","Sin contabilizar (vacio)","-"],
        ["2023","NO aprobado","Vacio (10 asientos, $2,19M)","-"],
        ["2024","NO aprobado","COMPLETO","Cuadra (dif $0)"],
        ["2025","NO aprobado","COMPLETO","Cuadra (dif $0)"]])
-para("HALLAZGO: SERVEL solo tiene balances APROBADOS hasta 2021. Hay un backlog de 4 anos (2022-2025) sin "
+para("HALLAZGO: SERVEL solo tiene balances APROBADOS hasta 2021. Hay un backlog de 4 años (2022-2025) sin "
      "balance aprobado - raiz formal de la suspension del aporte (Art. 42 DFL N4) que golpeo en 2025.",
      bold=True, color=AMARANTO, size=10)
 para("Verificacion de la ecuacion contable (cuadra en los 3 documentos Defontana: Estado de Situacion "
      "Financiera = Balance General = Balance de Comprobacion):", bold=False, size=9.5)
-tabla(["Ano","Total Activos","Pasivos + Patrimonio","Resultado ejercicio","Cuadra"],
+tabla(["Año","Total Activos","Pasivos + Patrimonio","Resultado ejercicio","Cuadra"],
       [["2024","$6.784.503.000","$6.614.929.746","+$169.572.869","SI (dif $0)"],
        ["2025","$6.185.202.000","$7.463.423.665","-$1.278.221.363","SI (dif $0)"]])
 
@@ -290,7 +290,7 @@ for t in ["Contabilizacion de 2022 y 2023 en Defontana (ejercicios vacios) - fal
           "Conciliacion bancaria 2025 - falta confirmar que el saldo $5,6M coincide con el banco."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(10)
 para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + cuota de genero incumplida "
-     "9 anos + F29 atrasado + crisis de liquidez + cuenta por cobrar relacionada de $4.262M.", bold=True, color=AMARANTO)
+     "9 años + F29 atrasado + crisis de liquidez + cuenta por cobrar relacionada de $4.262M.", bold=True, color=AMARANTO)
 
 # ===================== SECCION 10: PLAN DE GESTION =====================
 doc.add_page_break()
@@ -405,7 +405,7 @@ para("Retencion declarada en BHE pero NO enterada al Fisco (Jun-Dic 2025): " + c
 # --- 10 BHE observadas ---
 h("A.2  Hallazgo 4 - Las 10 BHE en estado 'Observado Receptor'", size=12, color=AZUL)
 obs = [b for b in bhe if b.get('estado','').upper()!='VIGENTE']
-tabla(["Ano","Mes","N. Boleta","Fecha","RUT Emisor","Emisor","Bruto"],
+tabla(["Año","Mes","N. Boleta","Fecha","RUT Emisor","Emisor","Bruto"],
       [[b['anio'], b['mes'], str(b.get('nro_boleta','')), b.get('fecha',''), b.get('rut_emisor',''),
         b.get('nombre_emisor','')[:28], clp(b.get('honorario_bruto',0))]
        for b in sorted(obs, key=lambda x:(x['anio'],x['mes']))])
@@ -436,7 +436,7 @@ tabla(["Movimiento","Mes","Monto"],
        ["Devolucion Transferencia Erronea", "Noviembre", clp(deverr.get('Noviembre',0))]])
 
 # --- Genero ---
-h("A.4  Hallazgo 3 - Fondo de Genero: ejecucion por ano y meses", size=12, color=AZUL)
+h("A.4  Hallazgo 3 - Fondo de Genero: ejecucion por año y meses", size=12, color=AZUL)
 fg = []
 for anio in anios:
     g = m12_item(anio,'Fomento a Participaci')
@@ -450,7 +450,7 @@ for anio in anios:
                 fem = {MESES[i]: num(row.get(MESES[i])) for i in range(12)}
     tot = sum(fem.values()); meses_con = [m for m,v in fem.items() if v>0]
     fg.append([anio, clp(tot), str(len(meses_con))+" meses: "+(", ".join(meses_con) if meses_con else "-")])
-tabla(["Ano","Gasto Genero","Meses con ejecucion"], fg)
+tabla(["Año","Gasto Genero","Meses con ejecucion"], fg)
 para("La cuota legal es 10% del aporte estatal (Art. 38 Ley 20.900). En 2025 solo se ejecutaron $6,3M y "
      "ningun gasto despues de junio.", color=GRIS, size=9)
 
@@ -480,10 +480,10 @@ para("Se realizaron validaciones cruzadas sobre los datos levantados de las tres
 para("Resultados de las validaciones sobre los datos de origen:", bold=True)
 tabla(["Validacion","Resultado"],
       [["BHE: bruto = retencion + liquido (1.390 boletas)","OK - 0 descuadres"],
-       ["BHE: suma mensual = total anual","OK - 4 anos"],
+       ["BHE: suma mensual = total anual","OK - 4 años"],
        ["Tasa de retencion efectiva vs tasa legal SII","OK - 11,76% a 14,08%"],
-       ["M12: suma de categorias = total","OK - 4 anos"],
-       ["RCV: neto+IVA+exento+otros = total","OK - 5 anos"],
+       ["M12: suma de categorias = total","OK - 4 años"],
+       ["RCV: neto+IVA+exento+otros = total","OK - 5 años"],
        ["Balance 2022: Activo = Pasivo + Patrimonio","OK - diferencia $0"],
        ["Libro Mayor Defontana 2024/2025: debito = credito","OK - cuadra"]])
 para("Inconsistencias detectadas en las fuentes (a resolver antes de la rendicion):", bold=True, color=AMARANTO)
@@ -506,8 +506,8 @@ tabla(["Inconsistencia","Detalle","Que requiere"],
        ["Cotizaciones 2023: m11 vs m13",
         "Modulo 11 'Cuotas y aportes' 2023 = $400,9M vs modulo 13 'Cotizaciones' = $216,5M (m13 ademas vacio en 2024-25).",
         "Reconciliar con el contador; m11 es la fuente integral"],
-       ["Portal Transparencia colapsa anos al exportar",
-        "Al exportar, el portal colapsaba los 11 anos de un modulo en uno solo (afecto modulos 10, 13, 16).",
+       ["Portal Transparencia colapsa años al exportar",
+        "Al exportar, el portal colapsaba los 11 años de un modulo en uno solo (afecto modulos 10, 13, 16).",
         "Se re-extrajo la serie completa 2016-2026 de esos modulos"]])
 
 out = os.path.join(ROOT, "Minuta-Diagnostico-SII-PCCh.docx")
