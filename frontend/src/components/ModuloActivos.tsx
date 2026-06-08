@@ -15,6 +15,9 @@ function aniosTranscurridos(fecha: string): number {
 }
 
 function depreciacion(a: Activo): number {
+  // Si Defontana entrega la depreciación real, usarla. Si no, calcular lineal.
+  if (a.depreciacionAcumulada !== undefined) return a.depreciacionAcumulada
+  if (!a.vidaUtilAnios || a.vidaUtilAnios <= 0) return 0   // terrenos / obras de arte no se deprecian
   const tasaAnual = a.valorAdquisicion / a.vidaUtilAnios
   return Math.min(tasaAnual * aniosTranscurridos(a.fechaAdquisicion), a.valorAdquisicion)
 }
@@ -27,11 +30,13 @@ function valorLibro(a: Activo): number {
 const ACTIVOS = ACTIVOS_BASE
 
 const COLORES: Record<CategoriaActivo, string> = {
-  'Inmuebles':  '#8b5cf6',
-  'Tecnología': '#003087',
-  'Mobiliario': '#22d3ee',
-  'Vehículos':  '#f59e0b',
-  'Equipos AV': '#10b981',
+  'Terrenos':     '#8b5cf6',
+  'Edificación':  '#6366f1',
+  'Obras de Arte':'#ec4899',
+  'Mobiliario':   '#22d3ee',
+  'Equipos':      '#10b981',
+  'Vehículos':    '#f59e0b',
+  'Tecnología':   '#003087',
 }
 
 const colorEstado = (e: Activo['estado']) =>

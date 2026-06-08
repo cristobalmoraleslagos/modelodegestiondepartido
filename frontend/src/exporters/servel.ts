@@ -322,6 +322,9 @@ export function exportM15(año: number): { filas: number } {
 // Depreciación lineal acumulada al CIERRE del año de rendición (31-dic-añoCierre),
 // no a la fecha actual — el balance retroactivo debe reflejar el cierre del período.
 function calcDepreciacion(a: Activo, añoCierre: number): number {
+  // Si Defontana entrega la depreciación real, usarla. Si no, calcular lineal.
+  if (a.depreciacionAcumulada !== undefined) return a.depreciacionAcumulada
+  if (!a.vidaUtilAnios || a.vidaUtilAnios <= 0) return 0   // terrenos / obras de arte no se deprecian
   const [anio, mes] = a.fechaAdquisicion.split('-').map(Number)
   // años transcurridos desde adquisición hasta 31-dic del año de cierre
   const años = (añoCierre - anio) + (12 - mes + 1) / 12

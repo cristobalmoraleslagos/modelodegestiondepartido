@@ -432,11 +432,11 @@ const TABLE_SECTIONS: { id: string; label: string; storageKey: string; cols: Col
   {
     id: 'activos', label: 'Activos fijos',
     storageKey: 'cfp_activos',
-    note: 'Depreciación lineal. Tecnología y Equipos AV: 3–4 años. Mobiliario: 7 años. Vehículos: 5 años (SII Circ. 13/2021).',
+    note: 'Terrenos y Obras de arte no se deprecian. Edificación, Mobiliario y Equipos: depreciación lineal. Vehículos 5 años (SII Circ. 13/2021).',
     cols: [
       { key: 'codigo',          label: 'Código',           type: 'text'   },
       { key: 'descripcion',     label: 'Descripción',      type: 'text'   },
-      { key: 'categoria',       label: 'Categoría',        type: 'select', options: ['Tecnología', 'Mobiliario', 'Vehículos', 'Equipos AV'] },
+      { key: 'categoria',       label: 'Categoría',        type: 'select', options: ['Terrenos', 'Edificación', 'Obras de Arte', 'Mobiliario', 'Equipos', 'Vehículos', 'Tecnología'] },
       { key: 'valorAdquisicion',label: 'Valor adq. (CLP)', type: 'number' },
       { key: 'fechaAdquisicion',label: 'Fecha adq.',       type: 'date'   },
       { key: 'vidaUtilAnios',   label: 'Vida útil (años)', type: 'number' },
