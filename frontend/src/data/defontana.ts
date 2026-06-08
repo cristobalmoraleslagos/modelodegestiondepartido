@@ -36,8 +36,8 @@ export const BALANCE_DEFONTANA: Record<number, BalanceDefontana> = {
     anio: 2024, contabilizado: true,
     totalActivos: 6_784_503_000, bancos: 415_636_000, deudoresLargoPlazo: 4_370_021_000,
     pasivosFinancieros: 8_122_000, capital: 1_542_831_000, resultadoEjercicio: 169_572_869,
-    // ⚠️ POR VERIFICAR: los libros muestran aporte trimestral DFL N°4 = $549.691.607.
-    // Confirmar con SERVEL/Tesorería antes de darlo por recibido.
+    // CONFIRMADO: cuenta 3.1.1010.10.01 "INGRESOS PROCEDENTES DE APORTES TRIMESTRAL"
+    // (Libro Mayor Defontana 2024) = $549.691.607. El partido SÍ recibió aporte en 2024.
     aporteEstatal: 549_691_607,
     fuente: 'Defontana EEFF + Balance Comprobación 2024 — COMPLETO (IFRS, cuadra)',
   },
