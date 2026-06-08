@@ -38,9 +38,11 @@ def col(row,*names):
             if k and k.replace('﻿','').strip().lower()==n.lower(): return row[k]
     return ''
 def leer_mayor(path):
+    line=open(path,encoding='latin-1').readline()
+    delim=';' if line.count(';')>line.count(',') else ','
     with open(path,encoding='latin-1') as fh:
-        return list(csv.DictReader(fh,delimiter=','))
-mayores={'2024':'20231129151434015001_Informe_Libro_Mayor.CSV','2025':'20231129151434015001_Informe_Libro_Mayor (2).CSV'}
+        return list(csv.DictReader(fh,delimiter=delim))
+mayores={'2024':'LIBRO MAYOR 2024.CSV','2025':'LIBRO MAYOR 2025.CSV'}  # full year (12 meses)
 
 print("\n[1] DEFONTANA Libro Mayor: cuadra (suma debitos == suma creditos)")
 print("-"*78)

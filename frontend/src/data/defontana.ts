@@ -84,3 +84,17 @@ export const HONORARIOS_DEFONTANA: Record<number, number> = {
   2024: 208_968_974,
   2025: 275_435_191,   // = BHE SII exacto
 }
+
+/**
+ * Crédito electoral Banco Estado — identificado en el Libro Mayor 2025.
+ * 07/11/2025: $480M ingresados a BANCO BCI 29355508 contra "Obligaciones con Bancos".
+ * Préstamo electoral tomado días antes de la elección presidencial/parlamentaria.
+ * Es el origen de los pasivos financieros 2025 ($467-480M).
+ */
+export const CREDITO_ELECTORAL_2025 = {
+  fecha:    '2025-11-07',
+  monto:    480_000_000,
+  acreedor: 'Banco Estado',
+  cuenta:   'BANCO BCI 29355508',
+  glosa:    'CRÉDITO ELECTORAL BANCO ESTADO',
+} as const
