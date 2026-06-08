@@ -8,6 +8,7 @@ import {
   DONACION_PLAZO_PUBLICACION_DIAS,
   detectarPersonaJuridica,
 } from '../normativa'
+import { DONACIONES_ANUALES_SERVEL } from '../data/donaciones'
 
 interface Donacion {
   fecha: string
@@ -34,15 +35,11 @@ function limiteUF(d: Donacion): number {
 const LIMITE_CAMPANA_UF     = DONACION_CAMPANA_MAX_UF
 const UMBRAL_PUBLICACION_UF = DONACION_UMBRAL_PUBLICACION_UF // 20 UF — Art. 13 DFL N°3/2017
 
-const DONACIONES: Donacion[] = [
-  { fecha: '2026-01-15', donante: 'Roberto Fuentes Araya',     rut: '8.234.567-8',   esPersonaJuridica: false, esAfiliado: true,  montoCLP: 1_500_000,  acumuladoAnualCLP: 4_800_000,  tipo: 'partido'  },
-  { fecha: '2026-02-10', donante: 'Constructora Del Valle SpA', rut: '77.123.456-9',  esPersonaJuridica: true,  esAfiliado: false, montoCLP: 3_000_000,  acumuladoAnualCLP: 3_000_000,  tipo: 'partido'  }, // PROHIBIDO
-  { fecha: '2026-03-05', donante: 'Carmen Leal Moreno',         rut: '12.987.654-3',  esPersonaJuridica: false, esAfiliado: false, montoCLP: 900_000,    acumuladoAnualCLP: 2_100_000,  tipo: 'partido'  },
-  { fecha: '2026-04-01', donante: 'Patricio Reyes Soto',        rut: '15.432.100-7',  esPersonaJuridica: false, esAfiliado: true,  montoCLP: 4_200_000,  acumuladoAnualCLP: 18_600_000, tipo: 'partido'  }, // ~458 UF — bajo 500 UF tope afiliado Art. 39 DFL N°4/2017
-  { fecha: '2026-04-22', donante: 'Luisa Contreras Vidal',      rut: '9.876.543-2',   esPersonaJuridica: false, esAfiliado: true,  montoCLP: 400_000,    acumuladoAnualCLP: 400_000,    tipo: 'partido'  },
-  { fecha: '2026-05-12', donante: 'Fundación Progreso Chile',   rut: '65.432.100-K',  esPersonaJuridica: true,  esAfiliado: false, montoCLP: 5_000_000,  acumuladoAnualCLP: 5_000_000,  tipo: 'partido'  }, // PROHIBIDO
-  { fecha: '2026-05-18', donante: 'Marcos Ibáñez Pino',         rut: '16.100.200-4',  esPersonaJuridica: false, esAfiliado: false, montoCLP: 600_000,    acumuladoAnualCLP: 600_000,    tipo: 'partido'  },
-]
+// Detalle donante a donante: VACÍO hasta cargar el M13 real del partido.
+// El portal de Transparencia solo entrega totales anuales (ver tabla histórica
+// más abajo, DONACIONES_ANUALES_SERVEL). Antes había 7 registros de EJEMPLO
+// ficticios de 2026 que no existían y se eliminaron.
+const DONACIONES: Donacion[] = []
 
 function barColor(pct: number) {
   if (pct >= 100) return '#ef4444'
@@ -171,10 +168,49 @@ export default function ModuloDonaciones() {
         </div>
       )}
 
+      {/* Donaciones reales declaradas a SERVEL (Transparencia, totales anuales) */}
+      <div className="bg-white rounded-2xl shadow-sm">
+        <div className="p-5 border-b border-slate-100">
+          <h2 className="text-base font-semibold text-slate-800">Donaciones declaradas a SERVEL (oficial)</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Fuente: Portal de Transparencia SERVEL — módulo 10 (PP007). Totales anuales declarados por el partido.
+            El detalle donante a donante proviene del formulario M13 (no publicado en el portal).
+          </p>
+        </div>
+        <div className="p-5">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-slate-500 border-b border-slate-100">
+                <th className="text-left py-2 px-3 font-medium">Año</th>
+                <th className="text-right py-2 px-3 font-medium">Donaciones declaradas</th>
+                <th className="text-left py-2 px-3 font-medium">Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(DONACIONES_ANUALES_SERVEL)
+                .filter(([a]) => Number(a) >= 2019)
+                .map(([a, monto]) => (
+                  <tr key={a} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                    <td className="py-2 px-3 text-slate-700">{a}</td>
+                    <td className="py-2 px-3 text-right font-medium text-slate-800">{fmt(monto)}</td>
+                    <td className="py-2 px-3 text-xs text-slate-400">
+                      {a === '2024' ? 'Solo 1er semestre (Defontana ≈ $0)' : a === '2026' ? 'Por declarar' : monto === 0 ? '—' : ''}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+          <p className="text-xs text-slate-400 mt-3">
+            Las donaciones del PCCh son pequeñas y constantes (~$2-6M/año). El financiamiento privado principal del
+            partido son las <strong>cotizaciones de afiliados</strong>, no las donaciones.
+          </p>
+        </div>
+      </div>
+
       {/* Tabla de donaciones */}
       <div className="bg-white rounded-2xl shadow-sm">
         <div className="p-5 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Registro de Donaciones 2026</h2>
+          <h2 className="text-base font-semibold text-slate-800">Registro de Donaciones (detalle M13)</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Límite partido: {DONACION_PARTIDO_MAX_UF_AFILIADO} UF/año afiliado · {DONACION_PARTIDO_MAX_UF_NO_AFILIADO} UF no afiliado — Art. 39 DFL N°4/2017 |
             Límite campaña: {LIMITE_CAMPANA_UF.toLocaleString()} UF/elección ({fmt(LIMITE_CAMPANA_UF * VALOR_UF)}) — Art. 10 DFL N°3/2017

@@ -1,6 +1,15 @@
 /**
- * donaciones.ts — Fuente canónica de donaciones (2026).
+ * donaciones.ts — Fuente canónica de donaciones.
  * Importar desde aquí en ModuloDonaciones y en el exportador SERVEL (M13).
+ *
+ * FUENTE OFICIAL: Portal de Transparencia SERVEL — módulo 10 "Aportes, donaciones,
+ * asignaciones y otros" (org=PP007), extraído con scraper_transparencia 2016-2026.
+ *
+ * IMPORTANTE: el portal entrega TOTALES ANUALES, no el detalle donante a donante.
+ * El detalle (nombre, RUT, fecha de cada donante) solo existe en el formulario M13
+ * que el partido presenta; mientras no se cargue, DONACIONES_BASE va vacío (antes
+ * tenía datos de EJEMPLO ficticios — Roberto Fuentes, Constructora Del Valle, etc. —
+ * que NO eran reales y se eliminaron).
  */
 
 export interface Donacion {
@@ -12,30 +21,33 @@ export interface Donacion {
   montoCLP:            number
   acumuladoAnualCLP:   number
   tipo:                'partido' | 'campana'
-  metodoPago?:         string   // transferencia | cheque | efectivo
-  cuentaReceptora?:    string   // número de cuenta bancaria receptora
+  metodoPago?:         string
+  cuentaReceptora?:    string
   nroComprobante?:     string
 }
 
 /**
- * Donaciones PCCh 2026 — fuente: registros internos.
- *
- * ⚠️  ALERTA LEGAL — id:2 y id:6 son personas jurídicas:
- *     Art. 17 Ley 19.884 + Art. 16 Ley 20.900 → PROHIBICIÓN ABSOLUTA.
- *     Estos registros se mantienen para trazabilidad y compliance,
- *     pero los montos DEBEN devolverse y notificarse a SERVEL.
- *     NO incluirlos en M13 hasta regularización.
- *
- * Pendientes: completar metodoPago + cuentaReceptora + nroComprobante en todos.
+ * Donaciones reales declaradas por el PCCh a SERVEL (Transparencia, módulo 10).
+ * Totales anuales en CLP. Las donaciones del partido son pequeñas y constantes
+ * (~$2-6M/año); su financiamiento privado real son las cotizaciones de afiliados.
+ *   2024: solo H1 (Q1+Q2) — el portal crasheó al extraer; Defontana confirma ≈$0.
  */
-export const DONACIONES_BASE: Donacion[] = [
-  { id: 1, fecha: '2026-01-15', donante: 'Roberto Fuentes Araya',      rut: '8.234.567-8',  esPersonaJuridica: false, montoCLP: 1_500_000, acumuladoAnualCLP:  4_800_000, tipo: 'partido', metodoPago: 'Transferencia' },
-  // ⚠️ ILEGAL — persona jurídica — devolver $3.000.000 — notificar SERVEL
-  { id: 2, fecha: '2026-02-10', donante: 'Constructora Del Valle SpA', rut: '77.123.456-9', esPersonaJuridica: true,  montoCLP: 3_000_000, acumuladoAnualCLP:  3_000_000, tipo: 'partido' },
-  { id: 3, fecha: '2026-03-05', donante: 'Carmen Leal Moreno',          rut: '12.987.654-3', esPersonaJuridica: false, montoCLP:   900_000, acumuladoAnualCLP:  2_100_000, tipo: 'partido', metodoPago: 'Transferencia' },
-  { id: 4, fecha: '2026-04-01', donante: 'Patricio Reyes Soto',         rut: '15.432.100-7', esPersonaJuridica: false, montoCLP: 4_200_000, acumuladoAnualCLP: 18_600_000, tipo: 'partido', metodoPago: 'Transferencia' },
-  { id: 5, fecha: '2026-04-22', donante: 'Luisa Contreras Vidal',       rut: '9.876.543-2',  esPersonaJuridica: false, montoCLP:   400_000, acumuladoAnualCLP:    400_000, tipo: 'partido' },
-  // ⚠️ ILEGAL — persona jurídica — devolver $5.000.000 — notificar SERVEL
-  { id: 6, fecha: '2026-05-12', donante: 'Fundación Progreso Chile',    rut: '65.432.100-K', esPersonaJuridica: true,  montoCLP: 5_000_000, acumuladoAnualCLP:  5_000_000, tipo: 'partido' },
-  { id: 7, fecha: '2026-05-18', donante: 'Marcos Ibáñez Pino',          rut: '16.100.200-4', esPersonaJuridica: false, montoCLP:   600_000, acumuladoAnualCLP:    600_000, tipo: 'partido' },
-]
+export const DONACIONES_ANUALES_SERVEL: Record<number, number> = {
+  2016: 0,
+  2017: 0,
+  2018: 0,
+  2019: 4_399_300,
+  2020: 4_766_410,
+  2021: 2_336_948,
+  2022: 4_600_651,
+  2023: 6_616_323,
+  2024: 0,           // solo H1 extraído (portal crasheó); Defontana ≈$0
+  2025: 2_274_670,
+  2026: 0,           // Q1 $0; resto del año por declarar
+}
+
+/**
+ * Detalle donante a donante. VACÍO hasta cargar el M13 real del partido.
+ * (Reemplazó 7 registros de ejemplo ficticios de 2026 que no existían.)
+ */
+export const DONACIONES_BASE: Donacion[] = []
