@@ -69,7 +69,14 @@ export const PROGRESO_POR_COBRAR = {
     { rut: '76.452.615-5', nombre: 'SOC. DE INV. PROGRESO SPA', tipo: 'Sociedad de inversiones' },
     { rut: '76.825.989-5', nombre: 'RADIO PROGRESO SPA',        tipo: 'Medio de comunicación' },
   ],
-  nota: 'Empresas relacionadas con fines de lucro. Verificar naturaleza, contrato y recuperabilidad.',
+  // Hallazgos del Libro Mayor 2024/2025:
+  esSaldoApertura:   true,   // saldo de arrastre — origen en años NO contabilizados (≤2023)
+  tieneConvenio:     true,   // glosas "Abono cuota 32/338 convenio" → convenio de 338 cuotas
+  cuentaPuente:      'Puente Progreso',  // abonos ~$5M pasan por aquí y netean a ~0
+  reduccionAnual:    170_000_000,  // ~$170M/año → recuperación ~25 años
+  nota: 'Saldo de apertura histórico (origen ≤2023, sin documentar en libros actuales). ' +
+        'Existe convenio de 338 cuotas con Soc. de Inv. Progreso SpA, pero la cuenta LP casi no se mueve. ' +
+        'CONSEGUIR: el convenio firmado + reconstruir el origen de la deuda. Evaluar provisión por incobrabilidad.',
 } as const
 
 /** Honorarios contabilizados en Defontana (cuenta 4.5.1030.10.01) — para cruce con BHE */
