@@ -24,6 +24,7 @@ import {
 } from '../normativa'
 import { FUNCIONARIOS_CANON } from '../data/personal'
 import { EGRESOS_BASE }       from '../data/egresos'
+import { BALANCE_DEFONTANA, PROGRESO_POR_COBRAR } from '../data/defontana'
 
 // ─── Datos actuales para generación de alertas ────────────────────────────────
 // Fuente: FUNCIONARIOS_CANON (personal.ts) — fuente única de datos de nómina
@@ -253,7 +254,35 @@ export default function ModuloAlertas() {
       monto:       MONTO_APORTE_PERDIDO_EST,
     }
 
-    const alertas = [alertaAporte, alertaBacklog, ...base.alertas]
+    // Alerta: cuenta por cobrar a entidad relacionada "Progreso" (mayor activo del partido)
+    const d2025 = BALANCE_DEFONTANA[2025]
+    const alertaProgreso: import('../normativa').AlertaLegal = {
+      id:          'progreso_por_cobrar',
+      gravedad:    'critica',
+      titulo:      `Cuenta por cobrar a entidad relacionada "Progreso": ${PROGRESO_POR_COBRAR.monto2025.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}`,
+      descripcion: `Es el mayor activo del partido (~${Math.round(PROGRESO_POR_COBRAR.pctDelActivo2025 * 100)}% del total) según los EEFF Defontana 2024-2025. ` +
+                   `Cuenta por cobrar a una entidad relacionada, ilíquida. SERVEL y la auditoría exigirán identificar su naturaleza, contrato y recuperabilidad.`,
+      accion:      'Documentar qué es "Progreso", el origen del crédito, contrato de respaldo y plan/cronograma de recuperación. Evaluar provisión por incobrabilidad si corresponde.',
+      ley:         'Art. 45 + Art. 49 DFL N°4/2017 (transparencia) · IFRS-PYME partes relacionadas',
+      modulo:      'datos',
+      monto:       PROGRESO_POR_COBRAR.monto2025,
+    }
+
+    // Alerta: colapso de liquidez + déficit 2025
+    const alertaLiquidez: import('../normativa').AlertaLegal = {
+      id:          'liquidez_2025',
+      gravedad:    'critica',
+      titulo:      `Déficit 2025 de ${Math.abs(d2025.resultadoEjercicio!).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} y caja casi agotada`,
+      descripcion: `Resultado del ejercicio 2025: déficit de ${Math.abs(d2025.resultadoEjercicio!).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
+                   `Los bancos cayeron de $415.636.000 (2024) a ${d2025.bancos!.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })} (−99%). ` +
+                   `Con el aporte estatal en $0, el partido quemó su liquidez y depende de deuda y de cobrar a "Progreso".`,
+      accion:      'Plan de regularización financiera: rehabilitar el aporte estatal (rendiciones pendientes), reducir gasto, y gestionar el cobro a "Progreso". Informar al Tesorero Nacional.',
+      ley:         'Art. 42 DFL N°4/2017 (aporte suspendido) · sana administración financiera',
+      modulo:      'aportes',
+      monto:       Math.abs(d2025.resultadoEjercicio!),
+    }
+
+    const alertas = [alertaAporte, alertaProgreso, alertaLiquidez, alertaBacklog, ...base.alertas]
     const criticas = alertas.filter(a => a.gravedad === 'critica').length
     return { ...base, alertas, criticas, total: alertas.length }
   }, [])
