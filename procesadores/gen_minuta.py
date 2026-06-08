@@ -163,7 +163,8 @@ tabla(["Ano","Documentos","Total compras (con IVA)"],
 
 h("6. Informacion Contable Oficial (Defontana ERP)")
 para("Estado de contabilizacion: 2024 y 2025 estan COMPLETOS y cuadran (Estados Financieros IFRS disponibles, "
-     "listos para SERVEL); 2023 esta SIN contabilizar (el Libro Mayor Defontana 2023 tiene solo 10 asientos por "
+     "listos para PRESENTAR a SERVEL aunque aun NO aprobados); 2023 esta SIN contabilizar (el Libro Mayor "
+     "Defontana 2023 tiene solo 10 asientos por "
      "$2,19M - una factura y dos egresos) y 2022 esta vacio. Cifras del Estado de Situacion Financiera y "
      "Balance de Comprobacion:", bold=False)
 tabla(["Indicador (Defontana)","2024","2025"],
@@ -210,6 +211,38 @@ para("CORRECCION APLICADA AL MODELO: el aporte estatal 2023 paso de $0 a $345.78
      "distinta). El detalle contable 2023 aun debe cargarse en Defontana (material borrador ya generado).",
      bold=False, size=9.5, color=GRIS)
 
+# ── 6.bis  Estado de los balances + aprobacion SERVEL + cuadratura ──
+para("Estado de los BALANCES y aprobacion SERVEL (modulo 09 Transparencia):", bold=True, color=AMARANTO)
+tabla(["Ano","Aprobado por SERVEL (mod.09)","Contabilizado Defontana","Ecuacion contable"],
+      [["2015-2021","SI - aprobados y publicados","-","-"],
+       ["2022","NO aprobado","Sin contabilizar (vacio)","-"],
+       ["2023","NO aprobado","Vacio (10 asientos, $2,19M)","-"],
+       ["2024","NO aprobado","COMPLETO","Cuadra (dif $0)"],
+       ["2025","NO aprobado","COMPLETO","Cuadra (dif $0)"]])
+para("HALLAZGO: SERVEL solo tiene balances APROBADOS hasta 2021. Hay un backlog de 4 anos (2022-2025) sin "
+     "balance aprobado - raiz formal de la suspension del aporte (Art. 42 DFL N4) que golpeo en 2025.",
+     bold=True, color=AMARANTO, size=10)
+para("Verificacion de la ecuacion contable (Estado de Situacion Financiera Defontana, cuadra en 4 fuentes: "
+     "Estado Situacion = Balance General = Balance Comprobacion = modelo defontana.ts):", bold=False, size=9.5)
+tabla(["Ano","Total Activos","Pasivos + Patrimonio","Resultado ejercicio","Cuadra"],
+      [["2024","$6.784.503.000","$6.614.929.746","+$169.572.869","SI (dif $0)"],
+       ["2025","$6.185.202.000","$7.463.423.665","-$1.278.221.363","SI (dif $0)"]])
+
+# ── 6.ter  Inputs necesarios para confirmar/generar los balances ──
+para("Inputs necesarios para CONFIRMAR y GENERAR los balances:", bold=True, color=AZUL)
+tabla(["Balance","Que falta","Input critico"],
+      [["2024 / 2025 (confirmar)","Conciliacion bancaria + respaldo Progreso","Cartolas 2024-2025 + convenio Progreso (338 cuotas)"],
+       ["2023 (generar)","Contabilizar + cuadrar bancos","Cartolas 2023 (el resto ya esta: ingresos m11, gastos M12, BHE)"],
+       ["2022 (generar)","Contabilizar + cuadrar bancos","Cartolas 2022 (saldo apertura = balance SERVEL 2021 aprobado)"]])
+para("La CARTOLA BANCARIA es el input que destraba todo: es el unico documento que aporta (1) el saldo real de "
+     "caja para la conciliacion, (2) los movimientos financieros que no son gasto/ingreso (transferencias, "
+     "creditos, devoluciones, garantias) y (3) la trazabilidad de los ingresos. Lo demas ya esta extraido: "
+     "ingresos (Transparencia m11), gastos (M12/RCV SII), honorarios (BHE) y activo fijo (Defontana).",
+     bold=False, size=9.5)
+para("Solicitar a Tesoreria: (1) cartolas COMPLETAS 2022-2025 de Banco Estado (60.806.000-6) y BCI 13950223; "
+     "(2) convenio de pago Progreso 338 cuotas + origen del saldo; (3) certificado SERVEL del aporte 2023.",
+     bold=True, color=AMARANTO, size=9.5)
+
 h("7. Cruce de Fuentes SII <-> Defontana <-> Transparencia (validacion)")
 para("La consistencia entre las tres fuentes da certeza a los datos:", bold=False)
 tabla(["Concepto","Fuente A","Fuente B","Resultado"],
@@ -228,7 +261,8 @@ hallazgos = [
  ("F29 Jun-Dic 2025 sin declarar","SII - retencion BHE no enterada (~$23,3M)","Multa SII + objecion SERVEL"),
  ("Aporte estatal 2023 omitido en el modelo","Transparencia m11/m10: $345-512M (modelo tenia $0)","CORREGIDO a $345,8M; verificar monto exacto con cartola"),
  ("Cuota de Genero 2023 ahora exigible","Al confirmar aporte 2023, surge obligacion ~$34,6M (10%)","Revisar cumplimiento - posible rechazo Art.38 Ley 20.900"),
- ("2022 y 2023 sin contabilizar en Defontana","Defontana vacio (solo 10 asientos en 2023)","Falta cerrar esos balances - material borrador listo"),
+ ("Backlog de balances sin aprobar SERVEL","Modulo 09: aprobados solo hasta 2021 (2022-2025 pendientes)","Raiz formal de la suspension del aporte (Art. 42)"),
+ ("2022 y 2023 sin contabilizar en Defontana","Defontana vacio (solo 10 asientos en 2023)","Falta cerrar esos balances - material borrador listo; falta cartola"),
  ("Fondo de Genero en colapso","SII - $73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
  ("Transferencias internas $477M (nov-2025)","SII/Defontana - mes electoral","Trazar contra campana"),
  ("Inconsistencia inter-modulos Transparencia","m11 vs m13 cotizaciones difieren hasta $184M","Reconciliar con contador antes de rendir"),
