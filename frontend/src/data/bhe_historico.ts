@@ -1,9 +1,10 @@
 /**
  * bhe_historico.ts — Nómina histórica de honorarios (BHE) 2022-2025
- * Generado automáticamente por procesadores/generar_ts_frontend.py
+ * Generado automáticamente por procesadores/regenerar_bhe_historico.py
  * Fuente: ARCHIVOS SII/BHE/*.xls (SII Clave Tributaria)
  *
  * Incluye solo contratistas con honorario bruto anual ≥ 20 UTM.
+ * Solo boletas VIGENTES — se excluyen las en estado 'Observado Receptor'.
  * NO EDITAR MANUALMENTE.
  */
 
@@ -17,16 +18,16 @@ export interface ContratistaBHE {
   meses:      number   // meses con al menos 1 BHE
 }
 
-/** Nómina BHE histórica — contratistas ≥ 20 UTM por año */
+/** Nómina BHE histórica — contratistas ≥ 20 UTM por año (solo vigentes) */
 export const BHE_HISTORICO: ContratistaBHE[] = [
   { anio: 2022, rut: '5892999-9', nombre: 'LAUTARO CESAR CARMONA SOTO', bruto: 26666664, retencion: 3266664, boletas: 12, meses: 12 },
   { anio: 2022, rut: '7697020-3', nombre: 'RAUL JOSE ANTONIO REYES ALONSO', bruto: 18372234, retencion: 2801765, boletas: 15, meses: 12 },
   { anio: 2022, rut: '5521487-5', nombre: 'MARIO FRANCISCO RIVAS SILVA', bruto: 10666668, retencion: 1626672, boletas: 12, meses: 12 },
   { anio: 2022, rut: '7196319-5', nombre: 'RENE GUILLERMO AMIGO ZELLER', bruto: 9600000, retencion: 1176000, boletas: 12, meses: 12 },
   { anio: 2022, rut: '6543248-K', nombre: 'ELIAS REMIGIO CRUCES SANCHEZ', bruto: 8400000, retencion: 1029000, boletas: 12, meses: 12 },
-  { anio: 2022, rut: '7165368-4', nombre: 'GUILLERMO JUAN LUIS SCHERPING', bruto: 7222215, retencion: 1101386, boletas: 13, meses: 12 },
   { anio: 2022, rut: '7430689-6', nombre: 'CLAUDIO ANDRES DE NEGRI QUINTA', bruto: 7200000, retencion: 882000, boletas: 12, meses: 12 },
   { anio: 2022, rut: '5774658-0', nombre: 'FRANCISCO JOSE HUENANTE ROCHA', bruto: 7118640, retencion: 872037, boletas: 9, meses: 8 },
+  { anio: 2022, rut: '7165368-4', nombre: 'GUILLERMO JUAN LUIS SCHERPING', bruto: 6666660, retencion: 1016664, boletas: 12, meses: 12 },
   { anio: 2022, rut: '10355541-8', nombre: 'GUILLERMO RAMON SALINAS VARGAS', bruto: 6000000, retencion: 735000, boletas: 12, meses: 11 },
   { anio: 2022, rut: '4052990-K', nombre: 'FLORA GRACIELA ESTAY SAAVEDRA', bruto: 5533332, retencion: 677832, boletas: 12, meses: 12 },
   { anio: 2022, rut: '5926570-9', nombre: 'JUAN ANDRES LAGOS ESPINOZA', bruto: 5400000, retencion: 661500, boletas: 3, meses: 3 },
@@ -63,8 +64,8 @@ export const BHE_HISTORICO: ContratistaBHE[] = [
   { anio: 2023, rut: '5521487-5', nombre: 'MARIO FRANCISCO RIVAS SILVA', bruto: 8888890, retencion: 1422220, boletas: 10, meses: 10 },
   { anio: 2023, rut: '6543248-K', nombre: 'ELIAS REMIGIO CRUCES SANCHEZ', bruto: 7000000, retencion: 910000, boletas: 10, meses: 9 },
   { anio: 2023, rut: '7165368-4', nombre: 'GUILLERMO JUAN LUIS SCHERPING', bruto: 6666660, retencion: 1066668, boletas: 12, meses: 10 },
-  { anio: 2023, rut: '7430689-6', nombre: 'CLAUDIO ANDRES DE NEGRI QUINTA', bruto: 6600000, retencion: 858000, boletas: 11, meses: 8 },
   { anio: 2023, rut: '20163226-9', nombre: 'JOSEFA FERNANDA GUAJARDO SILVA', bruto: 5425000, retencion: 523250, boletas: 7, meses: 6 },
+  { anio: 2023, rut: '7430689-6', nombre: 'CLAUDIO ANDRES DE NEGRI QUINTA', bruto: 5400000, retencion: 702000, boletas: 9, meses: 8 },
   { anio: 2023, rut: '10355541-8', nombre: 'GUILLERMO RAMON SALINAS VARGAS', bruto: 5000000, retencion: 650000, boletas: 10, meses: 10 },
   { anio: 2023, rut: '15454974-9', nombre: 'DANIELA DE LOS ANGELES GONZALE', bruto: 4880000, retencion: 634400, boletas: 6, meses: 6 },
   { anio: 2023, rut: '4052990-K', nombre: 'FLORA GRACIELA ESTAY SAAVEDRA', bruto: 4611110, retencion: 599440, boletas: 10, meses: 9 },
@@ -73,10 +74,10 @@ export const BHE_HISTORICO: ContratistaBHE[] = [
   { anio: 2023, rut: '17003549-6', nombre: 'CAMILO IGNACIO MESINA AGUILA', bruto: 3745260, retencion: 599242, boletas: 3, meses: 2 },
   { anio: 2023, rut: '11391138-7', nombre: 'ALEJANDRO ENRIQUE ESCOBAR PALM', bruto: 3573375, retencion: 464539, boletas: 6, meses: 5 },
   { anio: 2023, rut: '8007298-8', nombre: 'MARTA ADRIANA VEGA ALVARADO', bruto: 3333330, retencion: 433330, boletas: 10, meses: 10 },
-  { anio: 2023, rut: '7443193-3', nombre: 'HUGO MAXIMINO PEREZ NAVARRETE', bruto: 3000000, retencion: 130000, boletas: 3, meses: 2 },
   { anio: 2023, rut: '10249151-3', nombre: 'LUIS ALBERTO CAVIERES MARTINEZ', bruto: 2758620, retencion: 358620, boletas: 12, meses: 12 },
   { anio: 2023, rut: '10346649-0', nombre: 'PEDRO IGNACIO RIVERA CARES', bruto: 2586204, retencion: 336204, boletas: 9, meses: 8 },
   { anio: 2023, rut: '13454635-2', nombre: 'PATRICIO IVAN MARCHANT MUNOZ', bruto: 2206896, retencion: 286896, boletas: 12, meses: 12 },
+  { anio: 2023, rut: '7443193-3', nombre: 'HUGO MAXIMINO PEREZ NAVARRETE', bruto: 2000000, retencion: 0, boletas: 2, meses: 2 },
   { anio: 2023, rut: '7964842-6', nombre: 'LUIS ALEJANDRO CATRILEO GAETE', bruto: 2000000, retencion: 0, boletas: 2, meses: 2 },
   { anio: 2023, rut: '8546445-0', nombre: 'MARCELA PAZ BELMAR RAMIS', bruto: 2000000, retencion: 0, boletas: 2, meses: 2 },
   { anio: 2023, rut: '13988949-5', nombre: 'FRESIA LUZ AVENDANO GONZALEZ', bruto: 2000000, retencion: 0, boletas: 2, meses: 1 },
@@ -85,7 +86,6 @@ export const BHE_HISTORICO: ContratistaBHE[] = [
   { anio: 2023, rut: '12510419-3', nombre: 'CHRISTIAN AGUSTIN MARTINEZ PAE', bruto: 1830354, retencion: 0, boletas: 2, meses: 2 },
   { anio: 2023, rut: '5341246-7', nombre: 'JOSE LUIS FIGUEROA JORQUERA', bruto: 1828014, retencion: 237642, boletas: 6, meses: 6 },
   { anio: 2023, rut: '16942866-2', nombre: 'ARON ARIEL NUNEZ BECKER', bruto: 1700000, retencion: 0, boletas: 1, meses: 1 },
-  { anio: 2023, rut: '16162818-2', nombre: 'JORGE PATRICIO ASTUDILLO SANCH', bruto: 1609200, retencion: 104598, boletas: 2, meses: 1 },
   { anio: 2023, rut: '18939641-4', nombre: 'VALENTINA PAZ BRIZUELA CORVALA', bruto: 1380000, retencion: 179400, boletas: 2, meses: 2 },
   { anio: 2023, rut: '9618900-1', nombre: 'JUAN MANUEL MARTINEZ SILVA', bruto: 1350000, retencion: 216000, boletas: 1, meses: 1 },
   { anio: 2024, rut: '5892999-9', nombre: 'LAUTARO CESAR CARMONA SOTO', bruto: 27000000, retencion: 3712500, boletas: 12, meses: 12 },
@@ -102,8 +102,8 @@ export const BHE_HISTORICO: ContratistaBHE[] = [
   { anio: 2024, rut: '7697020-3', nombre: 'RAUL JOSE ANTONIO REYES ALONSO', bruto: 7922770, retencion: 1322974, boletas: 15, meses: 12 },
   { anio: 2024, rut: '7430689-6', nombre: 'CLAUDIO ANDRES DE NEGRI QUINTA', bruto: 7258000, retencion: 997975, boletas: 12, meses: 8 },
   { anio: 2024, rut: '7165368-4', nombre: 'GUILLERMO JUAN LUIS SCHERPING', bruto: 6666660, retencion: 1116660, boletas: 12, meses: 12 },
-  { anio: 2024, rut: '10355541-8', nombre: 'GUILLERMO RAMON SALINAS VARGAS', bruto: 6058000, retencion: 832975, boletas: 12, meses: 11 },
   { anio: 2024, rut: '7474179-7', nombre: 'GABY LUCIA RIVERA SANCHEZ', bruto: 5777772, retencion: 794443, boletas: 13, meses: 12 },
+  { anio: 2024, rut: '10355541-8', nombre: 'GUILLERMO RAMON SALINAS VARGAS', bruto: 5558000, retencion: 764225, boletas: 11, meses: 11 },
   { anio: 2024, rut: '4052990-K', nombre: 'FLORA GRACIELA ESTAY SAAVEDRA', bruto: 5533332, retencion: 760836, boletas: 12, meses: 12 },
   { anio: 2024, rut: '14362340-8', nombre: 'CYNTHIA ANDREA ZAMORANO PARRA', bruto: 5495000, retencion: 755563, boletas: 11, meses: 10 },
   { anio: 2024, rut: '6661186-8', nombre: 'ANA MARIA ROSALES ARANGUIZ', bruto: 5385000, retencion: 740438, boletas: 10, meses: 10 },
@@ -164,9 +164,9 @@ export const BHE_HISTORICO: ContratistaBHE[] = [
 export const BHE_TOTALES_ANUALES: Record<number, {
   bruto: number; retencion: number; contratistas: number
 }> = {
-  2022: { bruto: 184199582, retencion: 22489007, contratistas: 37 },
-  2023: { bruto: 157227517, retencion: 19109280, contratistas: 32 },
-  2024: { bruto: 224524401, retencion: 30524474, contratistas: 32 },
+  2022: { bruto: 183644027, retencion: 22404285, contratistas: 37 },
+  2023: { bruto: 153418317, retencion: 18718682, contratistas: 31 },
+  2024: { bruto: 224024401, retencion: 30455724, contratistas: 32 },
   2025: { bruto: 264306927, retencion: 37628509, contratistas: 35 },
 }
 

@@ -97,13 +97,19 @@ def procesar_todos() -> tuple[dict, dict, list[dict]]:
         iva    = sum(_monto(r.get("Monto IVA Recuperable", "0")) for r in filas)
         exento = sum(_monto(r.get("Monto Exento", "0")) for r in filas)
         total  = sum(_monto(r.get("Monto Total", "0")) for r in filas)
+        # Otros impuestos (impuesto específico, IVA no recuperable, etc.) — el
+        # 'Monto Total' del SII = Neto + IVA + Exento + estos otros componentes.
+        otros  = sum(_monto(r.get("Valor Otro Impuesto", "0"))
+                     + _monto(r.get("Monto Iva No Recuperable", "0"))
+                     + _monto(r.get("Impto. Sin Derecho a Credito", "0")) for r in filas)
 
         if anio not in resumen_anual:
-            resumen_anual[anio] = {"neto": 0, "iva": 0, "exento": 0, "total": 0,
+            resumen_anual[anio] = {"neto": 0, "iva": 0, "exento": 0, "otros": 0, "total": 0,
                                     "docs": 0, "meses": 0, "detalle_meses": {}}
         resumen_anual[anio]["neto"]   += neto
         resumen_anual[anio]["iva"]    += iva
         resumen_anual[anio]["exento"] += exento
+        resumen_anual[anio]["otros"]  += otros
         resumen_anual[anio]["total"]  += total
         resumen_anual[anio]["docs"]   += len(filas)
         resumen_anual[anio]["meses"]  += 1
@@ -145,13 +151,13 @@ def escribir_resumen_anual(resumen: dict) -> None:
     path = os.path.join(DIR_OUT_RCV, "resumen_anual.csv")
     with open(path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f, delimiter=";")
-        writer.writerow(["Año", "Meses", "Documentos", "Neto", "IVA Recuperable", "Exento", "Total"])
+        writer.writerow(["Año", "Meses", "Documentos", "Neto", "IVA Recuperable", "Exento", "Otros Impuestos", "Total"])
         for anio in sorted(resumen):
             d = resumen[anio]
             writer.writerow([
                 anio, d["meses"], d["docs"],
                 f"{d['neto']:,.0f}", f"{d['iva']:,.0f}",
-                f"{d['exento']:,.0f}", f"{d['total']:,.0f}",
+                f"{d['exento']:,.0f}", f"{d.get('otros',0):,.0f}", f"{d['total']:,.0f}",
             ])
     print(f"  [OK] {path}")
 

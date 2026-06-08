@@ -150,6 +150,10 @@ def extraer_nomina_historica() -> dict[str, list]:
     })
 
     for b in boletas:
+        # Solo boletas VIGENTES — excluir 'OBSERVADO RECEPTOR' / nulas
+        # (una boleta rechazada por el SII no es honorario válido ni base del F29)
+        if str(b.get("estado", "")).upper() != "VIGENTE":
+            continue
         key = (b["anio"], b["rut_emisor"])
         agrupado[key]["nombre"]    = b["nombre_emisor"]
         agrupado[key]["rut"]       = b["rut_emisor"]
