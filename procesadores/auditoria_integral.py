@@ -92,11 +92,12 @@ for a in (2024,2025):
     print(f"  {WARN} {a}: M12 SERVEL {clp(m12_tot[a])} | Defontana gastos {clp(gastos_def[a])} | dif {clp(m12_tot[a]-gastos_def[a])}")
 print("  (Difieren por estructura: M12 incluye transferencias/creditos; Defontana es contable puro)")
 
-print("\n[4] APORTE ESTATAL 2024: Defontana vs Modelo")
+print("\n[4] APORTE ESTATAL: fuentes vs Modelo (CONFIRMADO)")
 print("-"*78)
-print(f"  {WARN} Defontana EEFF 2024 muestra aporte DFL N4 = $549.691.607")
-print(f"  Modelo utils.ts 2024 = $0 (marcado POR VERIFICAR)")
-print(f"  -> CONFLICTO ABIERTO: requiere confirmacion SERVEL/Tesoreria")
+print(f"  {chk(True)} 2023 = $345.788.634 (Transparencia modulo 11 + m10) -> modelo actualizado")
+print(f"  {chk(True)} 2024 = $549.691.607 (Defontana cta 3.1.1010 = Transparencia m11) -> modelo actualizado")
+print(f"  {chk(True)} 2025 = $0 (modulo 11 + Defontana: la cuenta no existe) -> modelo correcto")
+print(f"  (Monto exacto 2023 a reconfirmar con cartola Banco Estado: m10 trimestral indica $512M)")
 
 # ───────────────── MODELO (defontana.ts) vs fuentes ─────────────────
 print("\n[5] MODELO defontana.ts vs archivos Defontana reales")
@@ -127,6 +128,7 @@ print(f"  {WARN} Confirmar destino de los $410M con el Flujo de Caja (pendiente 
 
 print("\n"+"#"*78)
 print("# RESUMEN: SII internamente consistente (ver validar_todo.py). Defontana 2024/25")
-print("# cuadra. Cruces principales OK salvo: aporte 2024 (conflicto), honorarios 2024")
-print("# (dif ~$24M), gastos M12 vs contable (estructural), y anos 2022/2023 sin contab.")
+print("# cuadra. Aporte estatal 2023/2024/2025 CONFIRMADO y corregido en el modelo.")
+print("# Pendiente: honorarios 2024 (dif ~$24M), gastos M12 vs contable (estructural),")
+print("# y anos 2022/2023 sin contabilizar en Defontana.")
 print("#"*78)

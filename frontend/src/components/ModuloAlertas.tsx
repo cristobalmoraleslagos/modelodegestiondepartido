@@ -58,10 +58,11 @@ const GASTO_GENERO_2026 = EGRESOS_BASE
 
 const RETENCION_PENDIENTE = 9_274_613 // Mayo 2026 (F29 corriente)
 
-// Años sin aporte estatal SERVEL (suspensión por rendiciones pendientes)
-// Art. 42 inc. final DFL N°4/2017: SERVEL suspende el pago si no hay rendición aprobada
-const ANIOS_SIN_APORTE = [2023, 2024, 2025]
-const MONTO_APORTE_PERDIDO_EST = 3_600_000_000 // estimado ~$1.200M × 3 años
+// Años sin aporte estatal SERVEL (confirmado por Transparencia módulo 11 + Defontana).
+// 2023 recibió $345,8M y 2024 $549,7M; solo 2025 quedó en $0.
+// Art. 42 inc. final DFL N°4/2017: SERVEL suspende el pago si no hay rendición aprobada.
+const ANIOS_SIN_APORTE = [2025]
+const MONTO_APORTE_PERDIDO_EST = 549_691_607 // estimado al nivel del aporte 2024
 
 // ─── Iconos por módulo ────────────────────────────────────────────────────────
 const ICONO_MODULO: Record<string, JSX.Element> = {
@@ -238,15 +239,15 @@ export default function ModuloAlertas() {
     // Alerta retroactiva F29 Jun-Dic 2025 (ya vencida — prioridad crítica al tope)
     const alertaBacklog = alertaF29Retroactivo(F29_MESES_VENCIDOS_2025, F29_MONTO_BACKLOG_2025)
 
-    // Alerta pérdida de aporte estatal 2023-2025 (Art. 42 DFL N°4/2017)
+    // Alerta pérdida de aporte estatal 2025 (Art. 42 DFL N°4/2017)
     const alertaAporte: import('../normativa').AlertaLegal = {
       id:          'aporte_estatal_suspendido',
       gravedad:    'critica',
-      titulo:      `Aporte estatal SUSPENDIDO — ${ANIOS_SIN_APORTE.join(', ')} ($0 recibido)`,
-      descripcion: `El partido no recibió financiamiento público en ${ANIOS_SIN_APORTE.length} años consecutivos. ` +
-                   `Pérdida estimada: ~${MONTO_APORTE_PERDIDO_EST.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
+      titulo:      `Aporte estatal $0 en ${ANIOS_SIN_APORTE.join(', ')} (en 2024 fue $549,7M)`,
+      descripcion: `El partido recibió aporte estatal en 2023 ($345,8M) y 2024 ($549,7M), pero en ${ANIOS_SIN_APORTE.join(', ')} cayó a $0. ` +
+                   `Pérdida estimada respecto del nivel 2024: ~${MONTO_APORTE_PERDIDO_EST.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}. ` +
                    `Art. 42 DFL N°4/2017: SERVEL suspende el pago trimestral cuando existen rendiciones de cuentas no aprobadas.`,
-      accion:      'Regularizar TODAS las rendiciones pendientes (2022-2025) ante SERVEL para rehabilitar el derecho al aporte público. ' +
+      accion:      'Regularizar las rendiciones pendientes ante SERVEL para rehabilitar el derecho al aporte público. ' +
                    'Presentar plan de regularización al Tesorero Nacional con plazos concretos.',
       ley:         'Art. 42 + Art. 40 DFL N°4/2017',
       modulo:      'aportes',

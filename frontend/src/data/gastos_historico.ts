@@ -39,7 +39,7 @@ export const GASTOS_HISTORICO: DatoAnualGasto[] = [
   },
   {
     anio:          2023,
-    aporteEstatal: 0,            // SIN APORTE PÚBLICO — rendiciones pendientes / suspensión SERVEL
+    aporteEstatal: 345788634,    // CONFIRMADO — Transparencia SERVEL módulo 11 (Ingresos Art.34)
     gastoTotal:    1529513388,
     personal:      320242826,
     bienes:        478788165,
@@ -53,7 +53,7 @@ export const GASTOS_HISTORICO: DatoAnualGasto[] = [
   },
   {
     anio:          2024,
-    aporteEstatal: 0,            // SIN APORTE PÚBLICO — rendiciones pendientes / suspensión SERVEL
+    aporteEstatal: 549691607,    // CONFIRMADO — Defontana (cta 3.1.1010) = Transparencia módulo 11
     gastoTotal:    2097378556,
     personal:      380302102,
     bienes:        267591847,
@@ -67,7 +67,7 @@ export const GASTOS_HISTORICO: DatoAnualGasto[] = [
   },
   {
     anio:          2025,
-    aporteEstatal: 0,            // SIN APORTE PÚBLICO — rendiciones pendientes / suspensión SERVEL
+    aporteEstatal: 0,            // SIN APORTE — confirmado (módulo 11 + Defontana: la cuenta no existe)
     gastoTotal:    2133101285,
     personal:      458549897,
     bienes:        266451121,

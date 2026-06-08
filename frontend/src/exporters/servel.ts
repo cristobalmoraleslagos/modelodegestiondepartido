@@ -128,7 +128,7 @@ export function exportM6(p: Periodo): { filas: number } {
 
   // Fila base: aporte público estatal trimestral (Art. 40 DFL N°4/2017).
   // El aporte anual se distribuye en 4 pagos trimestrales iguales.
-  // Para 2023-2025 el aporte fue $0 (suspendido por rendiciones pendientes).
+  // Aporte: 2023 $345,8M y 2024 $549,7M (confirmados Transparencia/Defontana); 2025 $0.
   const aporteAnual = APORTES_ESTATALES[p.año]
   if (aporteAnual !== undefined && aporteAnual > 0) {
     const [, mesFin] = RANGO_MESES[p.trimestre]

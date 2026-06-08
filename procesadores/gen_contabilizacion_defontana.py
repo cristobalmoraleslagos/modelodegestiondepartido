@@ -166,7 +166,7 @@ hoja(ws3c,['Concepto','Monto $','Fuente'],ctrl[1:],[55,18,30])
 # bancarias / registros de Tesoreria / formulario M6 que el partido haya presentado.
 ws3d=wb.create_sheet('Ingresos M6 2023 (plantilla)')
 ING_CUENTAS=[
- ('3.1.1010.10.01','INGRESOS PROCEDENTES DE APORTES TRIMESTRAL (aporte estatal SERVEL)','$0 segun usuario - VERIFICAR (en 2024 fue $549.691.607)'),
+ ('3.1.1010.10.01','INGRESOS PROCEDENTES DE APORTES TRIMESTRAL (aporte estatal SERVEL)','$345.788.634 (Transparencia m11; monto exacto a reconfirmar con cartola)'),
  ('3.1.2010.10.01','INGRESOS DE COTIZACIONES ORDINARIAS AFILIADOS','de cartola/Tesoreria'),
  ('3.1.2010.10.02','INGRESOS DE COTIZACIONES EXTRAORDINARIAS AFILIADOS','de cartola/Tesoreria'),
  ('3.1.2010.10.03','INGRESOS DE COTIZACIONES NO AFILIADOS / DONACIONES','de cartola/Tesoreria'),
