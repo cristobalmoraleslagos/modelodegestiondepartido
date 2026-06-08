@@ -259,10 +259,11 @@ export default function ModuloAlertas() {
     const alertaProgreso: import('../normativa').AlertaLegal = {
       id:          'progreso_por_cobrar',
       gravedad:    'critica',
-      titulo:      `Cuenta por cobrar a entidad relacionada "Progreso": ${PROGRESO_POR_COBRAR.monto2025.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })}`,
+      titulo:      `$${(PROGRESO_POR_COBRAR.monto2025 / 1e6).toLocaleString('es-CL', { maximumFractionDigits: 0 })}M por cobrar a empresas relacionadas (Soc. Inv. Progreso SpA / Radio Progreso SpA)`,
       descripcion: `Es el mayor activo del partido (~${Math.round(PROGRESO_POR_COBRAR.pctDelActivo2025 * 100)}% del total) según los EEFF Defontana 2024-2025. ` +
-                   `Cuenta por cobrar a una entidad relacionada, ilíquida. SERVEL y la auditoría exigirán identificar su naturaleza, contrato y recuperabilidad.`,
-      accion:      'Documentar qué es "Progreso", el origen del crédito, contrato de respaldo y plan/cronograma de recuperación. Evaluar provisión por incobrabilidad si corresponde.',
+                   `Cuenta por cobrar a EMPRESAS RELACIONADAS CON FINES DE LUCRO (Soc. de Inv. Progreso SpA 76.452.615-5 y Radio Progreso SpA 76.825.989-5), ilíquida. ` +
+                   `Un partido no puede financiar empresas con fines de lucro; SERVEL y la auditoría lo cuestionarán como posible traspaso encubierto.`,
+      accion:      'Obtener la ficha de la cuenta 1.2.1050.10.02 (cada traspaso). Documentar naturaleza, contrato de respaldo y recuperabilidad. Revelar parte relacionada en notas IFRS. Evaluar provisión por incobrabilidad.',
       ley:         'Art. 45 + Art. 49 DFL N°4/2017 (transparencia) · IFRS-PYME partes relacionadas',
       modulo:      'datos',
       monto:       PROGRESO_POR_COBRAR.monto2025,

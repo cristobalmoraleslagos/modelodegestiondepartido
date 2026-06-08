@@ -50,13 +50,26 @@ export const BALANCE_DEFONTANA: Record<number, BalanceDefontana> = {
   },
 }
 
-/** "Progreso por cobrar" — cuenta por cobrar a entidad relacionada (el mayor activo del partido) */
+/**
+ * "Progreso por cobrar" — cuenta por cobrar a EMPRESAS RELACIONADAS con fines de lucro.
+ * Identificadas en Defontana (Lista de Ficha Contable):
+ *   - SOC. DE INV. PROGRESO SPA (RUT 76.452.615-5) — sociedad de inversiones
+ *   - RADIO PROGRESO SPA       (RUT 76.825.989-5) — medio de comunicación
+ * Es el mayor activo del partido (~69% del total). Riesgo crítico de rendición:
+ * un partido no puede financiar empresas con fines de lucro; IFRS exige revelar
+ * partes relacionadas. Pendiente: ficha de la cuenta 1.2.1050.10.02 para ver
+ * cada traspaso (fecha, monto, contracuenta) y confirmar recuperabilidad.
+ */
 export const PROGRESO_POR_COBRAR = {
   cuenta:    '1.2.1050.10.02 — Deudores a Largo Plazo (PROGRESO)',
   monto2024: 4_370_021_000,
   monto2025: 4_262_217_000,
   pctDelActivo2025: 0.69,   // ~69% del activo total 2025
-  nota: 'Entidad relacionada. Requiere identificar naturaleza, contrato y recuperabilidad.',
+  entidades: [
+    { rut: '76.452.615-5', nombre: 'SOC. DE INV. PROGRESO SPA', tipo: 'Sociedad de inversiones' },
+    { rut: '76.825.989-5', nombre: 'RADIO PROGRESO SPA',        tipo: 'Medio de comunicación' },
+  ],
+  nota: 'Empresas relacionadas con fines de lucro. Verificar naturaleza, contrato y recuperabilidad.',
 } as const
 
 /** Honorarios contabilizados en Defontana (cuenta 4.5.1030.10.01) — para cruce con BHE */
