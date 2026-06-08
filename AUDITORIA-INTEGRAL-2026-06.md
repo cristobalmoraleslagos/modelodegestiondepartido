@@ -33,7 +33,7 @@
 | 11 | **Ingresos del partido (Art. 34)** | ✅ completo 2017-2026 (mensual) | **MÁXIMO** — ingreso definitivo |
 | 12 | Gastos del partido | ✅ 2017-2026 | MEDIO — cruza M12 |
 | 13 | Cotizaciones de afiliados | 🔄 re-extrayendo (estaba colapsado a 2016) | ALTO |
-| 16 | Gastos campañas electorales | ⚠️ solo 2016-2021 | MEDIO — falta 2022-2025 |
+| 16 | Gastos campañas electorales | ✅ re-extraído 2016-2026 | ALTO — gasto electoral por campaña |
 | 17 | Aportes a campañas electorales | ✅ 2016-2025 | ALTO — financiamiento electoral |
 | 21 | Sanciones aplicadas | ✅ 2019-2026 | ALTO — verifica las 3 multas |
 | 14 | Transferencias de fondos | ✅ 8.492 filas | MEDIO |

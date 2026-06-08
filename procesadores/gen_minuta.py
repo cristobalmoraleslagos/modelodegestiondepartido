@@ -122,7 +122,7 @@ tabla(["Fuente","Documento / Registro","Cantidad","Periodo","Estado"],
   ["Transparencia","Modulo 13 Cotizaciones afiliados", "82", "2016-2026","Re-extraido (2024-25 con vacios)"],
   ["Transparencia","Modulo 14 Transferencias de fondos", "8.522", "2010-2026","Completo"],
   ["Transparencia","Modulo 15 Nomina contrataciones >20 UTM", "2.433", "2010-2026","Completo"],
-  ["Transparencia","Modulo 16 Gastos campanas electorales", "906", "2016-2021","INCOMPLETO (falta 2022-25)"],
+  ["Transparencia","Modulo 16 Gastos campanas electorales", "228", "2016-2026","Completo (re-extraido)"],
   ["Transparencia","Modulo 17 Aportes a campanas electorales", "291", "2016-2025","Completo"],
   ["Transparencia","Modulo 21 Sanciones aplicadas", "189", "2019-2026","Completo (3 multas)"],
   ["Transparencia","Otros 8 modulos (organica/estadistica)", "~3.900", "2010-2029","Completo"]])
@@ -232,7 +232,7 @@ hallazgos = [
  ("Fondo de Genero en colapso","SII - $73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
  ("Transferencias internas $477M (nov-2025)","SII/Defontana - mes electoral","Trazar contra campana"),
  ("Inconsistencia inter-modulos Transparencia","m11 vs m13 cotizaciones difieren hasta $184M","Reconciliar con contador antes de rendir"),
- ("Modulo 16 (gastos campana) incompleto","Solo 2016-2021 extraido","Re-extraer 2022-2025 para rendicion electoral"),
+ ("Gasto electoral 2024-2025 (modulo 16)","Municipales 2024 ~$1.116M; Presid./Parlam. 2025 ~$687M","Cruzar contra Defontana y limites SERVEL"),
  ("10 BHE 'Observado Receptor'","SII - rechazadas","Honorarios cuestionados"),
 ]
 tabla(["Hallazgo","Fuente / Evidencia","Riesgo"], hallazgos)
@@ -252,7 +252,8 @@ for t in ["Contabilizar 2022 y 2023 en Defontana (vacios) - material borrador YA
           "Cuota de genero 2023 - verificar cumplimiento del 10% del aporte ahora confirmado (~$34,6M).",
           "F29 Jun-Dic 2025 (~$23,3M de retencion) - declarar en SII con reajuste e interes.",
           "PROGRESO $4.262M - conseguir el convenio de 338 cuotas y reconstruir el origen; evaluar provision.",
-          "Modulo 16 Transparencia (gastos de campana 2022-2025) - re-extraer para la rendicion electoral.",
+          "Cruzar gasto electoral (modulo 16, ya extraido: 2024 ~$1.116M, 2025 ~$687M) contra los limites "
+          "de gasto SERVEL por candidato y contra el financiamiento electoral contabilizado en Defontana.",
           "Conciliacion bancaria 2025 - confirmar que el saldo $5,6M coincide con el banco."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(10)
 para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + cuota de genero incumplida "
