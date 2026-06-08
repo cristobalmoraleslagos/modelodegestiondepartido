@@ -160,6 +160,28 @@ ctrl=[
 ]
 hoja(ws3c,['Concepto','Monto $','Fuente'],ctrl[1:],[55,18,30])
 
+# Hoja 3d: Ingresos M6 2023 (plantilla con cuentas REALES de Defontana)
+# Cuentas de ingreso extraidas del Libro Mayor Defontana 2024/2025 (grupo 3).
+# 2023 NO tiene ingresos contabilizados; el monto debe obtenerse de las CARTOLAS
+# bancarias / registros de Tesoreria / formulario M6 que el partido haya presentado.
+ws3d=wb.create_sheet('Ingresos M6 2023 (plantilla)')
+ING_CUENTAS=[
+ ('3.1.1010.10.01','INGRESOS PROCEDENTES DE APORTES TRIMESTRAL (aporte estatal SERVEL)','$0 segun usuario - VERIFICAR (en 2024 fue $549.691.607)'),
+ ('3.1.2010.10.01','INGRESOS DE COTIZACIONES ORDINARIAS AFILIADOS','de cartola/Tesoreria'),
+ ('3.1.2010.10.02','INGRESOS DE COTIZACIONES EXTRAORDINARIAS AFILIADOS','de cartola/Tesoreria'),
+ ('3.1.2010.10.03','INGRESOS DE COTIZACIONES NO AFILIADOS / DONACIONES','de cartola/Tesoreria'),
+ ('3.1.3010.10.01','INGRESOS PROVENIENTES DEL PROPIO PATRIMONIO','de cartola/Tesoreria'),
+ ('3.1.4010.xx.xx','INGRESOS FINANCIAMIENTO/REEMBOLSO ELECTORAL (por cargo)','2023: Consejo Constitucional - de SERVEL'),
+ ('3.5.0100.10.01','INTERESES EFECTIVAMENTE PERCIBIDOS','de cartola bancaria'),
+]
+rows3d=[[c,n,0,'',obs] for c,n,obs in ING_CUENTAS]
+hoja(ws3d,['Cuenta Defontana','Nombre cuenta','Monto $ (llenar)','Fecha','Fuente / Observacion'],rows3d,[18,52,16,12,42])
+ws3d.append([])
+ws3d.append(['BRECHA DE FINANCIAMIENTO 2023:'])
+ws3d.append([f'Gastos M12 2023 = {tot_m12:,}  |  Ingresos contabilizados 2023 = 0  |  Aporte estatal = 0'])
+ws3d.append(['=> Todo el gasto 2023 se financio con cotizaciones / reembolsos electorales /'])
+ws3d.append(['   prestamos / patrimonio. ESTE es el dato que falta y debe salir de las cartolas.'])
+
 # Hoja 4: Instrucciones
 ws4=wb.create_sheet('LEER PRIMERO')
 notas=[
