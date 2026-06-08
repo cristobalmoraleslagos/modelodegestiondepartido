@@ -75,21 +75,22 @@ def tabla(headers, rows):
     return t
 
 tp = doc.add_paragraph(); tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = tp.add_run("MINUTA TECNICA - DIAGNOSTICO DE INFORMACION SII"); r.bold = True; r.font.size = Pt(16); r.font.color.rgb = AMARANTO
+r = tp.add_run("MINUTA TECNICA - DIAGNOSTICO INTEGRAL SII + DEFONTANA"); r.bold = True; r.font.size = Pt(16); r.font.color.rgb = AMARANTO
 sp = doc.add_paragraph(); sp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 r = sp.add_run("Partido Comunista de Chile - SERVEL PP007 - RUT 71.701.800-1"); r.font.size = Pt(11); r.font.color.rgb = AZUL
 mp = doc.add_paragraph(); mp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = mp.add_run("Periodo analizado: 2022-2026 - Fecha: " + date.today().strftime('%d-%m-%Y') + " - Fuente: ARCHIVOS SII (BHE, RCV, F29)")
+r = mp.add_run("Periodo 2022-2026 - Fecha: " + date.today().strftime('%d-%m-%Y') + " - Fuentes: SII (BHE, RCV, F29) + Defontana ERP (EEFF, Libro Mayor, Balances)")
 r.font.size = Pt(9); r.italic = True; r.font.color.rgb = GRIS
 doc.add_paragraph("_"*95).alignment = WD_ALIGN_PARAGRAPH.CENTER
 
 anios = [2022,2023,2024,2025]
 
 h("1. Resumen Ejecutivo")
-para("Se levantaron y cruzaron 1.390 boletas de honorarios (BHE), 50 registros de compra/venta (RCV) y los "
-     "archivos de gastos M12 del portal SII, cubriendo el periodo 2022-2025 de forma completa. El gasto total "
-     "del partido se duplico (x2,2) en el periodo, impulsado por los ciclos electorales de 2024 (municipales) "
-     "y 2025 (presidencial/parlamentaria).")
+para("Este diagnostico cruza DOS fuentes con datos ciertos: (1) el portal SII (1.390 BHE, 50 RCV, M12, F29) "
+     "y (2) el ERP contable Defontana del partido (Estados Financieros IFRS, Balance de Comprobacion y Libro "
+     "Mayor completo de 2024 y 2025). Ambas fuentes son consistentes (ej.: honorarios 2025 coinciden al peso). "
+     "El gasto se duplico (x2,2) entre 2022 y 2025 por los ciclos electorales, y la contabilidad oficial revela "
+     "una crisis estructural de liquidez y una cuenta por cobrar de $4.262M a empresas relacionadas.")
 tabla(["Indicador","2022","2023","2024","2025"], [
     ["Gasto total (M12)"] + [clp(m12_tot[a]) for a in anios],
     ["BHE emitidas"] + [str(bhe_anio[a]['n']) for a in anios],
@@ -130,32 +131,69 @@ para("Gasto concentrado en medios y comunicacion. Proveedores recurrentes: Radio
 tabla(["Ano","Documentos","Total compras (con IVA)"],
       [[a, rcv[a]['docs'], clp(rcv[a]['total'])] for a in anios])
 
-h("5. Hallazgos Criticos del Diagnostico")
-hallazgos = [
- ("F29 Jun-Dic 2025 sin declarar","Retencion BHE 2025 Q3+Q4 = $19,6M no cubierta por F29","Multa SII + objecion SERVEL"),
- ("Transferencias entre cuentas $477M (2025-Q4)","Categoria M12","Posibles aportes a campana no declarados"),
- ("Fondo de Genero en colapso","$73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
- ("10 BHE 'Observado Receptor'","Estado SII","Honorarios cuestionados"),
- ("Movimientos irregulares 2025","Cheque Devuelto $17,8M / Dev. Transf. Erronea $8M / Cheque Garantia $9M","Requieren explicacion contable"),
- ("Concentracion de proveedores","2023: Siglo XXI $455M (~30% del RCV)","Verificar precios de mercado"),
-]
-tabla(["Hallazgo","Evidencia","Riesgo"], hallazgos)
+h("5. Informacion Contable Oficial (Defontana ERP)")
+para("Estado de contabilizacion: 2024 y 2025 estan COMPLETOS y cuadran (Estados Financieros IFRS disponibles, "
+     "listos para SERVEL); 2023 y 2022 estan SIN contabilizar (vacios). Cifras del Estado de Situacion "
+     "Financiera y Balance de Comprobacion:", bold=False)
+tabla(["Indicador (Defontana)","2024","2025"],
+      [["Total activos","$6.784.503.000","$6.185.202.000"],
+       ["Bancos (caja)","$415.636.000","$5.596.000  (-99%)"],
+       ["Resultado del ejercicio","Superavit $169.572.869","Deficit $1.278.221.363"],
+       ["Aporte estatal DFL N4","$549.691.607 (por verificar)","$0 (confirmado)"],
+       ["Cuenta por cobrar PROGRESO","$4.370.021.000","$4.262.217.000"],
+       ["Pasivos financieros (bancos)","$8.122.000","$467.020.000"]])
+para("Hallazgos ciertos de la contabilidad Defontana:", bold=True, color=AMARANTO)
+for t in ["PROGRESO: $4.262M por cobrar a empresas relacionadas con fines de lucro (Soc. de Inv. Progreso SpA "
+          "76.452.615-5 y Radio Progreso SpA 76.825.989-5). Es saldo de apertura (origen <=2023, sin documentar "
+          "en libros actuales); existe convenio de 338 cuotas, pero la cuenta casi no se mueve (~25 anos para recuperar). Es ~69% del activo total.",
+          "CREDITO ELECTORAL: el 07/11/2025 el partido tomo $480.000.000 del Banco Estado (dias antes de la eleccion).",
+          "CRISIS DE LIQUIDEZ: los bancos cayeron de $415,6M (2024) a $5,6M (2025). El flujo de caja proyectado "
+          "llega a -$753M sin ingresos; con costos fijos ~$28M/mes y aporte estatal en $0, solo el credito electoral "
+          "evito la insolvencia.",
+          "ACTIVO FIJO real: $1.807M neto (Terrenos $1.852M, Obras de arte $93M, Mobiliario $78M, Muebles $8M).",
+          "Financiamiento electoral 2024 (municipales): Concejal $413M, Consejero Reg. $329M, Primarias Alcalde $273M."]:
+    p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(9.5)
 
-h("6. Conclusion y Diagnostico")
-para("Informacion disponible y robusta (2022-2025 completo): M12 Gastos, M14 Nomina (BHE), proveedores (RCV).", bold=True, color=AZUL)
+h("6. Cruce de Fuentes SII <-> Defontana (validacion)")
+para("La consistencia entre ambas fuentes da certeza a los datos:", bold=False)
+tabla(["Concepto","SII","Defontana","Resultado"],
+      [["Honorarios 2025","BHE $275.435.191","Cta HONORARIOS $275.435.191","COINCIDE EXACTO"],
+       ["Honorarios 2024","BHE $233.352.835","Cta HONORARIOS $208.968.974","Dif $24,4M - reconciliar"],
+       ["Aporte estatal 2024","(no hay dato SII)","$549.691.607","Verificar con SERVEL"],
+       ["Libro Mayor 2024/2025","-","Cuadra (debito=credito)","Integro"]])
+
+h("7. Hallazgos Criticos Consolidados")
+hallazgos = [
+ ("PROGRESO: $4.262M a empresas relacionadas","Defontana - cuentas relacionadas con fines de lucro","Posible financiamiento de empresas; ~69% del activo"),
+ ("Crisis de liquidez / deficit 2025","Defontana - deficit $1.278M, bancos -99%","Riesgo de insolvencia"),
+ ("Credito electoral $480M (07/11/2025)","Defontana - Banco Estado","Endeudamiento pre-eleccion"),
+ ("F29 Jun-Dic 2025 sin declarar","SII - retencion BHE no enterada (~$23,3M)","Multa SII + objecion SERVEL"),
+ ("Aporte 2024 $549M","Conflicto SII vs Defontana","Verificar con SERVEL/Tesoreria"),
+ ("2022 y 2023 sin contabilizar","Defontana vacio","Falta cerrar esos balances"),
+ ("Fondo de Genero en colapso","SII - $73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
+ ("Transferencias internas $477M (nov-2025)","SII/Defontana - mes electoral","Trazar contra campana"),
+ ("10 BHE 'Observado Receptor'","SII - rechazadas","Honorarios cuestionados"),
+]
+tabla(["Hallazgo","Fuente / Evidencia","Riesgo"], hallazgos)
+
+h("8. Conclusion y Diagnostico")
+para("Con certeza (datos SII + Defontana): contabilidad 2024 y 2025 completa (EEFF IFRS listos para SERVEL), "
+     "nomina de honorarios (BHE), gastos (M12) y proveedores (RCV) 2022-2025, y activo fijo real.", bold=True, color=AZUL)
 para("Brechas que impiden cerrar la rendicion y los balances:", bold=True, color=AMARANTO)
-for t in ["F29 Jun-Dic 2025 (~$20-22M de retencion) - declarar en SII con reajuste e interes.",
-          "Contabilidad de cierre (libro mayor, cartolas bancarias, saldos) - solicitar al contador para balances 2023-2025.",
-          "Donaciones 2022-2025 - sin datos (solo existe 2026).",
-          "Justificar transferencias internas ($477M) y movimientos de cheques irregulares."]:
+for t in ["Contabilizar 2022 y 2023 (vacios en Defontana) - usar la data SII + el plan de cuentas existente.",
+          "F29 Jun-Dic 2025 (~$23,3M de retencion) - declarar en SII con reajuste e interes.",
+          "PROGRESO $4.262M - conseguir el convenio de 338 cuotas y reconstruir el origen; evaluar provision.",
+          "Aporte estatal 2024 ($549M) - verificar con SERVEL/Tesoreria si se recibio.",
+          "Conciliacion bancaria - confirmar que el saldo $5,6M (2025) coincide con el banco.",
+          "Donaciones 2022-2025 - sin datos (solo existe 2026)."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(10)
-para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + incumplimiento de la cuota de "
-     "genero 9 anos consecutivos + F29 atrasado.", bold=True, color=AMARANTO)
+para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + cuota de genero incumplida "
+     "9 anos + F29 atrasado + crisis de liquidez + cuenta por cobrar relacionada de $4.262M.", bold=True, color=AMARANTO)
 
 # ============================ ANEXO DE CORROBORACION ============================
 doc.add_page_break()
 h("ANEXO - Corroboracion Documental de los Hallazgos", size=15)
-para("Cada hallazgo de la Seccion 5 se respalda a continuacion con el detalle a nivel de documento "
+para("Cada hallazgo del diagnostico se respalda a continuacion con el detalle a nivel de documento "
      "(folio F29, numero de boleta, mes y monto), extraido directamente de los archivos del portal SII.",
      size=9, color=GRIS)
 
@@ -263,7 +301,7 @@ r.italic = True; r.font.size = Pt(8); r.font.color.rgb = GRIS
 
 # ===================== SECCION CONTROL DE CALIDAD =====================
 doc.add_page_break()
-h("7. Control de Calidad y Corroboracion Integral de Datos", size=15)
+h("9. Control de Calidad y Corroboracion Integral de Datos", size=15)
 para("Se ejecutaron 10 validaciones cruzadas (script procesadores/validar_todo.py) sobre todas las fuentes. "
      "La columna vertebral de datos es solida: la aritmetica de las 1.390 BHE cuadra al 100%, las tasas de "
      "retencion calzan con la escala legal, los totales M12 son consistentes, los datos cargados en la "
