@@ -26,6 +26,7 @@ MAPA = {
  'Investigaci':                                  ('4.9.1000.10.01','GASTOS A DISTRIBUIR (VALIDAR: investigacion)','2.1.1070.20.01','PROVEEDORES NACIONALES'),
  'Educaci':                                      ('4.9.1000.10.01','GASTOS A DISTRIBUIR (VALIDAR: educacion civica)','2.1.1070.20.01','PROVEEDORES NACIONALES'),
  'Juvenil':                                      ('4.9.1000.10.01','GASTOS A DISTRIBUIR (VALIDAR: juvenil)','2.1.1070.20.01','PROVEEDORES NACIONALES'),
+ 'Preparaci':                                    ('4.1.3010.10.03','PREPARACION DE CANDIDATOS (electoral - VALIDAR cargo)','2.1.1070.20.01','PROVEEDORES NACIONALES'),
  'Publicidad Electoral':                         ('4.1.3010.10.04','GASTOS ELECTORAL (VALIDAR cargo)','2.1.1070.20.01','PROVEEDORES NACIONALES'),
  'Campaña Concejales':                       ('4.1.3010.10.05','GASTOS ELECTORAL CONCEJAL','2.1.1070.20.01','PROVEEDORES NACIONALES'),
  'Campaña Consejeros Regionales':            ('4.1.3010.10.09','GASTO ELECTORAL CORE','2.1.1070.20.01','PROVEEDORES NACIONALES'),
@@ -49,6 +50,7 @@ MAPA = {
  'Gastos por Prestamos':                         ('4.5.1020.10.03','Otros Intereses (gasto financiero)','2.1.1010.10.02','Credito (banco)'),
  # ── NO son gasto (van a balance, no a resultado): se marcan aparte ──
  'Transferencias entre cuentas':                 ('NO-RESULTADO','Movimiento entre bancos (no es gasto)','',''),
+ 'Cheque en Garant':                             ('NO-RESULTADO','Cheque en garantia (ACTIVO/garantia - no es gasto)','',''),
  'Cheque Devuelto':                              ('NO-RESULTADO','Activo/movimiento (no es gasto)','',''),
  'Devoluci':                                     ('NO-RESULTADO','Movimiento bancario (no es gasto)','',''),
  'Reintegros':                                   ('NO-RESULTADO','Devolucion de gasto (activo)','',''),
@@ -125,6 +127,38 @@ for m in range(1,13):
         rows3.append([f'{MESES[m-1]} {ANIO}','4.5.1030.10.01','HONORARIOS',hon_mes[m],0,'Honorarios mes (BHE SII)'])
         rows3.append([f'{MESES[m-1]} {ANIO}','2.1.2030.30.01','HONORARIOS POR PAGAR',0,hon_mes[m],'Contrapartida'])
 hoja(ws3,['Periodo','Cuenta','Descripcion','Debe','Haber','Glosa'],rows3,[14,16,28,16,16,30])
+
+# Hoja 3b: Ya contabilizado en Defontana 2023 (NO recontabilizar)
+ws3b=wb.create_sheet('Ya en Defontana 2023')
+ya_rows=[
+ ['30/12/2023','231200001','Cpra_FCA','FCA#313 CASA HOGAR CHARITO SPA (76.807.683-9)','1.1.1090.10.01','IVA CREDITO FISCAL',213750,0],
+ ['30/12/2023','231200001','Cpra_FCA','FCA#313 CASA HOGAR CHARITO SPA (76.807.683-9)','4.1.1010.10.05','OTROS GASTOS DE ADMINISTRACION',1125000,0],
+ ['30/12/2023','231200001','Cpra_FCA','FCA#313 CASA HOGAR CHARITO SPA (76.807.683-9)','2.1.1070.20.01','PROVEEDORES NACIONALES',0,1338750],
+ ['29/04/2023','22','EGRESO','ABONO DEUDA N.XX SIGLO XXI','1.1.1100.20.01','Anticipo a proveedores',400000,0],
+ ['29/04/2023','22','EGRESO','ABONO DEUDA N.XX SIGLO XXI','1.1.1010.20.04','BANCO BCI 13950223',0,400000],
+ ['29/04/2023','27','EGRESO','ABONO PROVEEDORES N.XX SIGLO XXI','1.1.1100.20.01','Anticipo a proveedores',450000,0],
+ ['29/04/2023','27','EGRESO','ABONO PROVEEDORES N.XX SIGLO XXI','1.1.1010.20.04','BANCO BCI 13950223',0,450000],
+]
+hoja(ws3b,['Fecha','Comprobante','Tipo','Glosa','Cuenta','Nombre cuenta','Debe','Haber'],ya_rows,[12,12,10,42,16,30,14,14])
+ws3b.append([])
+ws3b.append(['NOTA: estos 3 comprobantes (~$2.19M) YA estan en Defontana 2023. NO recontabilizar.'])
+
+# Hoja 3c: Control de totales (cuadratura)
+ws3c=wb.create_sheet('Control de Totales')
+tot_m12=sum(sum(v.values()) for v in items.values())
+tot_hon=sum(hon_mes.values())
+ctrl=[
+ ['Concepto','Monto $','Fuente'],
+ ['Gastos M12 SERVEL 2023 (todos los items)',tot_m12,'M12 output 2023-4.csv'],
+ ['  de los cuales NO-RESULTADO (no van a gasto)',sum(sum(items[it].values()) for it in items if mapear(it)[0]=='NO-RESULTADO'),'clasificar a balance'],
+ ['Honorarios BHE 2023 (document-level, VIGENTES)',tot_hon,'SII BHE bhe_todas.json'],
+ ['Boletas BHE 2023 vigentes (cantidad)',len([b for b in bhe if b['anio']==ANIO and b.get('estado','').upper()=='VIGENTE']),'SII'],
+ ['Ya contabilizado en Defontana 2023',2188750,'Libro Mayor Defontana 2023'],
+ ['','',''],
+ ['ADVERTENCIA: M12 "Gastos de Personal" incluye remuneraciones Y honorarios.','',''],
+ ['No sumar BHE encima sin que el contador separe la parte de honorarios.','',''],
+]
+hoja(ws3c,['Concepto','Monto $','Fuente'],ctrl[1:],[55,18,30])
 
 # Hoja 4: Instrucciones
 ws4=wb.create_sheet('LEER PRIMERO')
