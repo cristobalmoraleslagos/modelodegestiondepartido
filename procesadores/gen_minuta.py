@@ -259,6 +259,76 @@ for t in ["Contabilizar 2022 y 2023 en Defontana (vacios) - material borrador YA
 para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + cuota de genero incumplida "
      "9 anos + F29 atrasado + crisis de liquidez + cuenta por cobrar relacionada de $4.262M.", bold=True, color=AMARANTO)
 
+# ===================== SECCION 10: PLAN DE GESTION =====================
+doc.add_page_break()
+h("10. Plan de Gestion para Cerrar las Brechas")
+para("Para cada brecha pendiente se indica QUE se requiere, QUE gestion realizar, QUIEN es el responsable "
+     "y la NORMA/PLAZO aplicable. Es la hoja de ruta operativa para dejar la rendicion en condiciones.", size=10)
+
+para("10.1  Contabilizar los ejercicios 2022 y 2023 en Defontana", size=12, color=AZUL, bold=True)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Cargar y cerrar contablemente 2022 y 2023 (hoy vacios en Defontana)."],
+  ["Documentos necesarios","Borrador YA generado (Contabilizacion_2023_Defontana.xlsx: gastos M12 mapeados a "
+   "cuentas reales $1.530M + honorarios BHE $165M + plantilla ingresos M6) + documentos del RCV (Compras) + cartolas."],
+  ["Gestion a realizar","1) Cargar los documentos del RCV 2023 en modulo Compras de Defontana. 2) Contabilizar "
+   "gastos e ingresos desde el borrador, validando las cuentas marcadas (VALIDAR). 3) Generar el mismo material "
+   "para 2022. 4) Cerrar ambos ejercicios y emitir EEFF."],
+  ["Responsable","Contador del partido / Tesoreria."],
+  ["Norma / plazo","Balance anual ante SERVEL (Art. 39 Ley 18.603). Prioridad ALTA - bloquea la rendicion."]])
+
+para("10.2  Aporte estatal 2023 - monto exacto (cartola Banco Estado)", size=12, color=AZUL, bold=True)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Fijar el monto exacto del aporte estatal 2023 (Transparencia m11 indica $345,8M; m10 $512M)."],
+  ["Documentos necesarios","Cartola 2023 de la cuenta Banco Estado del partido (RUT 60.806.000-6) y/o certificado "
+   "de pago del aporte estatal emitido por SERVEL."],
+  ["Gestion a realizar","1) Solicitar a Tesoreria la cartola completa 2023. 2) Descargar de SERVEL el certificado "
+   "de aporte 2023. 3) Cruzar contra m11/m10 y fijar la cifra. 4) Actualizar el modelo si difiere de $345,8M."],
+  ["Responsable","Tesoreria."],
+  ["Norma / plazo","Art. 33 bis Ley 18.603. Necesario para cuadrar ingresos 2023 y la cuota de genero."]])
+
+para("10.3  Cuota de genero 2023 - posible incumplimiento", size=12, color=AZUL, bold=True)
+g23 = 22151105; cuota23 = int(345788634*0.10)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Acreditar gasto en fomento de la participacion femenina 2023 >= 10% del aporte ("+clp(cuota23)+")."],
+  ["Situacion detectada","Gasto femenino M12 2023 = "+clp(g23)+" vs requerido "+clp(cuota23)+". BRECHA = "+clp(cuota23-g23)+" (incumplimiento)."],
+  ["Gestion a realizar","1) Revisar si hay gasto femenino adicional no clasificado. 2) Si persiste la brecha, "
+   "documentar y regularizar (ejecutar el saldo o justificar ante SERVEL). 3) Replicar el chequeo para 2024."],
+  ["Responsable","Contador + encargada/o de genero del partido."],
+  ["Norma / plazo","Art. 38 Ley 20.900. Su incumplimiento es causal de rechazo del balance y multa."]])
+
+para("10.4  F29 de junio a diciembre 2025 sin declarar", size=12, color=AZUL, bold=True)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Presentar las 7 declaraciones F29 faltantes (Jun-Dic 2025) con la retencion de honorarios."],
+  ["Documentos necesarios","Base de retencion BHE por mes (YA disponible en el modelo, ~$23,3M total)."],
+  ["Gestion a realizar","1) El contador declara cada F29 en sii.cl con la retencion BHE del mes. 2) Pagar con "
+   "reajuste IPC + interes (Art. 53 Cod. Tributario) + multa por declaracion fuera de plazo (Art. 97 N.11)."],
+  ["Responsable","Contador."],
+  ["Norma / plazo","DL 824 / Cod. Tributario. URGENTE - el interes corre mensualmente."]])
+
+para("10.5  Cuenta por cobrar PROGRESO $4.262M", size=12, color=AZUL, bold=True)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Documentar el origen y recuperabilidad del saldo a Soc. de Inv. Progreso SpA (76.452.615-5) "
+   "y Radio Progreso SpA (76.825.989-5) - empresas relacionadas con fines de lucro (~69% del activo)."],
+  ["Documentos necesarios","Convenio de pago de 338 cuotas; respaldo del origen del saldo de apertura (pre-2024); "
+   "antecedentes de la relacion entre el partido y ambas SpA."],
+  ["Gestion a realizar","1) Solicitar a administracion el convenio firmado. 2) Reconstruir el origen contable. "
+   "3) Evaluar provision por incobrabilidad (la cuenta casi no se mueve). 4) Documentar la relacion para SERVEL."],
+  ["Responsable","Administracion + contador + asesor legal."],
+  ["Norma / plazo","Transparencia patrimonial SERVEL. Riesgo de observacion por financiamiento a empresas relacionadas."]])
+
+para("10.6  Conciliacion bancaria 2025", size=12, color=AZUL, bold=True)
+tabla(["Aspecto","Detalle"],
+ [["Que se requiere","Confirmar que el saldo contable de bancos 2025 ($5,6M en Defontana) coincide con el banco real."],
+  ["Documentos necesarios","Cartolas 2025 de todas las cuentas bancarias del partido."],
+  ["Gestion a realizar","1) Obtener cartolas 2025. 2) Cruzar saldo Defontana vs banco. 3) Identificar partidas "
+   "conciliatorias. 4) Confirmar el colapso de liquidez (caida de $415M a $5,6M)."],
+  ["Responsable","Tesoreria / contador."],
+  ["Norma / plazo","Buena practica contable; sustenta el EEFF 2025 ante SERVEL."]])
+
+para("Secuencia recomendada: (1) F29 2025 [urgente, interes diario] -> (2) cartola Banco Estado 2023 [habilita "
+     "ingresos y genero] -> (3) contabilizar 2022/2023 -> (4) cuota genero 2023 -> (5) conciliacion 2025 -> "
+     "(6) convenio Progreso.", bold=True, color=AMARANTO, size=10)
+
 # ============================ ANEXO DE CORROBORACION ============================
 doc.add_page_break()
 h("ANEXO - Corroboracion Documental de los Hallazgos", size=15)
@@ -370,7 +440,7 @@ r.italic = True; r.font.size = Pt(8); r.font.color.rgb = GRIS
 
 # ===================== SECCION CONTROL DE CALIDAD =====================
 doc.add_page_break()
-h("10. Control de Calidad y Corroboracion Integral de Datos", size=15)
+h("11. Control de Calidad y Corroboracion Integral de Datos", size=15)
 para("Se ejecutaron 10 validaciones cruzadas (script procesadores/validar_todo.py) sobre todas las fuentes. "
      "La columna vertebral de datos es solida: la aritmetica de las 1.390 BHE cuadra al 100%, las tasas de "
      "retencion calzan con la escala legal, los totales M12 son consistentes, los datos cargados en la "
