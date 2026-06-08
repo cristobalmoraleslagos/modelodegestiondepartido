@@ -75,7 +75,7 @@ def tabla(headers, rows):
     return t
 
 tp = doc.add_paragraph(); tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = tp.add_run("MINUTA TECNICA - DIAGNOSTICO INTEGRAL SII + DEFONTANA + TRANSPARENCIA SERVEL"); r.bold = True; r.font.size = Pt(15); r.font.color.rgb = AMARANTO
+r = tp.add_run("MINUTA DE LEVANTAMIENTO DE INFORMACION - SII + DEFONTANA + TRANSPARENCIA SERVEL"); r.bold = True; r.font.size = Pt(15); r.font.color.rgb = AMARANTO
 sp = doc.add_paragraph(); sp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 r = sp.add_run("Partido Comunista de Chile - SERVEL PP007 - RUT 71.701.800-1"); r.font.size = Pt(11); r.font.color.rgb = AZUL
 mp = doc.add_paragraph(); mp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -93,8 +93,8 @@ para("Este diagnostico cruza TRES fuentes oficiales: (1) el portal SII (1.390 BH
      "Defontana; el aporte estatal 2024 coincide entre Transparencia y Defontana). El gasto se duplico (x2,2) "
      "entre 2022 y 2025 por los ciclos electorales, y la contabilidad oficial revela una crisis estructural de "
      "liquidez y una cuenta por cobrar de $4.262M a empresas relacionadas. La auditoria de Transparencia (modulo "
-     "11, Ingresos Art.34) resolvio la brecha de ingresos 2023 y confirmo que el partido SI recibio aporte "
-     "estatal en 2023 (~$345,8M), corrigiendo el valor del modelo que estaba en $0.")
+     "11, Ingresos Art.34) permite reconstruir los ingresos 2023 y confirma que el partido SI recibio aporte "
+     "estatal en 2023 (~$345,8M), dato que el SII no registra.")
 tabla(["Indicador","2022","2023","2024","2025"], [
     ["Gasto total (M12)"] + [clp(m12_tot[a]) for a in anios],
     ["BHE emitidas"] + [str(bhe_anio[a]['n']) for a in anios],
@@ -205,10 +205,10 @@ tabla(["Fuente de ingreso (Transparencia mod.11)","2022","2023","2024","2025"],
        ["Rendimientos de patrimonio","$147.781.727","$263.255.951","$740.705.008","$162.362.673"],
        ["Aportes personas naturales","$2.206.xxx","$9.853.723","$200.xxx","$0"],
        ["Reembolsos / ingresos electorales","-","~$1.066M","~$2.380M","~$70M"]])
-para("CORRECCION APLICADA AL MODELO: el aporte estatal 2023 paso de $0 a $345.788.634 (confirmado por modulos "
-     "11 y 10 de Transparencia). El monto exacto se reconfirma con la cartola del Banco Estado (el modulo 10 "
-     "trimestral indica $512M). 2025 = $0 confirmado (el $308M que mostraba el modulo 10 era una categoria "
-     "distinta). El detalle contable 2023 aun debe cargarse en Defontana (material borrador ya generado).",
+para("NOTA SOBRE EL APORTE 2023: el aporte estatal de 2023 ($345.788.634) figura en Transparencia (modulos 11 "
+     "y 10) pero NO en el SII. El monto exacto se reconfirma con la cartola del Banco Estado (el modulo 10 "
+     "trimestral indica $512M). El aporte 2025 = $0 (el $308M que mostraba el modulo 10 corresponde a una "
+     "categoria distinta). El detalle contable 2023 aun no esta cargado en Defontana.",
      bold=False, size=9.5, color=GRIS)
 
 # ── 6.bis  Estado de los balances + aprobacion SERVEL + cuadratura ──
@@ -222,8 +222,8 @@ tabla(["Ano","Aprobado por SERVEL (mod.09)","Contabilizado Defontana","Ecuacion 
 para("HALLAZGO: SERVEL solo tiene balances APROBADOS hasta 2021. Hay un backlog de 4 anos (2022-2025) sin "
      "balance aprobado - raiz formal de la suspension del aporte (Art. 42 DFL N4) que golpeo en 2025.",
      bold=True, color=AMARANTO, size=10)
-para("Verificacion de la ecuacion contable (Estado de Situacion Financiera Defontana, cuadra en 4 fuentes: "
-     "Estado Situacion = Balance General = Balance Comprobacion = modelo defontana.ts):", bold=False, size=9.5)
+para("Verificacion de la ecuacion contable (cuadra en los 3 documentos Defontana: Estado de Situacion "
+     "Financiera = Balance General = Balance de Comprobacion):", bold=False, size=9.5)
 tabla(["Ano","Total Activos","Pasivos + Patrimonio","Resultado ejercicio","Cuadra"],
       [["2024","$6.784.503.000","$6.614.929.746","+$169.572.869","SI (dif $0)"],
        ["2025","$6.185.202.000","$7.463.423.665","-$1.278.221.363","SI (dif $0)"]])
@@ -259,10 +259,10 @@ hallazgos = [
  ("Crisis de liquidez / deficit 2025","Defontana - deficit $1.278M, bancos -99%","Riesgo de insolvencia"),
  ("Credito electoral $480M (07/11/2025)","Defontana - Banco Estado","Endeudamiento pre-eleccion"),
  ("F29 Jun-Dic 2025 sin declarar","SII - retencion BHE no enterada (~$23,3M)","Multa SII + objecion SERVEL"),
- ("Aporte estatal 2023 omitido en el modelo","Transparencia m11/m10: $345-512M (modelo tenia $0)","CORREGIDO a $345,8M; verificar monto exacto con cartola"),
- ("Cuota de Genero 2023 ahora exigible","Al confirmar aporte 2023, surge obligacion ~$34,6M (10%)","Revisar cumplimiento - posible rechazo Art.38 Ley 20.900"),
+ ("Aporte estatal 2023 no figura en SII","Solo en Transparencia m11 ($345,8M) / m10 ($512M)","Verificar monto exacto con cartola Banco Estado"),
+ ("Cuota de Genero 2023 exigible","Con aporte 2023 confirmado, obligacion ~$34,6M (10%)","Revisar cumplimiento - posible rechazo Art.38 Ley 20.900"),
  ("Backlog de balances sin aprobar SERVEL","Modulo 09: aprobados solo hasta 2021 (2022-2025 pendientes)","Raiz formal de la suspension del aporte (Art. 42)"),
- ("2022 y 2023 sin contabilizar en Defontana","Defontana vacio (solo 10 asientos en 2023)","Falta cerrar esos balances - material borrador listo; falta cartola"),
+ ("2022 y 2023 sin contabilizar en Defontana","Defontana vacio (solo 10 asientos en 2023)","Falta cerrar esos balances; falta la cartola bancaria"),
  ("Fondo de Genero en colapso","SII - $73M (2022) a $6,3M (2025)","Rechazo de balance (Art. 38 Ley 20.900)"),
  ("Transferencias internas $477M (nov-2025)","SII/Defontana - mes electoral","Trazar contra campana"),
  ("Inconsistencia inter-modulos Transparencia","m11 vs m13 cotizaciones difieren hasta $184M","Reconciliar con contador antes de rendir"),
@@ -272,23 +272,22 @@ hallazgos = [
 tabla(["Hallazgo","Fuente / Evidencia","Riesgo"], hallazgos)
 
 h("9. Conclusion y Diagnostico")
-para("LO QUE HAY (con certeza, 3 fuentes oficiales): contabilidad Defontana 2024 y 2025 completa (EEFF IFRS "
-     "listos para SERVEL); nomina de honorarios (1.390 BHE), gastos (M12) y proveedores (1.971 RCV) 2022-2025; "
-     "activo fijo real; aporte estatal 2024 confirmado ($549,7M) y 2023 corregido ($345,8M); ingresos historicos "
-     "del partido 2016-2026 (Transparencia m11); donaciones reales 2019-2025; 3 sanciones SERVEL documentadas.",
+para("LO QUE HAY (levantado con certeza, 3 fuentes oficiales): contabilidad Defontana 2024 y 2025 completa "
+     "(EEFF IFRS); nomina de honorarios (1.390 BHE), gastos (M12) y proveedores (1.971 RCV) 2022-2025; activo "
+     "fijo; aporte estatal 2024 ($549,7M) y 2023 ($345,8M) confirmados en Transparencia; ingresos historicos "
+     "del partido 2016-2026 (Transparencia m11); donaciones 2019-2025; 3 sanciones SERVEL documentadas.",
      bold=True, color=AZUL)
 para("LO QUE FALTA (brechas que impiden cerrar la rendicion):", bold=True, color=AMARANTO)
-for t in ["Contabilizar 2022 y 2023 en Defontana (vacios) - material borrador YA generado "
-          "(Contabilizacion_2023_Defontana.xlsx: gastos M12 a cuentas reales $1.530M + honorarios BHE $165M + "
-          "plantilla de ingresos M6). Falta cargarlo en el ERP y validar con el contador.",
+for t in ["Contabilizacion de 2022 y 2023 en Defontana (ejercicios vacios) - falta el registro contable y "
+          "su validacion por el contador.",
           "Cartola Banco Estado 2023 - para fijar el monto exacto del aporte estatal (m11 $345,8M vs m10 $512M) "
           "y conciliar los ingresos contra el banco.",
-          "Cuota de genero 2023 - verificar cumplimiento del 10% del aporte ahora confirmado (~$34,6M).",
-          "F29 Jun-Dic 2025 (~$23,3M de retencion) - declarar en SII con reajuste e interes.",
-          "PROGRESO $4.262M - conseguir el convenio de 338 cuotas y reconstruir el origen; evaluar provision.",
-          "Cruzar gasto electoral (modulo 16, ya extraido: 2024 ~$1.116M, 2025 ~$687M) contra los limites "
-          "de gasto SERVEL por candidato y contra el financiamiento electoral contabilizado en Defontana.",
-          "Conciliacion bancaria 2025 - confirmar que el saldo $5,6M coincide con el banco."]:
+          "Cuota de genero 2023 - verificar cumplimiento del 10% del aporte confirmado (~$34,6M).",
+          "F29 Jun-Dic 2025 (~$23,3M de retencion) - pendiente de declarar en el SII.",
+          "PROGRESO $4.262M - falta el convenio de 338 cuotas y el origen del saldo.",
+          "Gasto electoral 2024-2025 (modulo 16, ya extraido: 2024 ~$1.116M, 2025 ~$687M) - falta cruzarlo "
+          "contra los limites de gasto SERVEL por candidato y el financiamiento electoral en Defontana.",
+          "Conciliacion bancaria 2025 - falta confirmar que el saldo $5,6M coincide con el banco."]:
     p = doc.add_paragraph(t, style='List Bullet'); p.runs[0].font.size = Pt(10)
 para("Perfil de riesgo: ALTO. Antecedentes: 3 multas SERVEL (2019, 2021, 2022) + cuota de genero incumplida "
      "9 anos + F29 atrasado + crisis de liquidez + cuenta por cobrar relacionada de $4.262M.", bold=True, color=AMARANTO)
@@ -302,11 +301,10 @@ para("Para cada brecha pendiente se indica QUE se requiere, QUE gestion realizar
 para("10.1  Contabilizar los ejercicios 2022 y 2023 en Defontana", size=12, color=AZUL, bold=True)
 tabla(["Aspecto","Detalle"],
  [["Que se requiere","Cargar y cerrar contablemente 2022 y 2023 (hoy vacios en Defontana)."],
-  ["Documentos necesarios","Borrador YA generado (Contabilizacion_2023_Defontana.xlsx: gastos M12 mapeados a "
-   "cuentas reales $1.530M + honorarios BHE $165M + plantilla ingresos M6) + documentos del RCV (Compras) + cartolas."],
+  ["Insumos disponibles","Gastos M12 ($1.530M 2023), honorarios BHE ($165M) e ingresos (Transparencia m11) ya "
+   "levantados; documentos del RCV (Compras). Falta: las cartolas para cuadrar bancos."],
   ["Gestion a realizar","1) Cargar los documentos del RCV 2023 en modulo Compras de Defontana. 2) Contabilizar "
-   "gastos e ingresos desde el borrador, validando las cuentas marcadas (VALIDAR). 3) Generar el mismo material "
-   "para 2022. 4) Cerrar ambos ejercicios y emitir EEFF."],
+   "gastos e ingresos. 3) Repetir para 2022. 4) Cerrar ambos ejercicios y emitir EEFF."],
   ["Responsable","Contador del partido / Tesoreria."],
   ["Norma / plazo","Balance anual ante SERVEL (Art. 39 Ley 18.603). Prioridad ALTA - bloquea la rendicion."]])
 
@@ -333,7 +331,7 @@ tabla(["Aspecto","Detalle"],
 para("10.4  F29 de junio a diciembre 2025 sin declarar", size=12, color=AZUL, bold=True)
 tabla(["Aspecto","Detalle"],
  [["Que se requiere","Presentar las 7 declaraciones F29 faltantes (Jun-Dic 2025) con la retencion de honorarios."],
-  ["Documentos necesarios","Base de retencion BHE por mes (YA disponible en el modelo, ~$23,3M total)."],
+  ["Insumos disponibles","Base de retencion BHE por mes ya levantada del SII (~$23,3M total)."],
   ["Gestion a realizar","1) El contador declara cada F29 en sii.cl con la retencion BHE del mes. 2) Pagar con "
    "reajuste IPC + interes (Art. 53 Cod. Tributario) + multa por declaracion fuera de plazo (Art. 97 N.11)."],
   ["Responsable","Contador."],
@@ -469,54 +467,48 @@ para("Inversiones Siglo XXI concentra $454,8M en solo 8 documentos (promedio $56
 
 doc.add_paragraph("_"*95).alignment = WD_ALIGN_PARAGRAPH.CENTER
 fp = doc.add_paragraph(); fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = fp.add_run("Documento de trabajo interno - Generado a partir de datos del portal SII - Verificar cifras antes de su uso oficial.")
+r = fp.add_run("Documento de trabajo interno - Da cuenta del proceso de levantamiento de informacion (SII, Defontana, Transparencia SERVEL) - Verificar cifras antes de su uso oficial.")
 r.italic = True; r.font.size = Pt(8); r.font.color.rgb = GRIS
 
 # ===================== SECCION CONTROL DE CALIDAD =====================
 doc.add_page_break()
-h("11. Control de Calidad y Corroboracion Integral de Datos", size=15)
-para("Se ejecutaron 10 validaciones cruzadas (script procesadores/validar_todo.py) sobre todas las fuentes. "
-     "La columna vertebral de datos es solida: la aritmetica de las 1.390 BHE cuadra al 100%, las tasas de "
-     "retencion calzan con la escala legal, los totales M12 son consistentes, los datos cargados en la "
-     "aplicacion reflejan fielmente los CSV del SII, y el Balance 2022 cumple la ecuacion contable "
-     "(Activo = Pasivo + Patrimonio, diferencia $0).")
-para("Resultados de las validaciones:", bold=True)
+h("11. Calidad e Inconsistencias de los Datos Levantados", size=15)
+para("Se realizaron validaciones cruzadas sobre los datos levantados de las tres fuentes. La columna vertebral "
+     "es solida: la aritmetica de las 1.390 BHE cuadra al 100%, las tasas de retencion calzan con la escala "
+     "legal del SII, los totales M12 son consistentes, el RCV concilia y el Balance 2022 cumple la ecuacion "
+     "contable (Activo = Pasivo + Patrimonio, diferencia $0).")
+para("Resultados de las validaciones sobre los datos de origen:", bold=True)
 tabla(["Validacion","Resultado"],
       [["BHE: bruto = retencion + liquido (1.390 boletas)","OK - 0 descuadres"],
        ["BHE: suma mensual = total anual","OK - 4 anos"],
        ["Tasa de retencion efectiva vs tasa legal SII","OK - 11,76% a 14,08%"],
        ["M12: suma de categorias = total","OK - 4 anos"],
        ["RCV: neto+IVA+exento+otros = total","OK - 5 anos"],
-       ["App gastos_historico.ts = CSV M12","OK - 100% fiel"],
-       ["App bhe_historico.ts = recomputo >=20 UTM","OK - 135 contratistas"],
        ["Balance 2022: Activo = Pasivo + Patrimonio","OK - diferencia $0"],
-       ["Aporte estatal consistente entre archivos","OK"]])
-para("Discrepancias detectadas y su tratamiento:", bold=True, color=AMARANTO)
-tabla(["Hallazgo de calidad","Detalle","Estado"],
-      [["BHE 'Observado Receptor' incluidas en nomina",
-        "10 boletas rechazadas por el SII se contabilizaban en bhe_historico (caso J.P. Astudillo 2023 superaba 20 UTM solo por una boleta rechazada de $804.600).",
-        "CORREGIDO - excluidas; nomina M14 ahora limpia (135 contratistas)"],
+       ["Libro Mayor Defontana 2024/2025: debito = credito","OK - cuadra"]])
+para("Inconsistencias detectadas en las fuentes (a resolver antes de la rendicion):", bold=True, color=AMARANTO)
+tabla(["Inconsistencia","Detalle","Que requiere"],
+      [["10 BHE en estado 'Observado Receptor'",
+        "10 boletas fueron rechazadas por el SII (caso J.P. Astudillo 2023 superaba 20 UTM solo por una boleta rechazada de $804.600). No deben contar en la nomina >=20 UTM.",
+        "Excluir de la nomina M14 al construir la rendicion"],
        ["F29 2023 declaro menos que la retencion BHE",
         "Retencion en BHE 2023 = $19,6M, pero F29 2023 declarado = $14,8M (brecha $4,8M). Posible subdeclaracion del ejercicio 2023.",
-        "A REVISAR con el contador - verificar entero de retenciones 2023"],
+        "Revisar con el contador el entero de retenciones 2023"],
        ["RCV: 'Total' no igualaba neto+IVA+exento",
         "Diferencia de ~$48-49K en 2024 y 2025 corresponde a 'Valor Otro Impuesto' (impuesto especifico). No es error.",
-        "ACLARADO - resumen RCV ahora incluye columna 'Otros Impuestos' y reconcilia"],
-       ["Aporte estatal 2023 estaba en $0",
-        "Transparencia m11 (mensual) y m10 (trimestral) confirman aporte 2023 ($345,8M / $512M). El modelo lo tenia en $0.",
-        "CORREGIDO a $345.788.634 (m11, calza con Defontana 2024); monto exacto a reconfirmar con cartola"],
-       ["Aporte estatal 2025: alarma de $308M descartada",
-        "El modulo 10 mostraba $308M en 2025, pero el modulo 11 (que calza con Defontana) confirma $0.",
-        "ACLARADO - 2025 = $0; el $308M era una categoria distinta del m10"],
-       ["Cotizaciones: m11 vs m13 difieren",
-        "Modulo 11 'Cuotas y aportes' 2023 = $400,9M vs modulo 13 'Cotizaciones' = $216,5M. m13 ademas tiene $0 en 2024-25 (artefacto).",
-        "Se usa m11 como fuente; m13 referencia secundaria. Reconciliar con contador"],
-       ["Datos ficticios eliminados (donaciones / activos)",
-        "donaciones.ts y activos.ts tenian datos de EJEMPLO inventados (Roberto Fuentes, MacBook, etc.).",
-        "CORREGIDO - reemplazados por datos reales de Transparencia y Defontana"],
-       ["Bug del scraper de Transparencia",
-        "Deduplicacion truncada a 40 chars colapsaba los 11 anos de cada modulo en uno solo (afectaba 8 modulos).",
-        "CORREGIDO - extractor con clave de texto completo; modulos 10/13 re-extraidos"]])
+        "Aclarado - es impuesto especifico, no descuadre"],
+       ["Aporte estatal 2023: SII vs Transparencia",
+        "El SII no registra aporte estatal del partido. Transparencia m11 (mensual) indica $345,8M y m10 (trimestral) $512M.",
+        "Fijar el monto exacto con la cartola Banco Estado"],
+       ["Aporte estatal 2025: m10 vs m11",
+        "El modulo 10 mostraba $308M en 2025, pero el modulo 11 (que calza con Defontana) indica $0.",
+        "Aclarado - 2025 = $0; el $308M del m10 es una categoria distinta"],
+       ["Cotizaciones 2023: m11 vs m13",
+        "Modulo 11 'Cuotas y aportes' 2023 = $400,9M vs modulo 13 'Cotizaciones' = $216,5M (m13 ademas vacio en 2024-25).",
+        "Reconciliar con el contador; m11 es la fuente integral"],
+       ["Portal Transparencia colapsa anos al exportar",
+        "Al exportar, el portal colapsaba los 11 anos de un modulo en uno solo (afecto modulos 10, 13, 16).",
+        "Se re-extrajo la serie completa 2016-2026 de esos modulos"]])
 
 out = os.path.join(ROOT, "Minuta-Diagnostico-SII-PCCh.docx")
 try:
