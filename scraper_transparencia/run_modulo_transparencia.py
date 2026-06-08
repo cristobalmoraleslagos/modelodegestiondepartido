@@ -24,7 +24,7 @@ arana = importlib.util.module_from_spec(spec); spec.loader.exec_module(arana)
 from playwright.sync_api import sync_playwright
 
 FORM_ID = arana.FORM_ID; URL = arana.URL_RAIZ
-OUT = Path("Extraccion_Completa_PP007"); OUT.mkdir(exist_ok=True)
+OUT = Path("Extraccion_Completa_PP007") / "_reextraidos_fix"; OUT.mkdir(parents=True, exist_ok=True)
 
 def nav_items_full(page):
     return page.evaluate(f"""

@@ -208,7 +208,7 @@ for r in notas: ws4.append(r)
 ws4.column_dimensions['A'].width=95
 ws4['A1'].font=Font(bold=True,size=13,color='9B2335')
 
-out=os.path.join(ROOT,'DEFONTANA',f'Contabilizacion_{ANIO}_Defontana.xlsx')
+out=os.path.join(ROOT,'DEFONTANA','Contabilizacion',f'Contabilizacion_{ANIO}_Defontana.xlsx')
 os.makedirs(os.path.dirname(out),exist_ok=True)
 wb.save(out)
 print('OK ->',out)

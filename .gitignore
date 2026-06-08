@@ -39,6 +39,8 @@ memory/
 procesadores/__pycache__/
 procesadores/output/bhe_todas.json
 ARCHIVOS SII/
+DEFONTANA/
+_ARCHIVO/
 finanzas/
 scraper_transparencia/
 *.pptx

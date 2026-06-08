@@ -43,12 +43,16 @@ def leer_mayor(path):
     with open(path,encoding='latin-1') as fh:
         return list(csv.DictReader(fh,delimiter=delim))
 mayores={'2024':'LIBRO MAYOR 2024.CSV','2025':'LIBRO MAYOR 2025.CSV'}  # full year (12 meses)
+def find_def(pat):
+    """Busca un archivo dentro de DEFONTANA/ de forma recursiva (a prueba de subcarpetas)."""
+    r = glob.glob(os.path.join(DEF, '**', pat), recursive=True)
+    return r[0] if r else None
 
 print("\n[1] DEFONTANA Libro Mayor: cuadra (suma debitos == suma creditos)")
 print("-"*78)
 may_hon={}; may_debcre={}
 for anio,fn in mayores.items():
-    rows=leer_mayor(os.path.join(DEF,fn))
+    rows=leer_mayor(find_def(fn))
     deb=cre=0; hon=0; meses=set()
     for r in rows:
         d=num(col(r,'Débito','D�bito','Debito')); c=num(col(r,'Crédito','Cr�dito','Credito'))
@@ -62,7 +66,7 @@ for anio,fn in mayores.items():
 
 # ───────────────── FUENTE DEFONTANA: EEFF ─────────────────
 def eeff_val(anio, clave):
-    f=glob.glob(os.path.join(DEF,f'Estado-Situacion-Financiera-*{anio}*.xlsx'))
+    f=glob.glob(os.path.join(DEF,'**',f'Estado-Situacion-Financiera-*{anio}*.xlsx'),recursive=True)
     if not f: return None
     wb=openpyxl.load_workbook(f[0],data_only=True); ws=wb.active
     for r in ws.iter_rows(values_only=True):
