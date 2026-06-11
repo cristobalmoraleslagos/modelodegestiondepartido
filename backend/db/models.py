@@ -112,6 +112,11 @@ class DocumentoCargado(Base):
     fecha_aprobacion:  Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     notas:             Mapped[Optional[str]]  = mapped_column(Text)
 
+    # Anulación (BHE anuladas) — se conservan en la base para trazabilidad
+    anulada:           Mapped[bool]           = mapped_column(Boolean, default=False)
+    fecha_anulacion:   Mapped[Optional[date]] = mapped_column(Date)
+    motivo_anulacion:  Mapped[Optional[str]]  = mapped_column(Text)
+
     # Metadata
     fecha_carga:       Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
     raw_json:          Mapped[Optional[str]]  = mapped_column(Text)         # JSON del parseo completo
@@ -302,6 +307,55 @@ class DocumentoEgreso(Base):
     archivo_url:       Mapped[Optional[str]]  = mapped_column(Text)
     validado_por:      Mapped[Optional[str]]  = mapped_column(String(128))
     observacion:       Mapped[Optional[str]]  = mapped_column(Text)
+    fecha_carga:       Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  USUARIOS — acceso intranet (funcionarios regulares y permanentes)
+# ══════════════════════════════════════════════════════════════════════
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    __table_args__ = (
+        Index("ix_usuario_username", "username"),
+    )
+
+    id:               Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    username:         Mapped[str]            = mapped_column(String(255), unique=True, nullable=False)  # email
+    password_hash:    Mapped[str]            = mapped_column(String(255), nullable=False)               # bcrypt
+    nombre:           Mapped[str]            = mapped_column(String(255), nullable=False)
+    rol:              Mapped[str]            = mapped_column(String(32), default="funcionario")          # admin | funcionario | auditor
+    rut:              Mapped[Optional[str]]  = mapped_column(String(20))                                 # vínculo a PersonalNomina
+    activo:           Mapped[bool]           = mapped_column(Boolean, default=True)
+    permanente:       Mapped[bool]           = mapped_column(Boolean, default=True)                      # funcionario regular y permanente
+    creado_por:       Mapped[Optional[str]]  = mapped_column(String(128))
+    fecha_creacion:   Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
+    ultimo_acceso:    Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    intentos_fallidos: Mapped[int]           = mapped_column(Integer, default=0)
+    bloqueado_hasta:  Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  CONTRATOS — documentos de contrato por funcionario
+# ══════════════════════════════════════════════════════════════════════
+class Contrato(Base):
+    __tablename__ = "contratos"
+    __table_args__ = (
+        Index("ix_contrato_rut", "funcionario_rut"),
+    )
+
+    id:                Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    funcionario_rut:   Mapped[str]            = mapped_column(String(20), nullable=False)
+    funcionario_nombre: Mapped[str]           = mapped_column(String(255), nullable=False)
+    tipo_contrato:     Mapped[str]            = mapped_column(String(32))    # honorarios | planta | codigo_trabajo
+    fecha_inicio:      Mapped[Optional[date]] = mapped_column(Date)
+    fecha_termino:     Mapped[Optional[date]] = mapped_column(Date)          # null = indefinido
+    archivo_path:      Mapped[str]            = mapped_column(Text, nullable=False)
+    archivo_nombre:    Mapped[str]            = mapped_column(String(255), nullable=False)
+    archivo_hash:      Mapped[Optional[str]]  = mapped_column(String(64))    # sha256
+    mime:              Mapped[Optional[str]]  = mapped_column(String(64))
+    subido_por:        Mapped[Optional[str]]  = mapped_column(String(128))
+    vigente:           Mapped[bool]           = mapped_column(Boolean, default=True)
+    estado:            Mapped[str]            = mapped_column(String(32), default="cargado")
     fecha_carga:       Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
 
 

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import {
   BarChart2, Wallet, Receipt, Users,
-  Building2, Scale, ShieldAlert, ClipboardList, FileDown,
+  Building2, Scale, ShieldAlert, ClipboardList, FileDown, KeyRound,
 } from 'lucide-react'
 
 import { ConfigProvider }  from './context/ConfigContext'
@@ -13,13 +13,15 @@ import HubTesoreria        from './components/HubTesoreria'
 import HubContabilidad     from './components/HubContabilidad'
 import HubCompliance       from './components/HubCompliance'
 import HubRendicion        from './components/HubRendicion'
+import HubIntranet         from './components/HubIntranet'
 import ModuloCargaDatos    from './components/ModuloCargaDatos'
 import LoginPage           from './components/LoginPage'
+import { getSesion, logout, type Sesion } from './auth'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = 'presupuesto' | 'ingresos' | 'egresos' | 'personal'
-         | 'tesoreria' | 'contabilidad' | 'compliance' | 'rendicion' | 'datos'
+         | 'tesoreria' | 'contabilidad' | 'compliance' | 'rendicion' | 'intranet' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -32,10 +34,11 @@ const NAV: NavItem[] = [
   { id: 'contabilidad', label: 'Contabilidad',     icon: <Scale size={18} />,      group: 'Organización' },
   { id: 'compliance',   label: 'Compliance',       icon: <ShieldAlert size={18} />,group: 'Legal'        },
   { id: 'rendicion',    label: 'Rendición SERVEL', icon: <FileDown size={18} />,   group: 'Legal'        },
+  { id: 'intranet',     label: 'Intranet Rendición', icon: <KeyRound size={18} />, group: 'Intranet'     },
   { id: 'datos',        label: 'Carga de Datos',   icon: <ClipboardList size={18} />, group: 'Sistema'   },
 ]
 
-const GROUPS = ['Financiero', 'Organización', 'Legal', 'Sistema']
+const GROUPS = ['Financiero', 'Organización', 'Legal', 'Intranet', 'Sistema']
 
 const TITLES: Record<Tab, string> = {
   presupuesto:  'Presupuesto · Ejecución · Análisis Histórico',
@@ -46,6 +49,7 @@ const TITLES: Record<Tab, string> = {
   contabilidad: 'Contabilidad — Activos Fijos y Balance Módulo 15',
   compliance:   'Compliance — Alertas Legales y Calendario',
   rendicion:    'Rendición SERVEL — Exportación de Módulos DS 1174/2016',
+  intranet:     'Intranet de Rendición — Carga BHE, Contratos e Informes',
   datos:        'Carga de Datos Reales',
 }
 
@@ -94,22 +98,19 @@ function Sidebar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [usuario, setUsuario] = useState<string | null>(() =>
-    sessionStorage.getItem('finparty_usuario')
-  )
+  const [sesion, setSesion] = useState<Sesion | null>(() => getSesion())
   const [tab, setTab] = useState<Tab>('presupuesto')
 
-  function handleLogin(nombre: string) {
-    sessionStorage.setItem('finparty_usuario', nombre)
-    setUsuario(nombre)
+  function handleLogin() {
+    setSesion(getSesion())
   }
 
   function handleLogout() {
-    sessionStorage.removeItem('finparty_usuario')
-    setUsuario(null)
+    logout()
+    setSesion(null)
   }
 
-  if (!usuario) return <LoginPage onLogin={handleLogin} />
+  if (!sesion) return <LoginPage onLogin={handleLogin} />
 
   return (
     <ConfigProvider>
@@ -123,11 +124,11 @@ export default function App() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-xs font-semibold text-slate-700">{usuario}</p>
-              <p className="text-xs text-slate-400">Administrador</p>
+              <p className="text-xs font-semibold text-slate-700">{sesion.nombre}</p>
+              <p className="text-xs text-slate-400 capitalize">{sesion.rol}{sesion.modo === 'demo' ? ' · demo' : ''}</p>
             </div>
             <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
-              {usuario.split(' ').map(p => p[0]).slice(0, 2).join('')}
+              {sesion.nombre.split(' ').map(p => p[0]).slice(0, 2).join('')}
             </div>
             <button
               onClick={handleLogout}
@@ -147,6 +148,7 @@ export default function App() {
           {tab === 'contabilidad' && <HubContabilidad />}
           {tab === 'compliance'   && <HubCompliance />}
           {tab === 'rendicion'    && <HubRendicion />}
+          {tab === 'intranet'     && <HubIntranet rol={sesion.rol} />}
           {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>

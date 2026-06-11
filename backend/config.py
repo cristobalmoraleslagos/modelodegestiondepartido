@@ -58,6 +58,29 @@ ATTACHMENTS_DIR   = Path(os.getenv("ATTACHMENTS_DIR", str(BASE_DIR / "attachment
 LOG_LEVEL         = os.getenv("LOG_LEVEL", "INFO")
 
 
+# ─── Seguridad / Intranet ─────────────────────────────────────
+# JWT_SECRET DEBE definirse por entorno en producción. El default solo
+# sirve para desarrollo local y NUNCA debe usarse en producción.
+JWT_SECRET        = os.getenv("JWT_SECRET", "dev-only-change-me-in-prod")
+JWT_ALGORITHM     = "HS256"
+JWT_EXPIRE_MIN    = int(os.getenv("JWT_EXPIRE_MIN", "60"))
+LOGIN_MAX_INTENTOS = int(os.getenv("LOGIN_MAX_INTENTOS", "5"))
+LOGIN_BLOQUEO_MIN  = int(os.getenv("LOGIN_BLOQUEO_MIN", "15"))
+MAX_UPLOAD_MB      = int(os.getenv("MAX_UPLOAD_MB", "20"))
+# Orígenes CORS permitidos (coma-separados). En prod: dominio del frontend.
+CORS_ORIGINS: list[str] = [
+    x.strip()
+    for x in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5191").split(",")
+    if x.strip()
+]
+# Carpeta de salida de las rendiciones generadas
+RENDICION_DIR = Path(os.getenv("RENDICION_DIR", str(BASE_DIR / "rendicion")))
+# Seed del primer administrador (idempotente)
+ADMIN_USER = os.getenv("ADMIN_USER", "")
+ADMIN_PASS = os.getenv("ADMIN_PASS", "")
+ADMIN_NOMBRE = os.getenv("ADMIN_NOMBRE", "Administrador")
+
+
 # ─── Partido ──────────────────────────────────────────────────
 RUT_PARTIDO    = os.getenv("RUT_PARTIDO", "71701800-1")
 NOMBRE_PARTIDO = os.getenv("NOMBRE_PARTIDO", "Partido Comunista de Chile")

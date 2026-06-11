@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react'
-import { USUARIOS } from '../auth.config'
+import { login } from '../auth'
 
-interface Props { onLogin: (nombre: string) => void }
+interface Props { onLogin: () => void }
 
 export default function LoginPage({ onLogin }: Props) {
   const [usuario, setUsuario] = useState('')
@@ -11,20 +11,18 @@ export default function LoginPage({ onLogin }: Props) {
   const [error, setError]     = useState('')
   const [cargando, setCargando] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (cargando) return
     setError('')
     setCargando(true)
-    setTimeout(() => {
-      const claveEsperada = USUARIOS[usuario.trim()]
-      if (claveEsperada && clave === claveEsperada) {
-        onLogin(usuario.trim())
-      } else {
-        setError('Usuario o contraseña incorrectos. Verifique sus credenciales.')
-        setCargando(false)
-      }
-    }, 650)
+    try {
+      await login(usuario, clave)
+      onLogin()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión.')
+      setCargando(false)
+    }
   }
 
   return (

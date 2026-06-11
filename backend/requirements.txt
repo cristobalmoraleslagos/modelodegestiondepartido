@@ -2,6 +2,12 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 
+# ─── Seguridad / Intranet (auth) ──────────────────────────────
+bcrypt>=4.1                 # hashing de contraseñas (uso directo)
+python-jose[cryptography]==3.3.0  # tokens JWT
+python-multipart==0.0.9     # uploads multipart/form-data
+email-validator==2.1.1      # validación de emails (Pydantic EmailStr)
+
 # ─── Base de datos ────────────────────────────────────────────
 sqlalchemy==2.0.30
 psycopg2-binary==2.9.9

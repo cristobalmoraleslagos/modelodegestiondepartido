@@ -49,3 +49,10 @@ bep*.pdf
 ~$*
 ENTREGA_TRANSPARENCIA_PP007/
 ENTREGA_TRANSPARENCIA_PP007.zip
+
+# Backend: datos subidos y generados (PII de contratos, BHE, rendiciones)
+backend/attachments/
+backend/rendicion/
+backend/logs/
+backend/__pycache__/
+backend/**/__pycache__/

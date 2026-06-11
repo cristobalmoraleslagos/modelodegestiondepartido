@@ -4,15 +4,33 @@
  * Si no, retorna null (el componente usa datos hardcodeados como fallback).
  */
 
-const BASE = import.meta.env.VITE_API_URL as string | undefined
+export const BASE = import.meta.env.VITE_API_URL as string | undefined
 
 /** true cuando hay backend configurado */
 export const API_DISPONIBLE = Boolean(BASE)
+
+// ─── Token de sesión (JWT) ──────────────────────────────────────────────────
+const TOKEN_KEY = 'finparty_token'
+export const getToken = () => sessionStorage.getItem(TOKEN_KEY)
+export const setToken = (t: string) => sessionStorage.setItem(TOKEN_KEY, t)
+export const clearToken = () => sessionStorage.removeItem(TOKEN_KEY)
+
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const t = getToken()
+  return t ? { ...extra, Authorization: `Bearer ${t}` } : extra
+}
+
+/** Error tipado para las llamadas autenticadas. */
+export class ApiError extends Error {
+  status: number
+  constructor(status: number, message: string) { super(message); this.status = status }
+}
 
 async function get<T>(ruta: string): Promise<T | null> {
   if (!BASE) return null
   try {
     const res = await fetch(`${BASE}${ruta}`, {
+      headers: authHeaders(),
       signal: AbortSignal.timeout(5000), // timeout 5s
     })
     if (!res.ok) return null
@@ -20,6 +38,34 @@ async function get<T>(ruta: string): Promise<T | null> {
   } catch {
     return null // backend caído → fallback silencioso
   }
+}
+
+/** GET autenticado que lanza ApiError (para la intranet, no usa fallback silencioso). */
+export async function authGet<T>(ruta: string): Promise<T> {
+  const res = await fetch(`${BASE}${ruta}`, { headers: authHeaders() })
+  if (res.status === 401) { clearToken(); throw new ApiError(401, 'Sesión expirada') }
+  if (!res.ok) throw new ApiError(res.status, (await res.json().catch(() => ({}))).detail ?? res.statusText)
+  return res.json() as Promise<T>
+}
+
+/** POST/PATCH JSON autenticado. */
+export async function authSend<T>(ruta: string, body: unknown, method: 'POST' | 'PATCH' = 'POST'): Promise<T> {
+  const res = await fetch(`${BASE}${ruta}`, {
+    method,
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body),
+  })
+  if (res.status === 401) { clearToken(); throw new ApiError(401, 'Sesión expirada') }
+  if (!res.ok) throw new ApiError(res.status, (await res.json().catch(() => ({}))).detail ?? res.statusText)
+  return res.json() as Promise<T>
+}
+
+/** Subida multipart/form-data autenticada. */
+export async function authUpload<T>(ruta: string, form: FormData): Promise<T> {
+  const res = await fetch(`${BASE}${ruta}`, { method: 'POST', headers: authHeaders(), body: form })
+  if (res.status === 401) { clearToken(); throw new ApiError(401, 'Sesión expirada') }
+  if (!res.ok) throw new ApiError(res.status, (await res.json().catch(() => ({}))).detail ?? res.statusText)
+  return res.json() as Promise<T>
 }
 
 // ─── Tipos de respuesta ───────────────────────────────────────────────────────

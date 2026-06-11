@@ -26,6 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, text
 from typing import Optional
 
+import config
 from db.database import SessionLocal, create_tables
 from db.models import (
     GastoMensual, UFHistorica,
@@ -36,6 +37,7 @@ from analytics import (
     validar_acreedor, validar_aporte_candidato,
     DOCS_REQUERIDOS, LIMITES_APORTE_UF,
 )
+from api.intranet import router as intranet_router
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -46,18 +48,40 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
-# CORS: permite cualquier origen (frontend local o Vercel)
+# CORS restringido a los orígenes configurados (config.CORS_ORIGINS).
+# En producción debe ser el dominio del frontend; nunca "*" con credenciales.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_origins=config.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# Crear tablas al arrancar (idempotente)
+# Router de la intranet (auth, BHE, contratos, informes, rendición)
+app.include_router(intranet_router)
+
+
+def _migrar_columnas():
+    """Migración idempotente: columnas nuevas que create_all() no agrega."""
+    stmts = [
+        "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS anulada boolean DEFAULT false",
+        "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS fecha_anulacion date",
+        "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS motivo_anulacion text",
+    ]
+    with SessionLocal() as s:
+        for sql in stmts:
+            try:
+                s.execute(text(sql)); s.commit()
+            except Exception:
+                s.rollback()
+
+
+# Crear tablas + migrar al arrancar (idempotente)
 @app.on_event("startup")
 def startup():
     create_tables()
+    _migrar_columnas()
 
 
 # ─── /api/health ──────────────────────────────────────────────────────────────
