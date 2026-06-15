@@ -44,11 +44,29 @@ export const BALANCE_DEFONTANA: Record<number, BalanceDefontana> = {
   2025: {
     anio: 2025, contabilizado: true,
     totalActivos: 6_185_202_000, bancos: 5_596_000, deudoresLargoPlazo: 4_262_217_000,
+    // REVISAR: pasivosFinancieros $467.020.000 difiere del crédito del Libro Mayor
+    // ($480.000.000) en $12.980.000 — diferencia sin resolver (ver AUDITORIA_2025).
     pasivosFinancieros: 467_020_000, capital: 1_542_831_000, resultadoEjercicio: -1_278_221_363,
     aporteEstatal: 0,  // confirmado: cuenta de aporte no existe en el balance 2025
     fuente: 'Defontana EEFF + Balance Comprobación 2025 — COMPLETO (IFRS, cuadra)',
   },
 }
+
+/**
+ * Datos 2025 confirmados por la auditoría profunda del Libro Mayor / RCV (jun-2026).
+ * Solo se incluyen cifras VERIFICADAS contra las fuentes locales. Las que Cowork
+ * propuso pero NO reconcilian quedan documentadas como pendientes, no hardcodeadas.
+ */
+export const AUDITORIA_2025 = {
+  rcvIvaAcreditable: 35_760_884,   // VERIFICADO — RCV resumen_anual.csv 2025 (IVA recuperable)
+  f29PendientesMeses: 7,           // VERIFICADO — Jun a Dic 2025 sin declarar
+  pasivosDiffLM:      12_980_000,  // VERIFICADO — crédito LM $480M vs pasivosFinancieros $467,02M
+  // POR RECONCILIAR (valores propuestos por Cowork que no calzan con las fuentes locales):
+  //  · cotizaciones2025: Cowork 226.234.514 (MOD13) — MOD13 2025 está vacío (artefacto de
+  //    extracción); fuentes locales: MOD11 185.729.458 / Defontana grupo-3 227.474.635.
+  //  · gastosOrdinarios2025: Cowork 1.322.530.373 — LM cuenta 4 (gastos) total = 1.847.456.851;
+  //    la cifra "ordinarios" requiere separar el gasto electoral antes de fijarla.
+} as const
 
 /**
  * "Progreso por cobrar" — cuenta por cobrar a EMPRESAS RELACIONADAS con fines de lucro.

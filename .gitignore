@@ -56,3 +56,4 @@ backend/rendicion/
 backend/logs/
 backend/__pycache__/
 backend/**/__pycache__/
+*.pfx
