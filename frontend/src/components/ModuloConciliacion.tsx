@@ -1,142 +1,100 @@
-import { AlertTriangle, CheckCircle, Building2 } from 'lucide-react'
+import { AlertTriangle, Building2, Info } from 'lucide-react'
 import { fmt } from '../utils'
+import { CUENTAS_BANCARIAS, BANCOS_RESUMEN, type CuentaBancaria } from '../data/bancos'
 
-interface Cuenta {
-  nombre: string
-  tipo: string
-  banco: string
-  saldoSistema: number
-  saldoBanco: number
-  estado: 'Cuadrada' | 'Con diferencia'
-}
-
-interface Partida {
-  cuenta: string
-  descripcion: string
-  monto: number
-  fechaOrigen: string
-  diasPendiente: number
-  tipo: 'Depósito en tránsito' | 'Cheque no cobrado' | 'Error contable'
-}
-
-const CUENTAS: Cuenta[] = [
-  { nombre: 'Cuenta Corriente Operacional', tipo: 'Corriente', banco: 'Banco Estado', saldoSistema: 28_450_300, saldoBanco: 28_593_300, estado: 'Con diferencia' },
-  { nombre: 'Cuenta Corriente Campaña', tipo: 'Corriente', banco: 'Banco de Chile', saldoSistema: 4_210_000, saldoBanco: 4_210_000, estado: 'Cuadrada' },
-  { nombre: 'Cuenta Vista Fondo Género', tipo: 'Vista', banco: 'BancoEstado', saldoSistema: 2_180_500, saldoBanco: 2_037_500, estado: 'Con diferencia' },
-]
-
-const PARTIDAS: Partida[] = [
-  { cuenta: 'Cuenta Corriente Operacional', descripcion: 'Cotización militante no acreditada aún', monto: 85_000, fechaOrigen: '2026-05-18', diasPendiente: 3, tipo: 'Depósito en tránsito' },
-  { cuenta: 'Cuenta Corriente Operacional', descripcion: 'Transferencia aporte estatal Q2', monto: 55_500_000, fechaOrigen: '2026-04-30', diasPendiente: 21, tipo: 'Depósito en tránsito' },
-  { cuenta: 'Cuenta Corriente Operacional', descripcion: 'Cheque proveedor impresión emitido no cobrado', monto: -342_000, fechaOrigen: '2026-04-15', diasPendiente: 36, tipo: 'Cheque no cobrado' },
-  { cuenta: 'Cuenta Vista Fondo Género', descripcion: 'Cargo bancario comisión mantenimiento', monto: -12_500, fechaOrigen: '2026-05-01', diasPendiente: 20, tipo: 'Error contable' },
-  { cuenta: 'Cuenta Vista Fondo Género', descripcion: 'Intereses devengados no registrados', monto: -130_500, fechaOrigen: '2026-04-30', diasPendiente: 21, tipo: 'Error contable' },
-]
-
-const colorEstado = (e: Cuenta['estado']) =>
-  e === 'Cuadrada' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-
-const colorPartida = (d: number) =>
-  d > 60 ? 'text-red-600 font-semibold' : d > 30 ? 'text-amber-600' : 'text-slate-500'
-
-const colorTipo = (t: Partida['tipo']) =>
-  t === 'Error contable' ? 'bg-red-100 text-red-700' :
-  t === 'Cheque no cobrado' ? 'bg-amber-100 text-amber-700' :
-  'bg-blue-100 text-blue-700'
+const colorBanco = (b: CuentaBancaria['banco']) =>
+  b === 'BCI' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
 
 export default function ModuloConciliacion() {
-  const cuentasConDif = CUENTAS.filter(c => c.estado === 'Con diferencia').length
-  const partidasVencidas = PARTIDAS.filter(p => p.diasPendiente > 60).length
+  const totalContable = CUENTAS_BANCARIAS.reduce((s, c) => s + c.saldoContable2025, 0)
+  const difEEFF = BANCOS_RESUMEN.totalEEFF2025 - totalContable
+  const operacionales = CUENTAS_BANCARIAS.filter(c => c.proposito === 'Operacional')
+  const electorales = CUENTAS_BANCARIAS.filter(c => c.proposito === 'Electoral')
 
   return (
     <div className="space-y-6">
-      {/* Alertas generales */}
-      {cuentasConDif > 0 && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-4">
-          <AlertTriangle size={18} className="shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold text-sm">{cuentasConDif} cuenta(s) con diferencias pendientes</p>
-            <p className="text-xs mt-0.5">Resolver antes del cierre del trimestre (30 de junio). SERVEL puede solicitar el estado de conciliación en la auditoría anual.</p>
-          </div>
+      {/* Aviso: datos reales, conciliación pendiente de cartola */}
+      <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-2xl px-5 py-4">
+        <Info size={18} className="shrink-0 mt-0.5" />
+        <div>
+          <p className="font-semibold text-sm">Cuentas bancarias reales (Libro Mayor Defontana 2025)</p>
+          <p className="text-xs mt-0.5">
+            Saldos <strong>contables</strong>. La conciliación contra el saldo del banco requiere la <strong>cartola bancaria</strong> (pendiente).
+            La suma de saldos contables ({fmt(totalContable)}) cuadra con los EEFF 2025 ({fmt(BANCOS_RESUMEN.totalEEFF2025)}).
+          </p>
         </div>
-      )}
-
-      {/* Estado por cuenta */}
-      <div className="grid grid-cols-3 gap-4">
-        {CUENTAS.map((c, i) => {
-          const dif = c.saldoBanco - c.saldoSistema
-          return (
-            <div key={i} className="bg-white rounded-2xl p-5 shadow-sm space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-xs font-medium text-slate-500">{c.banco}</p>
-                  <p className="text-sm font-semibold text-slate-800">{c.nombre}</p>
-                </div>
-                <Building2 size={18} className="text-indigo-400 shrink-0 mt-0.5" />
-              </div>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Saldo sistema</span>
-                  <span className="font-medium">{fmt(c.saldoSistema)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Saldo banco</span>
-                  <span className="font-medium">{fmt(c.saldoBanco)}</span>
-                </div>
-                <div className="flex justify-between border-t border-slate-100 pt-1">
-                  <span className="text-slate-500">Diferencia</span>
-                  <span className={`font-bold ${dif !== 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    {dif >= 0 ? '+' : ''}{fmt(dif)}
-                  </span>
-                </div>
-              </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${colorEstado(c.estado)}`}>
-                {c.estado === 'Cuadrada' ? <><CheckCircle size={11} className="inline mr-1" />Cuadrada</> : <><AlertTriangle size={11} className="inline mr-1" />Con diferencia</>}
-              </span>
-            </div>
-          )
-        })}
       </div>
 
-      {/* Partidas conciliatorias */}
-      <div className="bg-white rounded-2xl shadow-sm">
-        <div className="flex items-center justify-between p-5 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Partidas Conciliatorias Pendientes</h2>
-          {partidasVencidas > 0 && (
-            <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full">
-              {partidasVencidas} con más de 60 días
-            </span>
-          )}
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-xs text-slate-500 border-b border-slate-100">
-                {['Cuenta', 'Descripción', 'Tipo', 'Monto', 'Fecha origen', 'Días pendiente'].map(h => (
-                  <th key={h} className="text-left py-3 px-4 font-medium">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {PARTIDAS.map((p, i) => (
-                <tr key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
-                  <td className="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">{p.cuenta}</td>
-                  <td className="py-3 px-4 text-slate-700">{p.descripcion}</td>
-                  <td className="py-3 px-4">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${colorTipo(p.tipo)}`}>{p.tipo}</span>
-                  </td>
-                  <td className={`py-3 px-4 font-medium whitespace-nowrap ${p.monto < 0 ? 'text-red-600' : 'text-green-700'}`}>
-                    {p.monto >= 0 ? '+' : ''}{fmt(p.monto)}
-                  </td>
-                  <td className="py-3 px-4 text-slate-500 whitespace-nowrap">{p.fechaOrigen}</td>
-                  <td className={`py-3 px-4 whitespace-nowrap ${colorPartida(p.diasPendiente)}`}>
-                    {p.diasPendiente} días
-                  </td>
-                </tr>
+      {/* KPIs */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Saldo bancos (contable 2025)', value: fmt(totalContable), sub: `${CUENTAS_BANCARIAS.length} cuentas` },
+          { label: 'Cuadre vs EEFF', value: difEEFF === 0 ? 'Exacto' : fmt(Math.abs(difEEFF)), sub: `EEFF: ${fmt(BANCOS_RESUMEN.totalEEFF2025)} (M$ redondeado)`, ok: Math.abs(difEEFF) < 2000 },
+          { label: 'Conciliación cartola', value: 'Pendiente', sub: 'Falta el estado de cuenta del banco', warn: true },
+        ].map((k, i) => (
+          <div key={i} className="bg-white rounded-2xl p-5 shadow-sm">
+            <p className="text-xs text-slate-500">{k.label}</p>
+            <p className={`text-xl font-semibold ${k.warn ? 'text-amber-600' : k.ok ? 'text-green-600' : 'text-slate-800'}`}>{k.value}</p>
+            <p className="text-xs text-slate-400 mt-0.5">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Cuentas operacionales */}
+      <Seccion titulo="Cuentas operacionales (BCI)" cuentas={operacionales} />
+      {/* Cuentas electorales */}
+      <Seccion titulo="Cuentas electorales (Banco Estado)" cuentas={electorales}
+               nota="Banco Estado abre una cuenta por campaña. En 2024 (municipales) hubo además Concejal, Consejero Regional, Gobernador, Plebiscito y Primarias Alcalde; en 2025 quedaron con saldo ~$0." />
+    </div>
+  )
+}
+
+function Seccion({ titulo, cuentas, nota }: { titulo: string; cuentas: CuentaBancaria[]; nota?: string }) {
+  if (cuentas.length === 0) return null
+  return (
+    <div className="bg-white rounded-2xl shadow-sm">
+      <div className="p-5 border-b border-slate-100">
+        <h2 className="text-base font-semibold text-slate-800">{titulo}</h2>
+        {nota && <p className="text-xs text-slate-400 mt-1">{nota}</p>}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-xs text-slate-500 border-b border-slate-100">
+              {['Cuenta contable', 'N° cuenta', 'Banco', 'Glosa', 'Saldo contable 2025', 'Movimientos', 'Estado'].map(h => (
+                <th key={h} className="text-left py-3 px-4 font-medium whitespace-nowrap">{h}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {cuentas.map((c) => (
+              <tr key={c.codigo} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                <td className="py-3 px-4 font-mono text-xs text-slate-500 whitespace-nowrap">{c.codigo}</td>
+                <td className="py-3 px-4 text-slate-600">{c.numero}</td>
+                <td className="py-3 px-4">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${colorBanco(c.banco)}`}>
+                    <Building2 size={11} className="inline mr-1" />{c.banco}
+                  </span>
+                </td>
+                <td className="py-3 px-4 text-slate-700">{c.glosa}</td>
+                <td className="py-3 px-4 font-semibold text-slate-800 whitespace-nowrap">{fmt(c.saldoContable2025)}</td>
+                <td className="py-3 px-4 text-slate-500">{c.movimientos2025.toLocaleString('es-CL')}</td>
+                <td className="py-3 px-4">
+                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                    <AlertTriangle size={11} className="inline mr-1" />Pendiente cartola
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-slate-200 bg-slate-50 font-semibold">
+              <td colSpan={4} className="py-3 px-4 text-slate-700">Subtotal</td>
+              <td className="py-3 px-4 text-slate-800">{fmt(cuentas.reduce((s, c) => s + c.saldoContable2025, 0))}</td>
+              <td colSpan={2} />
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   )
