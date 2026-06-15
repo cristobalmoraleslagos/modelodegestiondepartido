@@ -25,11 +25,23 @@ export default function ModuloConciliacion() {
         </div>
       </div>
 
+      {/* Colapso de liquidez 2024 → 2025 */}
+      <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4">
+        <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+        <div>
+          <p className="font-semibold text-sm">Colapso de liquidez: {fmt(BANCOS_RESUMEN.totalContable2024)} (2024) → {fmt(totalContable)} (2025)</p>
+          <p className="text-xs mt-0.5">
+            Caída de −{(BANCOS_RESUMEN.caidaPct * 100).toFixed(1)}%. La cuenta principal BCI 13950223 pasó de $406,96M a $66K.
+            Solo el crédito electoral $480M evitó la insolvencia en 2025.
+          </p>
+        </div>
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Saldo bancos (contable 2025)', value: fmt(totalContable), sub: `${CUENTAS_BANCARIAS.length} cuentas` },
-          { label: 'Cuadre vs EEFF', value: difEEFF === 0 ? 'Exacto' : fmt(Math.abs(difEEFF)), sub: `EEFF: ${fmt(BANCOS_RESUMEN.totalEEFF2025)} (M$ redondeado)`, ok: Math.abs(difEEFF) < 2000 },
+          { label: 'Saldo bancos 2024', value: fmt(BANCOS_RESUMEN.totalContable2024), sub: `EEFF: ${fmt(BANCOS_RESUMEN.totalEEFF2024)} — cuadra` },
+          { label: 'Saldo bancos 2025', value: fmt(totalContable), sub: `${CUENTAS_BANCARIAS.length} cuentas · cuadre EEFF ${Math.abs(difEEFF) < 2000 ? 'exacto' : fmt(Math.abs(difEEFF))}`, ok: true },
           { label: 'Conciliación cartola', value: 'Pendiente', sub: 'Falta el estado de cuenta del banco', warn: true },
         ].map((k, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 shadow-sm">
@@ -61,7 +73,7 @@ function Seccion({ titulo, cuentas, nota }: { titulo: string; cuentas: CuentaBan
         <table className="w-full text-sm">
           <thead>
             <tr className="text-xs text-slate-500 border-b border-slate-100">
-              {['Cuenta contable', 'N° cuenta', 'Banco', 'Glosa', 'Saldo contable 2025', 'Movimientos', 'Estado'].map(h => (
+              {['Cuenta contable', 'N° cuenta', 'Banco', 'Glosa', 'Saldo 2024', 'Saldo 2025', 'Movs 2025', 'Estado'].map(h => (
                 <th key={h} className="text-left py-3 px-4 font-medium whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -77,6 +89,7 @@ function Seccion({ titulo, cuentas, nota }: { titulo: string; cuentas: CuentaBan
                   </span>
                 </td>
                 <td className="py-3 px-4 text-slate-700">{c.glosa}</td>
+                <td className="py-3 px-4 text-slate-500 whitespace-nowrap">{fmt(c.saldoContable2024)}</td>
                 <td className="py-3 px-4 font-semibold text-slate-800 whitespace-nowrap">{fmt(c.saldoContable2025)}</td>
                 <td className="py-3 px-4 text-slate-500">{c.movimientos2025.toLocaleString('es-CL')}</td>
                 <td className="py-3 px-4">
@@ -90,6 +103,7 @@ function Seccion({ titulo, cuentas, nota }: { titulo: string; cuentas: CuentaBan
           <tfoot>
             <tr className="border-t-2 border-slate-200 bg-slate-50 font-semibold">
               <td colSpan={4} className="py-3 px-4 text-slate-700">Subtotal</td>
+              <td className="py-3 px-4 text-slate-500">{fmt(cuentas.reduce((s, c) => s + c.saldoContable2024, 0))}</td>
               <td className="py-3 px-4 text-slate-800">{fmt(cuentas.reduce((s, c) => s + c.saldoContable2025, 0))}</td>
               <td colSpan={2} />
             </tr>
