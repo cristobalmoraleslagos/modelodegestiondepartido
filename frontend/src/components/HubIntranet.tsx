@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { FileUp, FileText, BarChart3, UserCog, ServerOff, ShieldCheck } from 'lucide-react'
+import { FileUp, FileText, BarChart3, UserCog, ShieldCheck } from 'lucide-react'
 import { API_DISPONIBLE } from '../api'
 import type { Rol } from '../auth'
 import ModuloCargaBHE from './ModuloCargaBHE'
 import ModuloContratos from './ModuloContratos'
 import ModuloInformes from './ModuloInformes'
 import ModuloUsuarios from './ModuloUsuarios'
+import HubIntranetDemo from './HubIntranetDemo'
 
 type Sub = 'bhe' | 'contratos' | 'informes' | 'usuarios'
 
@@ -20,18 +21,9 @@ export default function HubIntranet({ rol }: { rol: Rol }) {
   ]
   const visibles = TABS.filter(t => !t.soloAdmin || rol === 'admin')
 
+  // Sin backend → réplica DEMO funcional (localStorage), visible sin servidor.
   if (!API_DISPONIBLE) {
-    return (
-      <div className="bg-white rounded-2xl p-8 shadow-sm text-center max-w-xl mx-auto">
-        <ServerOff size={36} className="mx-auto text-amber-500 mb-3" />
-        <h2 className="text-base font-semibold text-slate-800">Intranet requiere el backend</h2>
-        <p className="text-sm text-slate-500 mt-2">
-          Este módulo opera contra el servidor seguro (auth, carga de archivos, base de datos).
-          Define <code className="bg-slate-100 px-1 rounded">VITE_API_URL</code> y levanta el backend
-          (<code className="bg-slate-100 px-1 rounded">backend/</code>) para habilitarlo.
-        </p>
-      </div>
-    )
+    return <HubIntranetDemo />
   }
 
   return (

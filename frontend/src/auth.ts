@@ -56,6 +56,13 @@ export async function login(username: string, password: string): Promise<Sesion>
   }
 
   // ── Modo demo (sin backend) ──
+  // Usuario de prueba integrado para ver la intranet sin servidor.
+  // NO es una credencial real: es pública por diseño, solo habilita el modo demo.
+  if (username.trim().toUpperCase() === 'USER PRUEBA' && password === 'PRUEBA123') {
+    const ses: Sesion = { nombre: 'Usuario Prueba', rol: 'funcionario', username: 'USER PRUEBA', modo: 'demo' }
+    sessionStorage.setItem(SES_KEY, JSON.stringify(ses))
+    return ses
+  }
   const claveEsperada = USUARIOS[username.trim()]
   if (!claveEsperada || password !== claveEsperada) {
     throw new Error('Usuario o contraseña incorrectos.')
