@@ -132,3 +132,23 @@ export const FLUJO_CAJA_PROYECTADO = {
   nota: 'Crisis estructural: costos fijos ~$340M/año sin ingreso estable. ' +
         'El aporte estatal cubría esto; suspendido, el partido depende de créditos puntuales.',
 } as const
+
+/**
+ * Flujo de caja REAL 2026 — extraído del Libro Mayor Defontana 2026 (cuentas
+ * grupo 3 ingresos / grupo 4 gastos). Parte del saldo real Dic-2025 ($5,6M).
+ * La caja se vuelve NEGATIVA en febrero 2026 y llega a ~−$50M en mayo: confirma
+ * la crisis de liquidez con datos efectivos, no proyección.
+ */
+export const FLUJO_CAJA_REAL_2026 = {
+  saldoInicialEne: 5_596_000,   // = caja real Dic-2025 (EEFF)
+  meses: [
+    { mes: 'Ene', ingresos:  9_609_093, egresos:  6_707_970 },
+    { mes: 'Feb', ingresos:  5_497_518, egresos: 22_188_925 },
+    { mes: 'Mar', ingresos:  6_608_171, egresos: 46_203_754 },
+    { mes: 'Abr', ingresos:  5_220_000, egresos: 19_489_491 },
+    { mes: 'May', ingresos: 20_960_000, egresos:  9_429_292 },
+  ],
+  ingresoMensualProm:  9_578_956,   // promedio real Ene-May 2026
+  egresoMensualProm:  20_803_886,
+  fuente: 'Libro Mayor Defontana 2026 (Ene-May, parcial)',
+} as const

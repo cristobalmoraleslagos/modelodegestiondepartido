@@ -289,12 +289,12 @@ export default function ModuloAlertas() {
 
     const alertaPrevired: import('../normativa').AlertaLegal = {
       id:          'previred_dnp',
-      gravedad:    'critica',
-      titulo:      `Cotizaciones previsionales declaradas y NO pagadas en plazo (${COTIZACIONES_RESUMEN.conDNP} períodos)`,
-      descripcion: `Previred 2023-2026: de ${COTIZACIONES_RESUMEN.periodos} períodos, ${COTIZACIONES_RESUMEN.conDNP} se declararon y no se pagaron (DNP) ` +
-                   `y ${COTIZACIONES_RESUMEN.conAtraso} se pagaron con atraso. Atraso promedio ${COTIZACIONES_RESUMEN.atrasoPromedioDias} días, máximo ${COTIZACIONES_RESUMEN.atrasoMaxDias} días. ` +
-                   `Retener cotizaciones de los trabajadores y no enterarlas en plazo genera reajuste e intereses (Ley 17.322) y expone a cobranza previsional.`,
-      accion:      'Regularizar las cotizaciones pendientes y pagar dentro de plazo (día 13 del mes siguiente). Revisar deuda vigente en Previred ("Planillas por Pagar" / "DNP").',
+      gravedad:    'advertencia',
+      titulo:      `Patrón de pago tardío de cotizaciones previsionales (${COTIZACIONES_RESUMEN.conDNP} períodos con DNP)`,
+      descripcion: `Previred 2023-2026: de ${COTIZACIONES_RESUMEN.periodos} períodos, ${COTIZACIONES_RESUMEN.conDNP} se declararon y no se pagaron en plazo (DNP) ` +
+                   `y ${COTIZACIONES_RESUMEN.conAtraso} se pagaron con atraso (promedio ${COTIZACIONES_RESUMEN.atrasoPromedioDias} días, máximo ${COTIZACIONES_RESUMEN.atrasoMaxDias} días). ` +
+                   `Todas se REGULARIZARON: no hay deuda previsional vigente ni planillas por pagar. El riesgo es el patrón sistemático de atraso, que genera reajuste e intereses (Ley 17.322).`,
+      accion:      'Pagar las cotizaciones dentro de plazo (día 13 del mes siguiente) para evitar reajuste/interés. Mantener el control de "Planillas por Pagar" en $0.',
       ley:         'Ley 17.322 · DL 3.500 — pago de cotizaciones previsionales',
       modulo:      'personal',
     }

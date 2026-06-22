@@ -31,8 +31,10 @@ export const COTIZACIONES_RESUMEN = {
   conAtraso:         27,   // períodos pagados después del vencimiento legal
   atrasoMaxDias:     180,
   atrasoPromedioDias: 54,
+  deudaVigente:      false, // confirmado: todas se regularizaron; no hay planillas por pagar a la fecha
   fuente:            'Comprobantes Previred 2023-2026 (PREVIRED/PREVIRED/)',
   // Vencimiento legal: ~día 13 del mes siguiente (pago electrónico).
+  // El riesgo es el PATRÓN de pago tardío (reajuste/interés Ley 17.322), no deuda vigente.
 } as const
 
 /** Peores atrasos detectados (período → días de atraso). */
