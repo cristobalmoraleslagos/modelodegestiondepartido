@@ -33,7 +33,7 @@ from sqlalchemy.orm import Session
 import config
 from db.models import Usuario, Contrato, DocumentoCargado, PersonalNomina
 from api.security import (
-    get_db, get_current_user, require_rol, registrar_auditoria,
+    get_db, get_current_user, usuario_vigente, require_rol, registrar_auditoria,
     hash_password, verify_password, crear_token,
     esta_bloqueado, registrar_intento_fallido, registrar_login_exitoso,
 )
@@ -72,14 +72,44 @@ def login(body: LoginBody, db: Session = Depends(get_db)):
     return {
         "access_token": token,
         "token_type": "bearer",
-        "usuario": {"nombre": user.nombre, "rol": user.rol, "username": user.username},
+        "usuario": {"nombre": user.nombre, "rol": user.rol, "username": user.username,
+                    "debe_cambiar_password": bool(user.debe_cambiar_password)},
     }
 
 
 @router.get("/auth/me")
 def me(user: Usuario = Depends(get_current_user)):
     return {"nombre": user.nombre, "rol": user.rol, "username": user.username,
-            "rut": user.rut, "permanente": user.permanente}
+            "rut": user.rut, "permanente": user.permanente,
+            "debe_cambiar_password": bool(user.debe_cambiar_password)}
+
+
+# ─── Cambio de contraseña (self-service) ────────────────────────────────────────
+class CambiarPasswordBody(BaseModel):
+    password_actual: str
+    password_nueva: str = Field(min_length=8)
+
+
+@router.post("/auth/cambiar-password")
+def cambiar_password(
+    body: CambiarPasswordBody,
+    user: Usuario = Depends(get_current_user),  # base: permitido aun con cambio pendiente
+    db: Session = Depends(get_db),
+):
+    if not verify_password(body.password_actual, user.password_hash):
+        registrar_auditoria(db, "PASSWORD_CAMBIO_FALLIDO", usuario=user.username,
+                            entidad="usuarios", entidad_id=user.id)
+        raise HTTPException(status_code=400, detail="La contraseña actual es incorrecta")
+    if verify_password(body.password_nueva, user.password_hash):
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe ser distinta de la actual")
+    user.password_hash = hash_password(body.password_nueva)
+    user.debe_cambiar_password = False
+    user.intentos_fallidos = 0
+    user.bloqueado_hasta = None
+    db.commit()
+    registrar_auditoria(db, "PASSWORD_CAMBIADA", usuario=user.username,
+                        entidad="usuarios", entidad_id=user.id)
+    return {"ok": True}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -119,6 +149,7 @@ def crear_usuario(body: UsuarioCrear, user: Usuario = Depends(require_rol("admin
         password_hash=hash_password(body.password),
         nombre=body.nombre, rol=body.rol, rut=body.rut,
         permanente=body.permanente, creado_por=user.username,
+        debe_cambiar_password=True,  # clave temporal: el usuario debe cambiarla al ingresar
     )
     db.add(nuevo); db.commit(); db.refresh(nuevo)
     registrar_auditoria(db, "USUARIO_CREADO", usuario=user.username, entidad="usuarios",
@@ -141,6 +172,7 @@ def editar_usuario(uid: int, body: UsuarioPatch, user: Usuario = Depends(require
     if body.password is not None:
         u.password_hash = hash_password(body.password)
         u.intentos_fallidos = 0; u.bloqueado_hasta = None
+        u.debe_cambiar_password = True  # reset por admin: el usuario debe cambiarla al ingresar
         cambios["password"] = "reseteada"
     db.commit()
     registrar_auditoria(db, "USUARIO_EDITADO", usuario=user.username, entidad="usuarios",
@@ -269,7 +301,7 @@ async def subir_bhe(
 @router.get("/bhe")
 def listar_bhe(
     periodo: Optional[str] = Query(None, description="YYYY-MM"),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(usuario_vigente),
     db: Session = Depends(get_db),
 ):
     q = db.query(DocumentoCargado).filter(DocumentoCargado.tipo == "BHE")
@@ -346,7 +378,7 @@ async def subir_contrato(
 
 
 @router.get("/contratos")
-def listar_contratos(user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+def listar_contratos(user: Usuario = Depends(usuario_vigente), db: Session = Depends(get_db)):
     cs = db.query(Contrato).order_by(Contrato.fecha_carga.desc()).all()
     return [{"id": c.id, "funcionario_rut": c.funcionario_rut, "funcionario_nombre": c.funcionario_nombre,
              "tipo_contrato": c.tipo_contrato, "fecha_inicio": str(c.fecha_inicio) if c.fecha_inicio else None,
@@ -355,7 +387,7 @@ def listar_contratos(user: Usuario = Depends(get_current_user), db: Session = De
 
 
 @router.get("/contratos/{cid}/download")
-def descargar_contrato(cid: int, user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+def descargar_contrato(cid: int, user: Usuario = Depends(usuario_vigente), db: Session = Depends(get_db)):
     c = db.query(Contrato).get(cid)
     if not c or not Path(c.archivo_path).exists():
         raise HTTPException(404, "Contrato no encontrado")
@@ -368,7 +400,7 @@ def descargar_contrato(cid: int, user: Usuario = Depends(get_current_user), db: 
 # ══════════════════════════════════════════════════════════════════════════════
 @router.get("/informes/honorarios")
 def informe_honorarios(periodo: Optional[str] = Query(None, description="YYYY-MM"),
-                       user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+                       user: Usuario = Depends(usuario_vigente), db: Session = Depends(get_db)):
     q = db.query(DocumentoCargado).filter(DocumentoCargado.tipo == "BHE")
     if periodo:
         q = q.filter(DocumentoCargado.periodo == periodo)

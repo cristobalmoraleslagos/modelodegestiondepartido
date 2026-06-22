@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react'
-import { login } from '../auth'
+import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck, KeyRound } from 'lucide-react'
+import { login, cambiarPassword } from '../auth'
 
 interface Props { onLogin: () => void }
 
@@ -11,16 +11,43 @@ export default function LoginPage({ onLogin }: Props) {
   const [error, setError]     = useState('')
   const [cargando, setCargando] = useState(false)
 
+  // Cambio forzado de contraseña en el primer ingreso
+  const [forzarCambio, setForzarCambio] = useState(false)
+  const [nuevaClave, setNuevaClave]     = useState('')
+  const [confirmaClave, setConfirmaClave] = useState('')
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (cargando) return
     setError('')
     setCargando(true)
     try {
-      await login(usuario, clave)
+      const ses = await login(usuario, clave)
+      if (ses.debeCambiarPassword) {
+        setForzarCambio(true)
+        setCargando(false)
+        return
+      }
       onLogin()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión.')
+      setCargando(false)
+    }
+  }
+
+  async function handleCambio(e: FormEvent) {
+    e.preventDefault()
+    if (cargando) return
+    setError('')
+    if (nuevaClave.length < 8) { setError('La nueva contraseña debe tener al menos 8 caracteres.'); return }
+    if (nuevaClave !== confirmaClave) { setError('Las contraseñas no coinciden.'); return }
+    if (nuevaClave === clave) { setError('La nueva contraseña debe ser distinta de la temporal.'); return }
+    setCargando(true)
+    try {
+      await cambiarPassword(clave, nuevaClave)
+      onLogin()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo cambiar la contraseña.')
       setCargando(false)
     }
   }
@@ -48,9 +75,76 @@ export default function LoginPage({ onLogin }: Props) {
         <div className="bg-slate-800/70 border border-slate-700/50 rounded-2xl p-7 shadow-2xl backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-5 bg-amaranto-500 rounded-full" />
-            <h2 className="text-base font-semibold text-white">Acceso al Sistema</h2>
+            <h2 className="text-base font-semibold text-white">
+              {forzarCambio ? 'Cambia tu contraseña' : 'Acceso al Sistema'}
+            </h2>
           </div>
 
+          {forzarCambio ? (
+            <form onSubmit={handleCambio} className="space-y-4">
+              <p className="text-xs text-slate-400 flex items-start gap-2">
+                <KeyRound size={14} className="shrink-0 mt-0.5 text-amber-400" />
+                Tu acceso usa una contraseña temporal. Define una nueva para continuar.
+              </p>
+              {/* Nueva contraseña */}
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">
+                  Nueva contraseña
+                </label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type={verClave ? 'text' : 'password'}
+                    value={nuevaClave}
+                    onChange={e => { setNuevaClave(e.target.value); setError('') }}
+                    placeholder="Mínimo 8 caracteres"
+                    autoComplete="new-password"
+                    required
+                    className="w-full bg-slate-900/70 border border-slate-600/50 text-white placeholder-slate-600 rounded-xl pl-9 pr-11 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/50 transition-all"
+                  />
+                  <button type="button" onClick={() => setVerClave(v => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors" tabIndex={-1}>
+                    {verClave ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+              {/* Confirmar */}
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide">
+                  Confirmar contraseña
+                </label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type={verClave ? 'text' : 'password'}
+                    value={confirmaClave}
+                    onChange={e => { setConfirmaClave(e.target.value); setError('') }}
+                    placeholder="Repite la nueva contraseña"
+                    autoComplete="new-password"
+                    required
+                    className="w-full bg-slate-900/70 border border-slate-600/50 text-white placeholder-slate-600 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
+              {error && (
+                <div className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-sm">
+                  <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+              <button type="submit" disabled={cargando}
+                className="w-full bg-amaranto-600 hover:bg-amaranto-500 active:bg-amaranto-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-2.5 text-sm transition-colors mt-1 flex items-center justify-center gap-2">
+                {cargando ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  'Guardar y entrar'
+                )}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Usuario */}
             <div>
@@ -122,6 +216,7 @@ export default function LoginPage({ onLogin }: Props) {
               )}
             </button>
           </form>
+          )}
         </div>
 
         {/* Footer */}

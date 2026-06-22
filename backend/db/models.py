@@ -332,6 +332,7 @@ class Usuario(Base):
     ultimo_acceso:    Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     intentos_fallidos: Mapped[int]           = mapped_column(Integer, default=0)
     bloqueado_hasta:  Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    debe_cambiar_password: Mapped[bool]      = mapped_column(Boolean, default=False)  # fuerza cambio en primer login
 
 
 # ══════════════════════════════════════════════════════════════════════

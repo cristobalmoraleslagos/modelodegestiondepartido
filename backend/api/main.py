@@ -68,6 +68,7 @@ def _migrar_columnas():
         "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS anulada boolean DEFAULT false",
         "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS fecha_anulacion date",
         "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS motivo_anulacion text",
+        "ALTER TABLE finparty.usuarios ADD COLUMN IF NOT EXISTS debe_cambiar_password boolean DEFAULT false",
     ]
     with SessionLocal() as s:
         for sql in stmts:

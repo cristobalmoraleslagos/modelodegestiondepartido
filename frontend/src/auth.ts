@@ -8,7 +8,7 @@
  * romper el despliegue estático actual. NO es seguro y se trata como rol 'admin'
  * local únicamente para navegar la app sin servidor.
  */
-import { API_DISPONIBLE, BASE, setToken, clearToken } from './api'
+import { API_DISPONIBLE, BASE, getToken, setToken, clearToken } from './api'
 import { USUARIOS } from './auth.config'
 
 export type Rol = 'admin' | 'funcionario' | 'auditor'
@@ -18,6 +18,7 @@ export interface Sesion {
   rol: Rol
   username: string
   modo: 'backend' | 'demo'
+  debeCambiarPassword?: boolean
 }
 
 const SES_KEY = 'finparty_usuario'
@@ -48,9 +49,15 @@ export async function login(username: string, password: string): Promise<Sesion>
       const detail = (await res.json().catch(() => ({}))).detail
       throw new Error(detail ?? 'Usuario o contraseña incorrectos.')
     }
-    const data = await res.json() as { access_token: string; usuario: { nombre: string; rol: Rol; username: string } }
+    const data = await res.json() as {
+      access_token: string
+      usuario: { nombre: string; rol: Rol; username: string; debe_cambiar_password?: boolean }
+    }
     setToken(data.access_token)
-    const ses: Sesion = { ...data.usuario, modo: 'backend' }
+    const ses: Sesion = {
+      nombre: data.usuario.nombre, rol: data.usuario.rol, username: data.usuario.username,
+      modo: 'backend', debeCambiarPassword: Boolean(data.usuario.debe_cambiar_password),
+    }
     sessionStorage.setItem(SES_KEY, JSON.stringify(ses))
     return ses
   }
@@ -70,4 +77,26 @@ export async function login(username: string, password: string): Promise<Sesion>
   const ses: Sesion = { nombre: username.trim(), rol: 'admin', username: username.trim(), modo: 'demo' }
   sessionStorage.setItem(SES_KEY, JSON.stringify(ses))
   return ses
+}
+
+/**
+ * Cambio de contraseña del propio usuario (self-service). Solo modo backend.
+ * Al éxito, limpia el flag debeCambiarPassword en la sesión local.
+ */
+export async function cambiarPassword(actual: string, nueva: string): Promise<void> {
+  if (!API_DISPONIBLE) throw new Error('El cambio de contraseña requiere el modo backend.')
+  const res = await fetch(`${BASE}/api/auth/cambiar-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken() ?? ''}` },
+    body: JSON.stringify({ password_actual: actual, password_nueva: nueva }),
+  })
+  if (!res.ok) {
+    const detail = (await res.json().catch(() => ({}))).detail
+    throw new Error(detail ?? 'No se pudo cambiar la contraseña.')
+  }
+  const ses = getSesion()
+  if (ses) {
+    ses.debeCambiarPassword = false
+    sessionStorage.setItem(SES_KEY, JSON.stringify(ses))
+  }
 }

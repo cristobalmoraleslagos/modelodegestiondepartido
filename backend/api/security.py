@@ -106,10 +106,23 @@ def get_current_user(
     return user
 
 
+# ─── Contraseña vigente (fuerza cambio en primer login) ──────────────────────────
+def usuario_vigente(user: Usuario = Depends(get_current_user)) -> Usuario:
+    """Como get_current_user, pero bloquea si la cuenta tiene un cambio de
+    contraseña pendiente. Lo usan todos los endpoints operativos y require_rol.
+    Quedan exentos /auth/me y /auth/cambiar-password (usan get_current_user)."""
+    if getattr(user, "debe_cambiar_password", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="PASSWORD_CHANGE_REQUIRED",
+        )
+    return user
+
+
 # ─── Factory RBAC ───────────────────────────────────────────────────────────────
 def require_rol(*roles: str):
-    """Dependencia que exige uno de los roles indicados."""
-    def _checker(user: Usuario = Depends(get_current_user)) -> Usuario:
+    """Dependencia que exige uno de los roles indicados (y contraseña vigente)."""
+    def _checker(user: Usuario = Depends(usuario_vigente)) -> Usuario:
         if user.rol not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

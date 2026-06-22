@@ -39,6 +39,7 @@ def main() -> int:
             rol="admin",
             permanente=True,
             creado_por="seed_admin",
+            debe_cambiar_password=False,  # el operador definió esta clave; no se fuerza cambio
         )
         db.add(admin)
         db.commit()
