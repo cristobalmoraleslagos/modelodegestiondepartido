@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { fmt, VALOR_UF } from '../utils'
 import { detectarPersonaJuridica } from '../normativa'
+import { EGRESOS_BASE, type TipoDoc } from '../data/egresos'
 
 // ════════════════════════════════════════════════════════════════════════
 // SECCIÓN 1 — DOCUMENTOS REQUERIDOS POR CATEGORÍA SERVEL
@@ -123,16 +124,31 @@ interface EgresoCompleto {
   proveedor:     string
   rut:           string
   concepto:      string
-  tipoDoc:       'Factura' | 'Boleta' | 'Sin documento'
+  tipoDoc:       TipoDoc
   nroDoc:        string
   monto:         number
   cuenta:        string
   responsable:   string
-  categoriaSERVEL: string
+  categoriaSERVEL: string   // nombre OFICIAL SERVEL (para mostrar) — fuente: data/egresos.ts
+  catDocs:       string     // clave interna del catálogo DOCS_POR_CATEGORIA (carpetas/alertas)
   estadoEgreso:  EstadoEgreso
   documentos:    DocAdjunto[]
   alertas:       string[]
 }
+
+// Mapea el nombre OFICIAL SERVEL (data/egresos.ts) a la clave del catálogo
+// documental interno. Así data/egresos.ts es la ÚNICA fuente de egresos y la
+// lógica de carpetas/alertas sigue operando con sus claves cortas.
+const CAT_MAP: Record<string, string> = {
+  'Gastos de Personal':                                       'Gastos de Personal',
+  'Adquisición de Bienes o Servicios y Gastos corrientes':    'Bienes y Servicios',
+  'Publicidad Electoral':                                     'Campaña Electoral',
+  'Gastos de las actividades de formación de militantes':     'Formación / Preparación',
+  'Otros gastos de Administración':                           'Otros Gastos de Administración',
+  'Fondo Género':                                             'Fondo Género (Art. 38 Ley 20.900)',
+}
+const keyDocs = (catOficial: string): string =>
+  CAT_MAP[catOficial] ?? (DOCS_POR_CATEGORIA[catOficial] ? catOficial : 'Otros Gastos de Administración')
 
 // Generar carpeta documental para un egreso según su categoría
 function generarCarpetaDocumental(categoria: string, monto: number): DocAdjunto[] {
@@ -167,11 +183,11 @@ function detectarAlertas(e: Omit<EgresoCompleto, 'alertas'>): string[] {
     }
   }
   // Campaña sin cuenta campaña
-  if (e.cuenta === 'Campaña' && e.categoriaSERVEL !== 'Campaña Electoral') {
+  if (e.cuenta === 'Campaña' && e.catDocs !== 'Campaña Electoral') {
     alertas.push('Gasto clasificado como "Campaña" pero la categoría SERVEL no es "Campaña Electoral" — reclasificar o verificar cuenta')
   }
   // Gasto de campaña desde cuenta operacional
-  if (e.categoriaSERVEL === 'Campaña Electoral' && e.cuenta !== 'Campaña') {
+  if (e.catDocs === 'Campaña Electoral' && e.cuenta !== 'Campaña') {
     alertas.push('DFL N°3/2017: Gasto de campaña debe pagarse DESDE la cuenta corriente exclusiva de campaña — no desde cuenta operacional')
   }
   // Sin documento
@@ -179,58 +195,46 @@ function detectarAlertas(e: Omit<EgresoCompleto, 'alertas'>): string[] {
     alertas.push('Egreso sin documento tributario — no rendible ante SERVEL. Regularizar con factura o boleta antes del cierre trimestral')
   }
   // Monto alto sin 3 cotizaciones
-  if (e.monto > 1_980_000 && e.categoriaSERVEL === 'Bienes y Servicios') {
+  if (e.monto > 1_980_000 && e.catDocs === 'Bienes y Servicios') {
     alertas.push('Monto > 30 UTM ($1.980.000) — se recomienda contar con 3 cotizaciones comparativas para la auditoría')
   }
   // Sueldo/honorario sobre tope imponible previsional (referencia)
   // Art. 45 DFL N°4/2017: no existe límite nominal — estándar es "valor de mercado"
   // Se usa 90 UF (tope imponible AFP/Salud, Res. 237/2026) como referencia de revisión
-  if ((e.categoriaSERVEL === 'Gastos de Personal' || e.categoriaSERVEL === 'Honorarios') && e.monto > 90 * VALOR_UF) {
+  if ((e.catDocs === 'Gastos de Personal' || e.catDocs === 'Honorarios') && e.monto > 90 * VALOR_UF) {
     alertas.push(`Art. 45 DFL N°4/2017: El monto (${fmt(e.monto)}) supera el tope imponible previsional de 90 UF = ${fmt(90 * VALOR_UF)} (Res. 237/2026). Verificar que corresponde al valor de mercado del cargo — SERVEL puede objetar en auditoría.`)
   }
   return alertas
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// SECCIÓN 3 — DATOS (12 egresos reales + carpeta documental simulada)
+// SECCIÓN 3 — DATOS (fuente única: data/egresos.ts EGRESOS_BASE)
+// El mismo dataset alimenta este módulo y ModuloAlertas; editar data/egresos.ts
+// se refleja en ambos. La carpeta documental simulada se genera al vuelo.
 // ════════════════════════════════════════════════════════════════════════
-
-const EGRESOS_RAW = [
-  { id: 1,  fecha: '2026-05-02', proveedor: 'Lautaro Carmona Soto',       rut: '5.892.999-9',   concepto: 'Honorarios — Presidente Comité Central',      tipoDoc: 'Factura' as const, nroDoc: 'OC-2026-051', monto: 2_245_875, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Honorarios' },
-  { id: 2,  fecha: '2026-05-02', proveedor: 'Juan Andrés Lagos Espinoza', rut: '5.926.570-9',   concepto: 'Honorarios — Integrante Comisión Política',    tipoDoc: 'Factura' as const, nroDoc: 'OC-2026-052', monto: 1_487_363, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Honorarios' },
-  { id: 3,  fecha: '2026-05-02', proveedor: 'Krupskaya Corvalán',         rut: '13.713.819-0',  concepto: 'Honorarios — Secretaría Comité Central',       tipoDoc: 'Factura' as const, nroDoc: 'OC-2026-053', monto: 1_541_602, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Honorarios' },
-  { id: 4,  fecha: '2026-05-05', proveedor: 'Radio Nuevo Mundo',          rut: '99.510.820-8',  concepto: 'Espacio radial — contrato mensual',             tipoDoc: 'Factura' as const, nroDoc: 'F-NM-2026-05', monto: 5_000_000, cuenta: 'Campaña',             responsable: 'P. Águila Cariz', categoriaSERVEL: 'Bienes y Servicios' },
-  { id: 5,  fecha: '2026-05-05', proveedor: 'Andres Varela Prop Ltda',    rut: '76.095.423-3',  concepto: 'Arriendo estacionamiento sede central',         tipoDoc: 'Factura' as const, nroDoc: 'F-AV-0412',   monto: 1_680_000, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Bienes y Servicios' },
-  { id: 6,  fecha: '2026-05-07', proveedor: 'Multitud SpA',               rut: '77.110.848-2',  concepto: 'Servicios comunicacionales — pauta digital',    tipoDoc: 'Factura' as const, nroDoc: 'F-MU-0219',   monto: 1_400_000, cuenta: 'Campaña',             responsable: 'P. Águila Cariz', categoriaSERVEL: 'Campaña Electoral' },
-  { id: 7,  fecha: '2026-05-10', proveedor: 'Siglo XXI',                  rut: '77.610.160-5',  concepto: 'Material impreso y papelería',                  tipoDoc: 'Factura' as const, nroDoc: 'F-SX-0311',   monto: 2_200_000, cuenta: 'Formación Ciudadana',  responsable: 'P. Águila Cariz', categoriaSERVEL: 'Formación / Preparación' },
-  { id: 8,  fecha: '2026-05-12', proveedor: 'Acta Consultores SpA',       rut: '76.451.472-6',  concepto: 'Auditoría EEFF — balance SERVEL 2025',          tipoDoc: 'Factura' as const, nroDoc: 'F-AC-0089',   monto: 2_159_235, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Bienes y Servicios' },
-  { id: 9,  fecha: '2026-05-14', proveedor: 'Telefónica Chile S.A.',      rut: '89.862.200-2',  concepto: 'Telefonía e internet — sede central',           tipoDoc: 'Factura' as const, nroDoc: 'F-TF-198843', monto: 2_717_320, cuenta: 'Operacional',          responsable: 'P. Águila Cariz', categoriaSERVEL: 'Bienes y Servicios' },
-  { id: 10, fecha: '2026-05-15', proveedor: 'Sin identificar',            rut: '—',             concepto: 'Gasto terreno — actividad regional no rendida', tipoDoc: 'Sin documento' as const, nroDoc: '—',  monto: 95_000,    cuenta: 'Operacional',          responsable: 'Por regularizar', categoriaSERVEL: 'Otros Gastos de Administración' },
-  { id: 11, fecha: '2026-05-18', proveedor: 'Editorial Continental SpA',  rut: '77.236.959-K',  concepto: 'Material de formación política',                tipoDoc: 'Factura' as const, nroDoc: 'F-EC-2041',   monto: 1_547_952, cuenta: 'Formación Ciudadana',  responsable: 'P. Águila Cariz', categoriaSERVEL: 'Formación / Preparación' },
-  { id: 12, fecha: '2026-05-20', proveedor: 'Gastronomía y Prod SpA',     rut: '77.905.547-7',  concepto: 'Alimentación reunión Comité Central',           tipoDoc: 'Sin documento' as const, nroDoc: '—',  monto: 124_000,   cuenta: 'Operacional',          responsable: 'Sin respaldo',    categoriaSERVEL: 'Otros Gastos de Administración' },
-]
 
 // Simulación: algunos documentos ya "cargados" para mostrar el flujo
 function generarEgresosCompletos(): EgresoCompleto[] {
-  return EGRESOS_RAW.map(raw => {
-    const docs = generarCarpetaDocumental(raw.categoriaSERVEL, raw.monto)
+  return EGRESOS_BASE.map(base => {
+    const catDocs = keyDocs(base.categoriaSERVEL)
+    const docs = generarCarpetaDocumental(catDocs, base.monto)
     // Simular estado documental: los 3 primeros tienen docs cargados
-    if (raw.id <= 3) {
+    if (base.id <= 3) {
       docs.forEach(d => {
         if (d.tipo === 'bhe_sii' || d.tipo === 'transferencia') {
           d.estado = 'validado'
-          d.archivo = `${raw.nroDoc}_${d.tipo}.pdf`
-          d.fecha = raw.fecha
+          d.archivo = `${base.nroDoc}_${d.tipo}.pdf`
+          d.fecha = base.fecha
         } else if (d.tipo === 'contrato') {
           d.estado = 'cargado'
-          d.archivo = `contrato_${raw.rut.replace(/\./g, '')}.pdf`
+          d.archivo = `contrato_${base.rut.replace(/\./g, '')}.pdf`
           d.fecha = '2026-01-15'
         }
       })
     }
     const estadoEgreso = calcularEstadoEgreso(docs)
-    const alertas = detectarAlertas({ ...raw, estadoEgreso, documentos: docs })
-    return { ...raw, estadoEgreso, documentos: docs, alertas }
+    const alertas = detectarAlertas({ ...base, catDocs, estadoEgreso, documentos: docs })
+    return { ...base, catDocs, estadoEgreso, documentos: docs, alertas }
   })
 }
 
@@ -243,7 +247,7 @@ const ESTADOS_FILTRO = ['Todos', 'incompleto', 'completo', 'validado', 'observad
 
 function CarpetaDocumental({ egreso, onClose }: { egreso: EgresoCompleto; onClose: () => void }) {
   const [docs, setDocs] = useState(egreso.documentos)
-  const specs = DOCS_POR_CATEGORIA[egreso.categoriaSERVEL] ?? []
+  const specs = DOCS_POR_CATEGORIA[egreso.catDocs] ?? []
   const obligatorios = specs.filter(s => s.obligatorio)
   const completados = docs.filter(d => d.estado === 'cargado' || d.estado === 'validado').length
   const total = docs.length
