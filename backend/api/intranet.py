@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import (
-    APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status,
+    APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status,
 )
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr, Field
@@ -35,8 +35,10 @@ from db.models import Usuario, Contrato, DocumentoCargado, PersonalNomina
 from api.security import (
     get_db, get_current_user, usuario_vigente, require_rol, registrar_auditoria,
     hash_password, verify_password, crear_token,
+    crear_token_proposito, verificar_token_proposito, email_dominio_permitido,
     esta_bloqueado, registrar_intento_fallido, registrar_login_exitoso,
 )
+from api.correo import correo_definir_password
 
 router = APIRouter(prefix="/api")
 
@@ -59,6 +61,10 @@ def login(body: LoginBody, db: Session = Depends(get_db)):
         raise err
     if not user.activo:
         raise HTTPException(status_code=403, detail="Usuario desactivado")
+    if not user.password_hash:
+        raise HTTPException(status_code=403, detail="Aún no defines tu contraseña. Revisa el correo de invitación.")
+    if not user.aprobado:
+        raise HTTPException(status_code=403, detail="Tu registro está pendiente de aprobación por un administrador.")
     if esta_bloqueado(user):
         raise HTTPException(status_code=423, detail="Cuenta bloqueada temporalmente por intentos fallidos")
     if not verify_password(body.password, user.password_hash):
@@ -113,6 +119,70 @@ def cambiar_password(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  AUTOINSCRIPCIÓN — registro con correo institucional + definir contraseña
+# ══════════════════════════════════════════════════════════════════════════════
+class RegistroBody(BaseModel):
+    username: EmailStr
+    nombre: str = Field(min_length=1)
+
+
+class DefinirPasswordBody(BaseModel):
+    token: str
+    password: str = Field(min_length=8)
+
+
+@router.post("/auth/registro", status_code=201)
+def registro(body: RegistroBody, request: Request, db: Session = Depends(get_db)):
+    """Autoinscripción: solo correos del dominio institucional. Crea la cuenta
+    SIN contraseña y envía un correo para definirla. Queda PENDIENTE de aprobación."""
+    username = str(body.username).lower().strip()
+    if not email_dominio_permitido(username):
+        raise HTTPException(400, f"Solo se permite el registro con correos @{config.EMAIL_DOMAIN_PERMITIDO}")
+    if db.query(Usuario).filter(Usuario.username == username).first():
+        raise HTTPException(409, "Ya existe una cuenta con ese correo")
+
+    nuevo = Usuario(
+        username=username, password_hash="", nombre=body.nombre.strip(),
+        rol="funcionario", activo=True, aprobado=False, permanente=True,
+        creado_por="autoinscripcion",
+    )
+    db.add(nuevo); db.commit(); db.refresh(nuevo)
+
+    token = crear_token_proposito(username, "set_password", config.TOKEN_PASSWORD_MIN)
+    enlace = f"{config.FRONTEND_URL}/definir-password?token={token}"
+    enviado = correo_definir_password(username, nuevo.nombre, enlace)
+
+    registrar_auditoria(db, "REGISTRO_AUTOINSCRIPCION", usuario=username, entidad="usuarios",
+                        entidad_id=nuevo.id, detalle={"correo_enviado": enviado},
+                        ip=request.client.host if request.client else None)
+    return {"ok": True, "correo_enviado": enviado,
+            "mensaje": "Registro recibido. Revisa tu correo para definir la contraseña. "
+                       "Tu cuenta se habilitará cuando un administrador la apruebe."}
+
+
+@router.post("/auth/definir-password")
+def definir_password(body: DefinirPasswordBody, request: Request, db: Session = Depends(get_db)):
+    """Define la contraseña usando el token del correo de invitación."""
+    username = verificar_token_proposito(body.token, "set_password")
+    if not username:
+        raise HTTPException(400, "Enlace inválido o expirado. Solicita uno nuevo.")
+    user = db.query(Usuario).filter(Usuario.username == username).first()
+    if not user:
+        raise HTTPException(404, "Cuenta no encontrada")
+
+    user.password_hash = hash_password(body.password)
+    user.debe_cambiar_password = False
+    user.intentos_fallidos = 0
+    user.bloqueado_hasta = None
+    db.commit()
+    registrar_auditoria(db, "PASSWORD_DEFINIDA", usuario=username, entidad="usuarios",
+                        entidad_id=user.id, ip=request.client.host if request.client else None)
+    return {"ok": True, "aprobado": bool(user.aprobado),
+            "mensaje": "Contraseña definida." + ("" if user.aprobado else
+                       " Tu cuenta quedará habilitada cuando un administrador apruebe tu registro.")}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  USUARIOS (solo admin)
 # ══════════════════════════════════════════════════════════════════════════════
 class UsuarioCrear(BaseModel):
@@ -128,13 +198,22 @@ class UsuarioPatch(BaseModel):
     activo: Optional[bool] = None
     password: Optional[str] = Field(default=None, min_length=8)
     rol: Optional[str] = None
+    aprobado: Optional[bool] = None
 
 
 @router.get("/usuarios")
-def listar_usuarios(user: Usuario = Depends(require_rol("admin")), db: Session = Depends(get_db)):
-    us = db.query(Usuario).order_by(Usuario.nombre).all()
+def listar_usuarios(
+    pendiente: Optional[bool] = Query(None, description="true = solo registros por aprobar"),
+    user: Usuario = Depends(require_rol("admin")),
+    db: Session = Depends(get_db),
+):
+    q = db.query(Usuario)
+    if pendiente:
+        q = q.filter(Usuario.aprobado.is_(False))
+    us = q.order_by(Usuario.nombre).all()
     return [{"id": u.id, "username": u.username, "nombre": u.nombre, "rol": u.rol,
-             "rut": u.rut, "activo": u.activo, "permanente": u.permanente,
+             "rut": u.rut, "activo": u.activo, "aprobado": u.aprobado, "permanente": u.permanente,
+             "tiene_password": bool(u.password_hash),
              "ultimo_acceso": u.ultimo_acceso.isoformat() if u.ultimo_acceso else None} for u in us]
 
 
@@ -150,6 +229,7 @@ def crear_usuario(body: UsuarioCrear, user: Usuario = Depends(require_rol("admin
         nombre=body.nombre, rol=body.rol, rut=body.rut,
         permanente=body.permanente, creado_por=user.username,
         debe_cambiar_password=True,  # clave temporal: el usuario debe cambiarla al ingresar
+        aprobado=True,               # creado por un admin: ya aprobado
     )
     db.add(nuevo); db.commit(); db.refresh(nuevo)
     registrar_auditoria(db, "USUARIO_CREADO", usuario=user.username, entidad="usuarios",
@@ -174,6 +254,8 @@ def editar_usuario(uid: int, body: UsuarioPatch, user: Usuario = Depends(require
         u.intentos_fallidos = 0; u.bloqueado_hasta = None
         u.debe_cambiar_password = True  # reset por admin: el usuario debe cambiarla al ingresar
         cambios["password"] = "reseteada"
+    if body.aprobado is not None:
+        u.aprobado = body.aprobado; cambios["aprobado"] = body.aprobado
     db.commit()
     registrar_auditoria(db, "USUARIO_EDITADO", usuario=user.username, entidad="usuarios",
                         entidad_id=u.id, detalle=cambios)

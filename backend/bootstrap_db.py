@@ -41,6 +41,7 @@ MIGRACIONES = [
     "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS fecha_anulacion date",
     "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS motivo_anulacion text",
     "ALTER TABLE finparty.usuarios ADD COLUMN IF NOT EXISTS debe_cambiar_password boolean DEFAULT false",
+    "ALTER TABLE finparty.usuarios ADD COLUMN IF NOT EXISTS aprobado boolean DEFAULT false",
     # RRHH (spec §3.2 / §3.9): columnas nuevas en tablas ya existentes.
     "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS unidad_id bigint",
     "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS jefatura_directa_id bigint",
@@ -106,6 +107,7 @@ def main() -> int:
                 permanente=True,
                 creado_por="bootstrap_db",
                 debe_cambiar_password=False,  # el operador definio esta clave
+                aprobado=True,                # el admin inicial no requiere aprobacion
             ))
             db.commit()
             ok(f"Admin '{username}' creado.")

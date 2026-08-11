@@ -71,6 +71,36 @@ def decodificar_token(token: str) -> dict:
     return jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALGORITHM])
 
 
+def crear_token_proposito(username: str, proposito: str, minutos: int) -> str:
+    """Token de un solo propósito (p. ej. 'set_password') con caducidad corta.
+    Firmado con el mismo secreto pero acotado por el claim 'prop'."""
+    ahora = datetime.now(timezone.utc)
+    payload = {
+        "sub": username,
+        "prop": proposito,
+        "iat": ahora,
+        "exp": ahora + timedelta(minutes=minutos),
+    }
+    return jwt.encode(payload, config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
+
+
+def verificar_token_proposito(token: str, proposito: str) -> Optional[str]:
+    """Devuelve el username si el token es válido y del propósito esperado; None si no."""
+    try:
+        payload = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALGORITHM])
+    except JWTError:
+        return None
+    if payload.get("prop") != proposito:
+        return None
+    sub = payload.get("sub")
+    return sub if isinstance(sub, str) else None
+
+
+def email_dominio_permitido(username: str) -> bool:
+    """True si el correo pertenece al dominio institucional permitido."""
+    return username.strip().lower().endswith("@" + config.EMAIL_DOMAIN_PERMITIDO.lower())
+
+
 # ─── Sesión de BD por request ───────────────────────────────────────────────────
 def get_db():
     db = SessionLocal()

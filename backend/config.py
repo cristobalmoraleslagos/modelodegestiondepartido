@@ -80,6 +80,16 @@ ADMIN_USER = os.getenv("ADMIN_USER", "")
 ADMIN_PASS = os.getenv("ADMIN_PASS", "")
 ADMIN_NOMBRE = os.getenv("ADMIN_NOMBRE", "Administrador")
 
+# ─── Autoinscripción (registro de funcionarios/as) ────────────
+# Solo se permite registrarse con correos de este dominio institucional.
+EMAIL_DOMAIN_PERMITIDO = os.getenv("EMAIL_DOMAIN_PERMITIDO", "pcchile.org")
+# URL pública del frontend, para construir el enlace de "definir contraseña".
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+# Remitente de los correos transaccionales (invitación, etc.).
+CORREO_REMITENTE = os.getenv("CORREO_REMITENTE", SMTP_USER or "no-reply@pcchile.org")
+# Minutos de validez del enlace de definir/restablecer contraseña.
+TOKEN_PASSWORD_MIN = int(os.getenv("TOKEN_PASSWORD_MIN", str(48 * 60)))  # 48 h
+
 
 # ─── Partido ──────────────────────────────────────────────────
 RUT_PARTIDO    = os.getenv("RUT_PARTIDO", "71701800-1")

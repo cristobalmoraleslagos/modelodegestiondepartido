@@ -40,6 +40,7 @@ def main() -> int:
             permanente=True,
             creado_por="seed_admin",
             debe_cambiar_password=False,  # el operador definió esta clave; no se fuerza cambio
+            aprobado=True,                # el admin inicial no requiere aprobación
         )
         db.add(admin)
         db.commit()
