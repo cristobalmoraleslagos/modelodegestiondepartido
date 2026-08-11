@@ -42,6 +42,17 @@ const NAV: NavItem[] = [
 
 const GROUPS = ['Financiero', 'Organización', 'Legal', 'Intranet', 'Sistema']
 
+// ── Alcance de la interfaz ──────────────────────────────────────────────────
+// Mientras los módulos financieros NO están validados por el tenant admin, la
+// instancia muestra SOLO Recursos Humanos para no exponer información sin validar.
+// Nada se elimina: el resto queda oculto. Para reactivar toda la navegación:
+// definir VITE_APP_SCOPE=full (o cambiar el default aquí).
+const APP_SCOPE = (import.meta.env.VITE_APP_SCOPE as string | undefined) ?? 'rrhh'
+const SOLO_RRHH = APP_SCOPE === 'rrhh'
+const NAV_VISIBLE = SOLO_RRHH ? NAV.filter(n => n.id === 'rrhh') : NAV
+const GROUPS_VISIBLE = GROUPS.filter(g => NAV_VISIBLE.some(n => n.group === g))
+const TAB_INICIAL: Tab = SOLO_RRHH ? 'rrhh' : 'presupuesto'
+
 const TITLES: Record<Tab, string> = {
   presupuesto:  'Presupuesto · Ejecución · Análisis Histórico',
   ingresos:     'Ingresos — Fuentes, Donaciones y Fondo Género',
@@ -66,10 +77,10 @@ function Sidebar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void
         <p className="text-xs text-slate-400 mt-0.5">Control Financiero · SERVEL</p>
       </div>
       <nav className="flex-1 py-3 px-2">
-        {GROUPS.map(group => (
+        {GROUPS_VISIBLE.map(group => (
           <div key={group} className="mb-4">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-3 mb-1">{group}</p>
-            {NAV.filter(n => n.group === group).map(n => (
+            {NAV_VISIBLE.filter(n => n.group === group).map(n => (
               <button
                 key={n.id}
                 onClick={() => onSelect(n.id)}
@@ -102,7 +113,7 @@ function Sidebar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void
 
 export default function App() {
   const [sesion, setSesion] = useState<Sesion | null>(() => getSesion())
-  const [tab, setTab] = useState<Tab>('presupuesto')
+  const [tab, setTab] = useState<Tab>(TAB_INICIAL)
 
   function handleLogin() {
     setSesion(getSesion())
