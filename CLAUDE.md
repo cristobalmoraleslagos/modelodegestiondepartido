@@ -5,7 +5,7 @@
 > lo **funcional** y lo **de infraestructura**. Complementa a `COWORK-ONBOARDING.md` (más
 > detallado en mapa de repo y convenciones); este archivo prioriza **estado y decisiones**.
 >
-> Última actualización: 2026-06-22.
+> Última actualización: 2026-06-22 · rev. autoinscripción + CI.
 
 ---
 
@@ -50,9 +50,11 @@ degrada a datos hardcodeados / localStorage.
 ### 4.1 Lo que funciona
 - **Financiero** (hoy oculto, ver §6): Presupuesto, Ingresos, Egresos, Tesorería (flujo de caja real 2026 + conciliación), Contabilidad, Compliance (alertas + tabla de límites legales), Rendición SERVEL. Datos reales anclados a Defontana/Transparencia/Previred.
 - **Intranet de rendición** (backend): auth JWT + RBAC + lockout + **cambio de contraseña forzado en primer login**; carga de BHE (con anulación), contratos, informes y generación de carpetas de rendición. Auditoría de toda acción.
+- **Autoinscripción** (backend, `POST /api/auth/registro` + `/definir-password`): la persona se registra con correo **`@pcchile.org`**, recibe un correo con enlace de token (48 h) para **definir su propia contraseña**, y queda **pendiente de aprobación** por un admin (`Usuario.aprobado`; guards de login). Envío por SMTP genérico (`api/correo.py`), tolerante si no hay credenciales. **Falta el frontend** (registro público + página definir-password).
 - **RRHH** (foco actual): ficha de funcionarios/as — el **admin incorpora/desvincula**, funcionario/auditor solo consultan. Backend `api/rrhh.py` (CRUD + auditoría con IP). Frontend Hub RRHH. Ficha **sembrada con la nómina real** (9 personas, derivadas de `FUNCIONARIOS_CANON`, sin exponer sueldos).
 
 ### 4.2 Pendiente funcional (RRHH, por orden de valor)
+0. **Frontend de autoinscripción**: formulario de registro público (login) + página `/definir-password?token=` + vista de aprobación de pendientes para el admin. El backend ya está.
 1. **Contrato + `sueldo_base`** con **cifrado en la app** (decisión tomada; falta implementar) y `datos_previsionales` con permiso adicional.
 2. **Ausentismo** (vacaciones/licencias/permisos) con flujo de aprobación + saldo de feriado legal chileno.
 3. **Organigrama** (`unidad_organizacional` + jefatura) y **historial de cargo**.
@@ -78,7 +80,8 @@ Secuencia (ver `HOJA-RUTA-INTRANET.md`): host → `bootstrap_db.py` (extensiones
 - **Corregido**: `bootstrap_db.py` fija `search_path = finparty` de forma persistente. Sin eso, las tablas caían en `public` y las migraciones `finparty.*` fallaban en silencio (la columna `anulada`/`debe_cambiar_password` no se agregaba). Coherencia lograda.
 
 ### 5.3 Secretos / configuración
-- `.env.example` completo (JWT_SECRET, CORS_ORIGINS, ADMIN_*, SII/Defontana). Defaults peligrosos marcados `CAMBIAR_...`.
+- `.env.example` completo (JWT_SECRET, CORS_ORIGINS, ADMIN_*, SII/Defontana, y autoinscripción: `EMAIL_DOMAIN_PERMITIDO`, `FRONTEND_URL`, `CORREO_REMITENTE`, `TOKEN_PASSWORD_MIN`). Defaults peligrosos marcados `CAMBIAR_...`.
+- **SMTP** (`SMTP_HOST/USER/PASSWORD`) alimenta los correos de invitación. Camino de envío para `@pcchile.org` **por definir**: Proton Business SMTP submission, o proveedor transaccional (SES/Postmark/SendGrid) con SPF+DKIM en el DNS de `pcchile.org`.
 - Frontend flags: `VITE_API_URL` (backend on/off), **`VITE_APP_SCOPE`** (ver §6), `VITE_PASS_CM`/`VITE_PASS_AU` (login admin demo).
 
 ### 5.4 Aspectos a MEJORAR (infra)
@@ -86,7 +89,7 @@ Secuencia (ver `HOJA-RUTA-INTRANET.md`): host → `bootstrap_db.py` (extensiones
 - **Auditoría de lectura** de datos sensibles (spec RRHH §6): `AuditLog` ya tiene `ip`; falta instrumentar la lectura, no solo la escritura.
 - **Storage de archivos**: hoy `backend/attachments/` local; migrar a object storage (S3/GCS) al desplegar.
 - **Reportería**: separar de las tablas transaccionales (vista materializada/réplica) cuando crezca la dotación.
-- **Sin CI** ni tests automatizados de frontend/backend; la verificación es manual (tsc + preview). Un mínimo de CI (`tsc -b` + import del backend) evitaría regresiones.
+- **CI mínimo activo** (`.github/workflows/ci.yml`): `tsc -b` + import de `api.main` en cada push/PR. Falta cobertura de **tests** (unitarios/integración), sobre todo para la lógica de negocio futura (feriado legal, cifrado).
 
 ---
 
@@ -118,6 +121,7 @@ sería exponer información sin validar. La app se presenta **solo como RRHH**:
 
 - `COWORK-ONBOARDING.md` — mapa de repo y convenciones en detalle.
 - `HOJA-RUTA-INTRANET.md` — despliegue del backend/intranet.
-- `RRHH/HOJA-RUTA-RRHH.md` — plan de la plataforma RRHH (fases, reuso/extensión/nuevo).
+- `RRHH/HOJA-RUTA-RRHH.md` — plan de la plataforma RRHH (fases, reuso/extensión/nuevo; §8 = plan repriorizado).
+- `RRHH/HOJA-RUTA-RRHH-actualizada.md` — insumo de Cowork (autoservicio, ARCO, rol jefatura, admin granular).
 - `RRHH/spec-plataforma-rrhh.md` — especificación funcional de RRHH.
 - `AUDITORIA-INTEGRAL-2026-06.md` — auditoría del modelo (hallazgos, brechas).
