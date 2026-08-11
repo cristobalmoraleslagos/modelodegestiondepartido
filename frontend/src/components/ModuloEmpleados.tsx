@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react'
 import { UserPlus, Search, Users, AlertCircle, X, ShieldCheck } from 'lucide-react'
 import { API_DISPONIBLE, authGet, authSend } from '../api'
 import type { Rol } from '../auth'
+import { FUNCIONARIOS_CANON } from '../data/personal'
 
 // ── Tipo de empleado (coincide con api/rrhh.py _serializar) ──
 interface Empleado {
@@ -18,12 +19,27 @@ interface Empleado {
 }
 
 const ESTADOS = ['activo', 'inactivo', 'licencia', 'desvinculado'] as const
-const DEMO_KEY = 'fp_rrhh_empleados'
+const DEMO_KEY = 'fp_rrhh_empleados_v2'
 
-const SEED_DEMO: Empleado[] = [
-  { id: 1, rut: '15.234.567-8', nombres: 'Camila', apellidos: 'Rojas Peña', estado: 'activo', email_corporativo: 'camila.rojas@pcch.cl', telefono: '+56 9 8765 4321', unidad_id: null, fecha_ingreso: '2024-03-01', fecha_egreso: null },
-  { id: 2, rut: '9.876.543-2', nombres: 'Diego', apellidos: 'Muñoz Silva', estado: 'activo', email_corporativo: 'diego.munoz@pcch.cl', telefono: '+56 9 5555 1234', unidad_id: null, fecha_ingreso: '2023-08-15', fecha_egreso: null },
-]
+// Separa "Nombre(s) Apellido Apellido" en nombres/apellidos (convención chilena:
+// los dos últimos tokens son apellidos; el resto, nombres).
+function splitNombre(full: string): { nombres: string; apellidos: string } {
+  const p = full.trim().split(/\s+/)
+  if (p.length <= 2) return { nombres: p[0] ?? '', apellidos: p.slice(1).join(' ') }
+  return { nombres: p.slice(0, -2).join(' '), apellidos: p.slice(-2).join(' ') }
+}
+
+// Seed demo derivado de la nómina canónica real (FUNCIONARIOS_CANON, fuente única).
+// Solo datos de identificación/estado — NO se expone sueldo ni cuenta bancaria.
+const SEED_DEMO: Empleado[] = FUNCIONARIOS_CANON.map((f, i) => {
+  const { nombres, apellidos } = splitNombre(f.nombre)
+  return {
+    id: i + 1, rut: f.rut, nombres, apellidos,
+    estado: f.activo ? 'activo' : 'inactivo',
+    email_corporativo: null, telefono: null, unidad_id: null,
+    fecha_ingreso: null, fecha_egreso: null,
+  }
+})
 
 // ── Acceso a datos: backend real o demo localStorage ──
 const demoLoad = (): Empleado[] => {
