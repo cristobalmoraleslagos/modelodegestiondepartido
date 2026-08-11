@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import {
-  BarChart2, Wallet, Receipt, Users,
+  BarChart2, Wallet, Receipt, Users, UserCog,
   Building2, Scale, ShieldAlert, ClipboardList, FileDown, KeyRound,
 } from 'lucide-react'
 
@@ -14,6 +14,7 @@ import HubContabilidad     from './components/HubContabilidad'
 import HubCompliance       from './components/HubCompliance'
 import HubRendicion        from './components/HubRendicion'
 import HubIntranet         from './components/HubIntranet'
+import HubRRHH             from './components/HubRRHH'
 import ModuloCargaDatos    from './components/ModuloCargaDatos'
 import LoginPage           from './components/LoginPage'
 import { getSesion, logout, type Sesion } from './auth'
@@ -21,7 +22,7 @@ import { getSesion, logout, type Sesion } from './auth'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = 'presupuesto' | 'ingresos' | 'egresos' | 'personal'
-         | 'tesoreria' | 'contabilidad' | 'compliance' | 'rendicion' | 'intranet' | 'datos'
+         | 'tesoreria' | 'contabilidad' | 'compliance' | 'rendicion' | 'intranet' | 'rrhh' | 'datos'
 
 interface NavItem { id: Tab; label: string; icon: ReactNode; group: string }
 
@@ -35,6 +36,7 @@ const NAV: NavItem[] = [
   { id: 'compliance',   label: 'Compliance',       icon: <ShieldAlert size={18} />,group: 'Legal'        },
   { id: 'rendicion',    label: 'Rendición SERVEL', icon: <FileDown size={18} />,   group: 'Legal'        },
   { id: 'intranet',     label: 'Intranet Rendición', icon: <KeyRound size={18} />, group: 'Intranet'     },
+  { id: 'rrhh',         label: 'Recursos Humanos', icon: <UserCog size={18} />,    group: 'Intranet'     },
   { id: 'datos',        label: 'Carga de Datos',   icon: <ClipboardList size={18} />, group: 'Sistema'   },
 ]
 
@@ -50,6 +52,7 @@ const TITLES: Record<Tab, string> = {
   compliance:   'Compliance — Alertas Legales y Calendario',
   rendicion:    'Rendición SERVEL — Exportación de Módulos DS 1174/2016',
   intranet:     'Intranet de Rendición — Carga BHE, Contratos e Informes',
+  rrhh:         'Recursos Humanos — Ficha de Funcionarios/as',
   datos:        'Carga de Datos Reales',
 }
 
@@ -149,6 +152,7 @@ export default function App() {
           {tab === 'compliance'   && <HubCompliance />}
           {tab === 'rendicion'    && <HubRendicion />}
           {tab === 'intranet'     && <HubIntranet rol={sesion.rol} />}
+          {tab === 'rrhh'         && <HubRRHH rol={sesion.rol} />}
           {tab === 'datos'        && <ModuloCargaDatos />}
         </main>
       </div>
