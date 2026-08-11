@@ -96,16 +96,51 @@ Aprovecha todo lo ya construido. Orden sugerido:
 
 ---
 
-## 7. Avance y próximo paso
+## 7. Avance
 
 **Hecho:**
-- Fase 1, pasos 1-2: modelos nuevos + migraciones idempotentes (commit de modelos base).
+- Modelos nuevos + migraciones idempotentes (5 tablas RRHH + extensiones).
 - Router `api/rrhh.py` — **ficha de funcionarios/as**: el admin incorpora personas
-  (`POST /api/rrhh/empleados`), lista y consulta (`GET`), y edita/desvincula (`PATCH`).
-  Toda acción auditada con IP. Registrado en `main.py`.
+  (`POST /api/rrhh/empleados`), lista/consulta (`GET`), edita/desvincula (`PATCH`). Auditado con IP.
+- Frontend Hub RRHH (ficha, alta por admin, listado) + **seed con la nómina real** (9 personas,
+  derivadas de `FUNCIONARIOS_CANON`, sin exponer sueldos).
+- **Alcance solo-RRHH** (`APP_SCOPE`, ver §6 del CLAUDE.md).
+- **CI mínimo** (`.github/workflows/ci.yml`): `tsc -b` + import del backend en cada push.
 
-**Próximo:**
-- Frontend: Hub RRHH con la Ficha (alta/edición de funcionarios/as por el admin) y listado.
-- Extender `contrato` con los campos nuevos vía endpoints + cifrado de `sueldo_base`
-  (definir método: pgcrypto vs app-layer).
-- `datos_previsionales` con permiso adicional para datos sensibles.
+---
+
+## 8. Plan repriorizado por dependencias (fusión con insumo de Cowork)
+
+Reordena por prerrequisitos reales, no solo por valor. Detalle en
+`RRHH/HOJA-RUTA-RRHH-actualizada.md` (insumo de Cowork).
+
+**Fase 0 — Bloqueante técnico (antes de tocar datos reales):**
+1. Desplegar backend con HTTPS + Postgres (host propio). *Depende del usuario; no ejecutable por el agente.*
+2. `bootstrap_db.py` → secretos reales (sin defaults `CAMBIAR_...`) → `VITE_API_URL` → verificación.
+3. ~~CI mínimo~~ ✅ **hecho**.
+
+**Fase 1 — Datos sensibles (bloqueante para cargar sueldo/cuenta reales):**
+1. Cifrado en la app (Fernet/AES, clave por env) para `*_cifrado`.
+2. **Guard server-side**: rechazar escritura en campos sensibles si no hay clave de cifrado.
+3. `datos_previsionales` con permiso adicional; **auditoría de LECTURA** (no solo escritura).
+4. **Admin operativo** vs **admin con acceso a datos sensibles** (permisos granulares dentro de admin).
+
+**Fase 2 — Ausentismo + jefatura:** rol **jefatura** (prerrequisito de la aprobación) → ausentismo
+con feriado legal/progresivo (lógica de negocio con tests) → autoservicio de solicitudes.
+
+**Fase 3 — Organigrama, historial de cargo, generador de documentos** (con **gestión de plantillas
+desde admin**, no hardcodeada) + descarga de certificados por autoservicio.
+
+**Fase 4 — Informes de servicio** (dotación, contratos por vencer, ausentismo) + informe de
+fiscalización SERVEL con **auditoría reforzada de exportación**.
+
+**Fase 5 — Transparencia y cumplimiento Ley 21.719:** "quién consultó mi ficha" (usa `AuditLog`
+filtrado), **registro de solicitudes ARCO**, `seed_rrhh.py` para poblar `empleados` en la BD.
+
+**Fase 6 — Deuda técnica (antes de reactivar `APP_SCOPE=full`):** fix bug **Fondo Género** en
+`ModuloAlertas` (con test de regresión), reconciliar cifras 2025, evaluar aislamiento real del
+bundle financiero, migrar `attachments/` a object storage.
+
+**Aportes de valor del insumo de Cowork** (no estaban explícitos): transparencia de accesos al
+titular, solicitud de cambio de datos con aprobación (no edición directa), rol jefatura como
+prerrequisito de ausentismo, permisos granulares dentro de admin, registro ARCO.

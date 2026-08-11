@@ -1,0 +1,44 @@
+name: CI
+
+# CI mínimo (ver RRHH/HOJA-RUTA-RRHH.md, Fase 0). Evita regresiones antes de
+# agregar cifrado y RBAC granular: chequea que el frontend tipa y que el backend
+# importa. NO conecta a la base de datos (el import de api.main no abre conexión;
+# la creación de tablas ocurre en el evento startup, que no se dispara al importar).
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  frontend:
+    name: Frontend · tsc -b
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc -b
+
+  backend:
+    name: Backend · import
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Import de la app (sin conectar a la BD)
+        run: python -c "import api.main; print('OK rutas:', len(api.main.app.routes))"
