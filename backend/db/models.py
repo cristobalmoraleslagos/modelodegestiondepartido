@@ -12,6 +12,7 @@ from sqlalchemy import (
     Integer, Numeric, String, Text, UniqueConstraint, Index,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.database import Base
@@ -358,6 +359,12 @@ class Contrato(Base):
     vigente:           Mapped[bool]           = mapped_column(Boolean, default=True)
     estado:            Mapped[str]            = mapped_column(String(32), default="cargado")
     fecha_carga:       Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
+    # ── Extensiones RRHH (spec §3.2) ──
+    unidad_id:            Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("unidades_organizacionales.id"))
+    jefatura_directa_id:  Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("empleados.id"))
+    jornada:              Mapped[Optional[str]] = mapped_column(String(32))    # completa | parcial | teletrabajo
+    sueldo_base_cifrado:  Mapped[Optional[str]] = mapped_column(Text)          # SENSIBLE: ciphertext, NUNCA en claro
+    centro_costo:         Mapped[Optional[str]] = mapped_column(String(64))
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -373,3 +380,96 @@ class AuditLog(Base):
     entidad_id:  Mapped[Optional[int]] = mapped_column(BigInteger)
     usuario:     Mapped[Optional[str]] = mapped_column(String(128))  # "pipeline" o nombre de usuario
     detalle:     Mapped[Optional[str]] = mapped_column(Text)         # JSON con detalles adicionales
+    ip:          Mapped[Optional[str]] = mapped_column(String(64))   # IP de origen (auditoría de datos sensibles, spec §6)
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  RRHH — Plataforma de Recursos Humanos (ver RRHH/HOJA-RUTA-RRHH.md)
+#  Entidades nuevas del spec §3. Aditivas: no alteran el pipeline actual.
+# ══════════════════════════════════════════════════════════════════════
+class UnidadOrganizacional(Base):
+    """Estructura jerárquica (área/departamento/jefatura) — spec §3.7."""
+    __tablename__ = "unidades_organizacionales"
+
+    id:         Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    nombre:     Mapped[str]            = mapped_column(String(255), nullable=False)
+    tipo:       Mapped[str]            = mapped_column(String(32))    # area | departamento | jefatura
+    parent_id:  Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("unidades_organizacionales.id"))
+    activa:     Mapped[bool]           = mapped_column(Boolean, default=True)
+    fecha_creacion: Mapped[datetime]   = mapped_column(DateTime(timezone=True), default=func.now())
+
+
+class Empleado(Base):
+    """Ficha del funcionario/a — spec §3.1. Vincula con PersonalNomina por RUT."""
+    __tablename__ = "empleados"
+    __table_args__ = (Index("ix_empleado_rut", "rut"),)
+
+    id:                 Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    rut:                Mapped[str]            = mapped_column(String(20), unique=True, nullable=False)
+    nombres:            Mapped[str]            = mapped_column(String(255), nullable=False)
+    apellidos:          Mapped[str]            = mapped_column(String(255), nullable=False)
+    fecha_nacimiento:   Mapped[Optional[date]] = mapped_column(Date)
+    genero:             Mapped[Optional[str]]  = mapped_column(String(32))
+    email_personal:     Mapped[Optional[str]]  = mapped_column(String(255))
+    email_corporativo:  Mapped[Optional[str]]  = mapped_column(String(255))
+    telefono:           Mapped[Optional[str]]  = mapped_column(String(64))
+    direccion:          Mapped[Optional[str]]  = mapped_column(Text)
+    contacto_emergencia: Mapped[Optional[dict]] = mapped_column(JSONB)   # {nombre, relacion, telefono}
+    estado:             Mapped[str]            = mapped_column(String(32), default="activo")  # activo|inactivo|licencia|desvinculado
+    fecha_ingreso:      Mapped[Optional[date]] = mapped_column(Date)
+    fecha_egreso:       Mapped[Optional[date]] = mapped_column(Date)
+    foto_url:           Mapped[Optional[str]]  = mapped_column(Text)
+    unidad_id:          Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("unidades_organizacionales.id"))
+    fecha_creacion:     Mapped[datetime]       = mapped_column(DateTime(timezone=True), default=func.now())
+    fecha_actualizacion: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+    actualizado_por:    Mapped[Optional[str]]  = mapped_column(String(128))
+
+
+class HistorialCargo(Base):
+    """Trayectoria de cargo/unidad/jefatura/renta sin sobrescribir — spec §3.3."""
+    __tablename__ = "historial_cargo"
+
+    id:            Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    empleado_id:   Mapped[int]            = mapped_column(BigInteger, ForeignKey("empleados.id"), nullable=False)
+    cargo:         Mapped[Optional[str]]  = mapped_column(String(255))
+    unidad_id:     Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("unidades_organizacionales.id"))
+    jefatura_id:   Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("empleados.id"))
+    renta_ref_cifrada: Mapped[Optional[str]] = mapped_column(Text)      # SENSIBLE: ciphertext
+    motivo:        Mapped[Optional[str]]  = mapped_column(String(32))   # promocion | traslado | ajuste | otro
+    fecha_desde:   Mapped[date]           = mapped_column(Date, nullable=False)
+    fecha_hasta:   Mapped[Optional[date]] = mapped_column(Date)
+    fecha_creacion: Mapped[datetime]      = mapped_column(DateTime(timezone=True), default=func.now())
+
+
+class Ausentismo(Base):
+    """Vacaciones, licencias médicas y permisos — spec §3.5."""
+    __tablename__ = "ausentismos"
+
+    id:            Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    empleado_id:   Mapped[int]            = mapped_column(BigInteger, ForeignKey("empleados.id"), nullable=False)
+    tipo:          Mapped[str]            = mapped_column(String(32), nullable=False)  # vacaciones|licencia_medica|permiso
+    fecha_inicio:  Mapped[date]           = mapped_column(Date, nullable=False)
+    fecha_fin:     Mapped[date]           = mapped_column(Date, nullable=False)
+    dias:          Mapped[Optional[float]] = mapped_column(Numeric(6, 2))
+    estado:        Mapped[str]            = mapped_column(String(32), default="solicitado")  # solicitado|aprobado|rechazado
+    aprobado_por:  Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("empleados.id"))
+    documento_id:  Mapped[Optional[int]]  = mapped_column(BigInteger, ForeignKey("documentos_cargados.id"))
+    observacion:   Mapped[Optional[str]]  = mapped_column(Text)
+    fecha_creacion: Mapped[datetime]      = mapped_column(DateTime(timezone=True), default=func.now())
+
+
+class DatosPrevisionales(Base):
+    """Datos previsionales/bancarios — spec §3.6. AISLADA, permisos estrictos.
+    Los campos sensibles se guardan cifrados (ciphertext), nunca en claro."""
+    __tablename__ = "datos_previsionales"
+
+    id:              Mapped[int]            = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    empleado_id:     Mapped[int]            = mapped_column(BigInteger, ForeignKey("empleados.id"), unique=True, nullable=False)
+    afp:             Mapped[Optional[str]]  = mapped_column(String(64))
+    salud:           Mapped[Optional[str]]  = mapped_column(String(32))   # fonasa | isapre
+    salud_detalle:   Mapped[Optional[str]]  = mapped_column(String(128))  # nombre isapre / tramo fonasa
+    banco:           Mapped[Optional[str]]  = mapped_column(String(64))
+    cuenta_bancaria_cifrada: Mapped[Optional[str]] = mapped_column(Text)  # SENSIBLE: ciphertext
+    forma_pago:      Mapped[Optional[str]]  = mapped_column(String(32))   # transferencia | cheque | efectivo
+    fecha_actualizacion: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+    actualizado_por: Mapped[Optional[str]]  = mapped_column(String(128))

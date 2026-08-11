@@ -41,6 +41,13 @@ MIGRACIONES = [
     "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS fecha_anulacion date",
     "ALTER TABLE finparty.documentos_cargados ADD COLUMN IF NOT EXISTS motivo_anulacion text",
     "ALTER TABLE finparty.usuarios ADD COLUMN IF NOT EXISTS debe_cambiar_password boolean DEFAULT false",
+    # RRHH (spec §3.2 / §3.9): columnas nuevas en tablas ya existentes.
+    "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS unidad_id bigint",
+    "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS jefatura_directa_id bigint",
+    "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS jornada varchar(32)",
+    "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS sueldo_base_cifrado text",
+    "ALTER TABLE finparty.contratos ADD COLUMN IF NOT EXISTS centro_costo varchar(64)",
+    "ALTER TABLE finparty.audit_log ADD COLUMN IF NOT EXISTS ip varchar(64)",
 ]
 
 
