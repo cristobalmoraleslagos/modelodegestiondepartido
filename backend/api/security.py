@@ -140,8 +140,10 @@ def registrar_auditoria(
     entidad: Optional[str] = None,
     entidad_id: Optional[int] = None,
     detalle: Optional[dict] = None,
+    ip: Optional[str] = None,
 ) -> None:
-    """Inserta un registro inmutable en audit_log. No interrumpe el flujo si falla."""
+    """Inserta un registro inmutable en audit_log. No interrumpe el flujo si falla.
+    `ip` es obligatorio de facto para acciones sobre datos sensibles (spec RRHH §6)."""
     try:
         db.add(AuditLog(
             accion=accion,
@@ -149,6 +151,7 @@ def registrar_auditoria(
             entidad_id=entidad_id,
             usuario=usuario,
             detalle=json.dumps(detalle, ensure_ascii=False) if detalle else None,
+            ip=ip,
         ))
         db.commit()
     except Exception:

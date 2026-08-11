@@ -14,7 +14,7 @@ Para no bloquear el diseño, se fijan estas premisas (ajustables si el usuario i
 | Pregunta abierta | Premisa adoptada | Impacto |
 |------------------|------------------|---------|
 | ¿Calcula remuneraciones? | **No.** Solo almacena/muestra liquidaciones externas (Previred/Defontana ya integrados). | Evita reimplementar cálculo previsional chileno. |
-| ¿Single o multi-tenant? | **Single-tenant** (el partido). | Modelo sin `organizacion_id`; simple. |
+| ¿Single o multi-tenant? | **Single-tenant** — CONFIRMADO: "solo será usada por funcionarios/as del Partido Comunista". | Modelo sin `organizacion_id`; simple. |
 | ¿Storage de archivos? | Reusar `backend/attachments/` local → migrar a object storage (S3/GCS) al desplegar. | Consistente con la intranet actual. |
 | ¿Integración externa? | Previred/Defontana son la **fuente** de datos previsionales; RRHH no los duplica, referencia. | `datos_previsionales` guarda lo mínimo. |
 | ¿Jurisdicción? | **Chile única.** | Feriado legal, feriado progresivo, finiquito, Ley 21.719. |
@@ -96,6 +96,16 @@ Aprovecha todo lo ya construido. Orden sugerido:
 
 ---
 
-## 7. Próximo paso concreto
+## 7. Avance y próximo paso
 
-Con las premisas de §1 confirmadas, la primera unidad de trabajo codificable es **Fase 1, paso 1-2**: los modelos nuevos + su migración idempotente en `bootstrap_db.py`, sin tocar aún endpoints ni frontend. Es aislado, no rompe la intranet actual y deja la base para todo lo demás.
+**Hecho:**
+- Fase 1, pasos 1-2: modelos nuevos + migraciones idempotentes (commit de modelos base).
+- Router `api/rrhh.py` — **ficha de funcionarios/as**: el admin incorpora personas
+  (`POST /api/rrhh/empleados`), lista y consulta (`GET`), y edita/desvincula (`PATCH`).
+  Toda acción auditada con IP. Registrado en `main.py`.
+
+**Próximo:**
+- Frontend: Hub RRHH con la Ficha (alta/edición de funcionarios/as por el admin) y listado.
+- Extender `contrato` con los campos nuevos vía endpoints + cifrado de `sueldo_base`
+  (definir método: pgcrypto vs app-layer).
+- `datos_previsionales` con permiso adicional para datos sensibles.

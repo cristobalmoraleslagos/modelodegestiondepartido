@@ -38,6 +38,7 @@ from analytics import (
     DOCS_REQUERIDOS, LIMITES_APORTE_UF,
 )
 from api.intranet import router as intranet_router
+from api.rrhh import router as rrhh_router
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -60,6 +61,8 @@ app.add_middleware(
 
 # Router de la intranet (auth, BHE, contratos, informes, rendición)
 app.include_router(intranet_router)
+# Router de RRHH (ficha de funcionarios/as)
+app.include_router(rrhh_router)
 
 
 def _migrar_columnas():
