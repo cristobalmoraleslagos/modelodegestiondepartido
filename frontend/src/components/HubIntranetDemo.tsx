@@ -13,10 +13,12 @@ import { useEffect, useState } from 'react'
 import {
   Clock, FileText, BarChart3, Cake, Plane, CalendarDays,
   LogIn, LogOut, Plus, Trash2, Ban, CheckCircle2, Info, Users, Megaphone,
+  Home, Quote, BookOpen,
 } from 'lucide-react'
 import { fmt } from '../utils'
 import type { Rol } from '../auth'
 import ModuloEmpleados from './ModuloEmpleados'
+import { fraseDelDia, libroDelDia, LIBROS, META_LIBROS } from '../data/inspiracion'
 
 // ── Persistencia local ──────────────────────────────────────────────────────
 function useLocal<T>(key: string, initial: T) {
@@ -361,6 +363,45 @@ function Informes() {
   )
 }
 
+// ════════════════════════════════ INICIO ════════════════════════════════════
+function Inicio() {
+  const frase = fraseDelDia()
+  const libro = libroDelDia()
+  return (
+    <div className="space-y-5">
+      {/* Frase del día */}
+      <div className="bg-gradient-to-br from-amaranto-600 to-amaranto-800 text-white rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-widest mb-3">
+          <Quote size={14} /> Frase del día
+        </div>
+        <blockquote className="text-lg font-medium leading-relaxed italic">"{frase.texto}"</blockquote>
+        <p className="text-sm text-white/80 mt-3">— {frase.autor}{frase.fuente ? ` · ${frase.fuente}` : ''}</p>
+      </div>
+
+      {/* Libro del día */}
+      <Card>
+        <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold uppercase tracking-widest mb-3">
+          <BookOpen size={14} /> Libro recomendado del día
+        </div>
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-16 rounded-md bg-gradient-to-b from-amaranto-500 to-amaranto-700 shrink-0 flex items-center justify-center">
+            <BookOpen size={20} className="text-white/90" />
+          </div>
+          <div>
+            <p className="text-base font-semibold text-slate-800">{libro.titulo}</p>
+            <p className="text-sm text-slate-500">{libro.autor}{libro.anio ? ` · ${libro.anio}` : ''}</p>
+            <span className="inline-block mt-2 text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">{libro.categoria}</span>
+          </div>
+        </div>
+        <p className="text-xs text-slate-400 mt-4">
+          Biblioteca de formación: {LIBROS.length} de {META_LIBROS} libros (comunista, socialista, feminista,
+          marxista, filosofía política y literatura latinoamericana). La lista sigue creciendo.
+        </p>
+      </Card>
+    </div>
+  )
+}
+
 // ════════════════════════════════ NOTICIAS / BANNERS ════════════════════════
 interface Noticia { id: number; titulo: string; cuerpo: string; tipo: 'banner' | 'noticia'; fecha: string }
 const SEED_NOTICIAS: Noticia[] = [
@@ -437,11 +478,12 @@ function Noticias({ rol }: { rol: Rol }) {
 }
 
 // ════════════════════════════════ HUB ═══════════════════════════════════════
-type Sub = 'ficha' | 'noticias' | 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
+type Sub = 'inicio' | 'ficha' | 'noticias' | 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
 
 export default function HubIntranetDemo({ rol }: { rol: Rol }) {
-  const [sub, setSub] = useState<Sub>('ficha')
+  const [sub, setSub] = useState<Sub>('inicio')
   const TABS: { id: Sub; label: string; icon: React.ReactNode }[] = [
+    { id: 'inicio', label: 'Inicio', icon: <Home size={15} /> },
     { id: 'ficha', label: 'Personas', icon: <Users size={15} /> },
     { id: 'noticias', label: 'Noticias', icon: <Megaphone size={15} /> },
     { id: 'asistencia', label: 'Asistencia', icon: <Clock size={15} /> },
@@ -469,6 +511,7 @@ export default function HubIntranetDemo({ rol }: { rol: Rol }) {
           </button>
         ))}
       </div>
+      {sub === 'inicio' && <Inicio />}
       {sub === 'ficha' && <ModuloEmpleados rol={rol} />}
       {sub === 'noticias' && <Noticias rol={rol} />}
       {sub === 'asistencia' && <Asistencia />}

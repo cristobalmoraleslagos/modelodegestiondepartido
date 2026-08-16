@@ -36,7 +36,7 @@ const NAV: NavItem[] = [
   { id: 'compliance',   label: 'Compliance',       icon: <ShieldAlert size={18} />,group: 'Legal'        },
   { id: 'rendicion',    label: 'Rendición SERVEL', icon: <FileDown size={18} />,   group: 'Legal'        },
   { id: 'intranet',     label: 'Intranet Rendición', icon: <KeyRound size={18} />, group: 'Intranet'     },
-  { id: 'rrhh',         label: 'Recursos Humanos', icon: <UserCog size={18} />,    group: 'Intranet'     },
+  { id: 'rrhh',         label: 'Portal del Militante', icon: <UserCog size={18} />, group: 'Intranet'     },
   { id: 'datos',        label: 'Carga de Datos',   icon: <ClipboardList size={18} />, group: 'Sistema'   },
 ]
 
@@ -63,7 +63,7 @@ const TITLES: Record<Tab, string> = {
   compliance:   'Compliance — Alertas Legales y Calendario',
   rendicion:    'Rendición SERVEL — Exportación de Módulos DS 1174/2016',
   intranet:     'Intranet de Rendición — Carga BHE, Contratos e Informes',
-  rrhh:         'Recursos Humanos — Portal del funcionario/a',
+  rrhh:         'Portal del Militante — RRHH e Intranet',
   datos:        'Carga de Datos Reales',
 }
 

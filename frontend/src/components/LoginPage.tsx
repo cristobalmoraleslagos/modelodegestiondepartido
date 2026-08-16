@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck, KeyRound } from 'lucide-react'
+import { Lock, User, AlertCircle, Eye, EyeOff, ShieldCheck, KeyRound, Quote } from 'lucide-react'
 import { login, cambiarPassword } from '../auth'
+import { fraseDelDia } from '../data/inspiracion'
 
 interface Props { onLogin: () => void }
 
@@ -10,6 +11,7 @@ export default function LoginPage({ onLogin }: Props) {
   const [verClave, setVerClave] = useState(false)
   const [error, setError]     = useState('')
   const [cargando, setCargando] = useState(false)
+  const frase = fraseDelDia()
 
   // Cambio forzado de contraseña en el primer ingreso
   const [forzarCambio, setForzarCambio] = useState(false)
@@ -63,8 +65,14 @@ export default function LoginPage({ onLogin }: Props) {
           <div className="inline-flex items-center justify-center w-14 h-14 bg-amaranto-600 rounded-2xl shadow-lg mb-6">
             <ShieldCheck size={28} className="text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-white leading-tight">Portal del<br />funcionario/a</h2>
+          <h2 className="text-3xl font-bold text-white leading-tight">Portal del<br />Militante</h2>
           <p className="text-slate-400 mt-3 max-w-sm">Recursos Humanos e intranet del Partido Comunista de Chile, en un solo lugar.</p>
+          {/* Frase del día */}
+          <figure className="mt-6 border-l-2 border-amaranto-500 pl-4 max-w-md">
+            <Quote size={16} className="text-amaranto-400 mb-1" />
+            <blockquote className="text-sm text-slate-200 italic leading-relaxed">"{frase.texto}"</blockquote>
+            <figcaption className="text-xs text-amaranto-300 mt-1.5">— {frase.autor}</figcaption>
+          </figure>
         </div>
         <div className="relative z-10">
           <p className="text-xs font-semibold text-amaranto-300 uppercase tracking-widest mb-3">Qué puedes hacer</p>
