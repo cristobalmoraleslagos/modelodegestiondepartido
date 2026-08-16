@@ -12,7 +12,7 @@
 import { useEffect, useState } from 'react'
 import {
   Clock, FileText, BarChart3, Cake, Plane, CalendarDays,
-  LogIn, LogOut, Plus, Trash2, Ban, CheckCircle2, Info, Users,
+  LogIn, LogOut, Plus, Trash2, Ban, CheckCircle2, Info, Users, Megaphone,
 } from 'lucide-react'
 import { fmt } from '../utils'
 import type { Rol } from '../auth'
@@ -361,13 +361,89 @@ function Informes() {
   )
 }
 
+// ════════════════════════════════ NOTICIAS / BANNERS ════════════════════════
+interface Noticia { id: number; titulo: string; cuerpo: string; tipo: 'banner' | 'noticia'; fecha: string }
+const SEED_NOTICIAS: Noticia[] = [
+  { id: 1, titulo: 'Bienvenida al nuevo portal', cuerpo: 'Ya está disponible el Portal del funcionario/a: ficha, asistencia, boletas, vacaciones y más.', tipo: 'banner', fecha: hoyISO() },
+  { id: 2, titulo: 'Recordatorio: cotizaciones al día', cuerpo: 'Las cotizaciones previsionales se pagan hasta el día 13 del mes siguiente.', tipo: 'noticia', fecha: hoyISO() },
+]
+
+function Noticias({ rol }: { rol: Rol }) {
+  const esAdmin = rol === 'admin'
+  const [lista, setLista] = useLocal<Noticia[]>('fp_demo_noticias', SEED_NOTICIAS)
+  const [f, setF] = useState<{ titulo: string; cuerpo: string; tipo: 'banner' | 'noticia' }>({ titulo: '', cuerpo: '', tipo: 'noticia' })
+
+  function add() {
+    if (!f.titulo.trim() || !f.cuerpo.trim()) return
+    setLista([{ id: Date.now(), titulo: f.titulo.trim(), cuerpo: f.cuerpo.trim(), tipo: f.tipo, fecha: hoyISO() }, ...lista])
+    setF({ titulo: '', cuerpo: '', tipo: 'noticia' })
+  }
+
+  const banners = lista.filter(n => n.tipo === 'banner')
+  const noticias = lista.filter(n => n.tipo === 'noticia')
+
+  return (
+    <div className="space-y-5">
+      {/* Banners destacados */}
+      {banners.map(b => (
+        <div key={b.id} className="bg-gradient-to-r from-amaranto-600 to-amaranto-700 text-white rounded-2xl px-5 py-4 flex items-start gap-3 shadow-sm">
+          <Megaphone size={20} className="shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-semibold text-sm">{b.titulo}</p>
+            <p className="text-xs text-white/90 mt-0.5">{b.cuerpo}</p>
+          </div>
+          {esAdmin && <button onClick={() => setLista(lista.filter(x => x.id !== b.id))} className="text-white/70 hover:text-white p-1" title="Eliminar"><Trash2 size={15} /></button>}
+        </div>
+      ))}
+
+      {/* Alta (solo admin) */}
+      {esAdmin && (
+        <Card>
+          <h2 className="text-base font-semibold text-slate-800 mb-1">Publicar comunicado</h2>
+          <p className="text-xs text-slate-500 mb-3">Un banner se destaca arriba; una noticia va al listado.</p>
+          <div className="grid md:grid-cols-2 gap-3">
+            <input className={inp} placeholder="Título" value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} />
+            <select className={inp} value={f.tipo} onChange={e => setF({ ...f, tipo: e.target.value as 'banner' | 'noticia' })}>
+              <option value="noticia">Noticia</option>
+              <option value="banner">Banner destacado</option>
+            </select>
+            <textarea className={`${inp} md:col-span-2`} rows={2} placeholder="Cuerpo del comunicado" value={f.cuerpo} onChange={e => setF({ ...f, cuerpo: e.target.value })} />
+          </div>
+          <div className="mt-3"><button onClick={add} className={btnP}><Plus size={15} /> Publicar</button></div>
+        </Card>
+      )}
+
+      {/* Feed de noticias */}
+      <Card>
+        <h2 className="text-base font-semibold text-slate-800 mb-3">Noticias y comunicados</h2>
+        <div className="space-y-3">
+          {noticias.length === 0 && <p className="py-6 text-center text-slate-400 text-sm">Sin noticias publicadas.</p>}
+          {noticias.map(n => (
+            <div key={n.id} className="border border-slate-100 rounded-xl px-4 py-3 flex items-start gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium text-slate-800 text-sm">{n.titulo}</p>
+                  <span className="text-xs text-slate-400">{n.fecha}</span>
+                </div>
+                <p className="text-sm text-slate-600 mt-0.5">{n.cuerpo}</p>
+              </div>
+              {esAdmin && <button onClick={() => setLista(lista.filter(x => x.id !== n.id))} className="text-slate-400 hover:text-red-600 p-1" title="Eliminar"><Trash2 size={15} /></button>}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 // ════════════════════════════════ HUB ═══════════════════════════════════════
-type Sub = 'ficha' | 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
+type Sub = 'ficha' | 'noticias' | 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
 
 export default function HubIntranetDemo({ rol }: { rol: Rol }) {
   const [sub, setSub] = useState<Sub>('ficha')
   const TABS: { id: Sub; label: string; icon: React.ReactNode }[] = [
     { id: 'ficha', label: 'Personas', icon: <Users size={15} /> },
+    { id: 'noticias', label: 'Noticias', icon: <Megaphone size={15} /> },
     { id: 'asistencia', label: 'Asistencia', icon: <Clock size={15} /> },
     { id: 'boletas', label: 'Boletas', icon: <FileText size={15} /> },
     { id: 'informes', label: 'Informes', icon: <BarChart3 size={15} /> },
@@ -394,6 +470,7 @@ export default function HubIntranetDemo({ rol }: { rol: Rol }) {
         ))}
       </div>
       {sub === 'ficha' && <ModuloEmpleados rol={rol} />}
+      {sub === 'noticias' && <Noticias rol={rol} />}
       {sub === 'asistencia' && <Asistencia />}
       {sub === 'boletas' && <Boletas />}
       {sub === 'informes' && <Informes />}

@@ -53,7 +53,42 @@ export default function LoginPage({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0f172a] flex">
+      {/* ── Hero institucional (desktop) — imagen + qué hace el sistema ── */}
+      <div className="hidden lg:flex flex-col justify-center gap-8 w-[46%] p-14 relative overflow-hidden bg-gradient-to-br from-amaranto-900/50 via-slate-900 to-slate-950 border-r border-slate-800">
+        {/* Para una foto real: reemplazar los blur decorativos por un <img> o bg-image institucional */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-amaranto-600/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-indigo-800/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-amaranto-600 rounded-2xl shadow-lg mb-6">
+            <ShieldCheck size={28} className="text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-white leading-tight">Portal del<br />funcionario/a</h2>
+          <p className="text-slate-400 mt-3 max-w-sm">Recursos Humanos e intranet del Partido Comunista de Chile, en un solo lugar.</p>
+        </div>
+        <div className="relative z-10">
+          <p className="text-xs font-semibold text-amaranto-300 uppercase tracking-widest mb-3">Qué puedes hacer</p>
+          <ul className="space-y-2.5">
+            {[
+              'Consultar la ficha de personas',
+              'Registrar tu asistencia (ingreso/salida)',
+              'Cargar boletas de honorarios (BHE)',
+              'Solicitar vacaciones y permisos',
+              'Ver calendario, cumpleaños y comunicados',
+              'Generar y revisar informes internos',
+            ].map(t => (
+              <li key={t} className="flex items-start gap-2.5 text-sm text-slate-300">
+                <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-amaranto-600 flex items-center justify-center text-white text-[10px] leading-none">✓</span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="relative z-10 text-xs text-slate-600">PCCh · RUT 71.701.800-1 · SERVEL PP007</p>
+      </div>
+
+      {/* ── Columna de acceso ── */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 relative">
       {/* Fondo decorativo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-900/20 rounded-full blur-3xl" />
@@ -224,6 +259,7 @@ export default function LoginPage({ onLogin }: Props) {
           <p className="text-xs text-slate-700">Acceso restringido a personal autorizado</p>
           <p className="text-xs text-slate-800">Ley 21.719 · Protección de Datos Personales · Chile</p>
         </div>
+      </div>
       </div>
     </div>
   )
