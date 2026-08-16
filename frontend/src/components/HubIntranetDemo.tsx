@@ -12,9 +12,11 @@
 import { useEffect, useState } from 'react'
 import {
   Clock, FileText, BarChart3, Cake, Plane, CalendarDays,
-  LogIn, LogOut, Plus, Trash2, Ban, CheckCircle2, Info,
+  LogIn, LogOut, Plus, Trash2, Ban, CheckCircle2, Info, Users,
 } from 'lucide-react'
 import { fmt } from '../utils'
+import type { Rol } from '../auth'
+import ModuloEmpleados from './ModuloEmpleados'
 
 // ── Persistencia local ──────────────────────────────────────────────────────
 function useLocal<T>(key: string, initial: T) {
@@ -360,11 +362,12 @@ function Informes() {
 }
 
 // ════════════════════════════════ HUB ═══════════════════════════════════════
-type Sub = 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
+type Sub = 'ficha' | 'asistencia' | 'boletas' | 'informes' | 'cumple' | 'vacaciones' | 'hitos'
 
-export default function HubIntranetDemo() {
-  const [sub, setSub] = useState<Sub>('asistencia')
+export default function HubIntranetDemo({ rol }: { rol: Rol }) {
+  const [sub, setSub] = useState<Sub>('ficha')
   const TABS: { id: Sub; label: string; icon: React.ReactNode }[] = [
+    { id: 'ficha', label: 'Personas', icon: <Users size={15} /> },
     { id: 'asistencia', label: 'Asistencia', icon: <Clock size={15} /> },
     { id: 'boletas', label: 'Boletas', icon: <FileText size={15} /> },
     { id: 'informes', label: 'Informes', icon: <BarChart3 size={15} /> },
@@ -390,6 +393,7 @@ export default function HubIntranetDemo() {
           </button>
         ))}
       </div>
+      {sub === 'ficha' && <ModuloEmpleados rol={rol} />}
       {sub === 'asistencia' && <Asistencia />}
       {sub === 'boletas' && <Boletas />}
       {sub === 'informes' && <Informes />}

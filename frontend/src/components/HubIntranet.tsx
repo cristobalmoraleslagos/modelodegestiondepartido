@@ -23,7 +23,7 @@ export default function HubIntranet({ rol }: { rol: Rol }) {
 
   // Sin backend → réplica DEMO funcional (localStorage), visible sin servidor.
   if (!API_DISPONIBLE) {
-    return <HubIntranetDemo />
+    return <HubIntranetDemo rol={rol} />
   }
 
   return (

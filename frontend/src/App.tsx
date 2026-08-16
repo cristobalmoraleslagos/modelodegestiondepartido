@@ -63,7 +63,7 @@ const TITLES: Record<Tab, string> = {
   compliance:   'Compliance — Alertas Legales y Calendario',
   rendicion:    'Rendición SERVEL — Exportación de Módulos DS 1174/2016',
   intranet:     'Intranet de Rendición — Carga BHE, Contratos e Informes',
-  rrhh:         'Recursos Humanos — Ficha de Funcionarios/as',
+  rrhh:         'Recursos Humanos — Portal del funcionario/a',
   datos:        'Carga de Datos Reales',
 }
 
